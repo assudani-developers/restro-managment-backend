@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="apps/web/public/brand-lockup.png" alt="KhaoBhar" width="520">
+<img src="apps/web/public/brand-lockup.png" alt="RestroCore" width="520">
 
 <img src="docs/orderrestro-cover.jpg" alt="Illustrative evening scene in an independent restaurant" width="100%">
 
-# KhaoBhar (खाओभर)
+# RestroCore (खाओभर)
 
 **The Complete Offline-First Restaurant POS & Management System** — lightning-fast billing
 with **UPI QR payments**, tables, kitchen display (KDS), reservations,
@@ -382,7 +382,7 @@ service from Docker Compose).
 pnpm install
 docker compose up -d postgres
 cp apps/backend/.env.example apps/backend/.env   # point DATABASE_URL at your Postgres
-pnpm --filter @khaobhar/types build
+pnpm --filter @restrocore/types build
 cd apps/backend && npx prisma migrate dev && npx ts-node prisma/seed.ts && cd ../..
 pnpm dev   # runs backend (:4001) and web (:1995) together via Turborepo
 ```
@@ -416,7 +416,7 @@ docker compose up -d --build
 ```bash
 git pull
 pnpm install
-pnpm --filter @khaobhar/types build
+pnpm --filter @restrocore/types build
 cd apps/backend && npx prisma migrate dev && cd ../..
 pnpm dev
 ```

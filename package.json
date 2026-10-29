@@ -1,8 +1,8 @@
 {
-  "name": "khaobhar",
+  "name": "restrocore",
   "private": true,
   "version": "0.1.0",
-  "description": "KhaoBhar — Modern Offline-First Restaurant POS & Management System",
+  "description": "RestroCore — Modern Offline-First Restaurant POS & Management System",
   "author": "Raktim Ranjit <mail@raktimranjit.com> (https://github.com/Raktim94)",
   "license": "AGPL-3.0-only",
   "repository": {

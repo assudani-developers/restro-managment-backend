@@ -1,18 +1,18 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: khaobhar-postgres
+    container_name: restrocore-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: khaobhar
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-khaobhar_dev_pw}
-      POSTGRES_DB: khaobhar_restaurant
+      POSTGRES_USER: restrocore
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-restrocore_dev_pw}
+      POSTGRES_DB: restrocore_restaurant
     expose:
       - "5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U khaobhar"]
+      test: ["CMD-SHELL", "pg_isready -U restrocore"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -23,11 +23,11 @@ services:
       dockerfile: apps/backend/Dockerfile
       args:
         APP_VERSION: "${APP_VERSION:-dev}"
-    image: khaobhar-backend:${APP_VERSION:-dev}
-    container_name: khaobhar-backend
+    image: restrocore-backend:${APP_VERSION:-dev}
+    container_name: restrocore-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://khaobhar:${POSTGRES_PASSWORD:-khaobhar_dev_pw}@postgres:5432/khaobhar_restaurant"
+      DATABASE_URL: "postgresql://restrocore:${POSTGRES_PASSWORD:-restrocore_dev_pw}@postgres:5432/restrocore_restaurant"
       JWT_SECRET: ${JWT_SECRET:?set a real JWT_SECRET in .env for anything beyond local dev}
       JWT_EXPIRES_IN: "12h"
       PORT: "4000"
@@ -100,8 +100,8 @@ services:
         # Next bakes rewrite destinations at BUILD time — this must be a
         # build ARG, not a runtime env (see apps/web/Dockerfile comment).
         BACKEND_URL: "http://backend:4000"
-    image: khaobhar-web:${APP_VERSION:-dev}
-    container_name: khaobhar-web
+    image: restrocore-web:${APP_VERSION:-dev}
+    container_name: restrocore-web
     restart: unless-stopped
     ports:
       - "${HOST_PORT:-1995}:3000"
@@ -111,12 +111,12 @@ services:
   updater:
     build:
       context: ./updater
-    image: khaobhar-updater:latest
-    container_name: khaobhar-updater
+    image: restrocore-updater:latest
+    container_name: restrocore-updater
     restart: unless-stopped
     environment:
-      UPDATER_TOKEN: "${UPDATER_TOKEN:-khaobhar-restaurant-updater}"
-      TARGET_CONTAINERS: "khaobhar-backend,khaobhar-web"
+      UPDATER_TOKEN: "${UPDATER_TOKEN:-restrocore-restaurant-updater}"
+      TARGET_CONTAINERS: "restrocore-backend,restrocore-web"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
