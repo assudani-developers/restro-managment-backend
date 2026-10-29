@@ -5,7 +5,7 @@ import type {
   RestaurantSettingsDto,
   TaxMode,
   TaxRegime,
-} from "@nodedr-restaurant/types";
+} from "@khaobhar/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 

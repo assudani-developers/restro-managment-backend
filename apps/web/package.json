@@ -1,6 +1,7 @@
 {
-  "name": "web",
+  "name": "@khaobhar/web",
   "version": "0.1.0",
+  "description": "KhaoBhar Web & POS Frontend",
   "private": true,
   "author": "Raktim Ranjit <mail@raktimranjit.com> (https://github.com/Raktim94)",
   "license": "AGPL-3.0-only",
@@ -15,7 +16,7 @@
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@hookform/resolvers": "^3.10.0",
-    "@nodedr-restaurant/types": "workspace:*",
+    "@khaobhar/types": "workspace:*",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",

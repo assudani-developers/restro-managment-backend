@@ -1,6 +1,6 @@
 {
-  "name": "Nodedr OrderRestro",
-  "short_name": "OrderRestro",
+  "name": "KhaoBhar",
+  "short_name": "KhaoBhar",
   "description": "Offline-first restaurant management system — POS, tables, kitchen display, menu, inventory.",
   "start_url": "/",
   "scope": "/",

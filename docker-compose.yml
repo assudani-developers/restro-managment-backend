@@ -1,22 +1,18 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: nodedr-restaurant-postgres
+    container_name: khaobhar-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: nodedr
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nodedr_dev_pw}
-      POSTGRES_DB: nodedr_restaurant
-    # Not published to the host — only the backend needs it, over the
-    # internal Docker network. Uncomment `ports` below for local psql access.
+      POSTGRES_USER: khaobhar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-khaobhar_dev_pw}
+      POSTGRES_DB: khaobhar_restaurant
     expose:
       - "5432"
-    # ports:
-    #   - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nodedr"]
+      test: ["CMD-SHELL", "pg_isready -U khaobhar"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -27,14 +23,11 @@ services:
       dockerfile: apps/backend/Dockerfile
       args:
         APP_VERSION: "${APP_VERSION:-dev}"
-    # Same name CI publishes. `up --build` tags the local build with it, and
-    # the in-app "Update now" button (see the `updater` service below) pulls
-    # the published image of a newer version under it.
-    image: ghcr.io/raktim94/nodedr-restaurant-pos-backend:${APP_VERSION:-dev}
-    container_name: nodedr-restaurant-backend
+    image: khaobhar-backend:${APP_VERSION:-dev}
+    container_name: khaobhar-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://nodedr:${POSTGRES_PASSWORD:-nodedr_dev_pw}@postgres:5432/nodedr_restaurant"
+      DATABASE_URL: "postgresql://khaobhar:${POSTGRES_PASSWORD:-khaobhar_dev_pw}@postgres:5432/khaobhar_restaurant"
       JWT_SECRET: ${JWT_SECRET:?set a real JWT_SECRET in .env for anything beyond local dev}
       JWT_EXPIRES_IN: "12h"
       PORT: "4000"
@@ -107,31 +100,23 @@ services:
         # Next bakes rewrite destinations at BUILD time — this must be a
         # build ARG, not a runtime env (see apps/web/Dockerfile comment).
         BACKEND_URL: "http://backend:4000"
-    image: ghcr.io/raktim94/nodedr-restaurant-pos-web:${APP_VERSION:-dev}
-    container_name: nodedr-restaurant-web
+    image: khaobhar-web:${APP_VERSION:-dev}
+    container_name: khaobhar-web
     restart: unless-stopped
     ports:
       - "${HOST_PORT:-1995}:3000"
     depends_on:
       - backend
 
-  # One-click updates. A tiny sidecar (see updater/server.js) that does
-  # NOTHING on its own — no polling, no auto-update. When an admin presses
-  # Settings > Updates > "Update now", the backend tells it which published
-  # version to move to; it pulls that exact version of the backend and web
-  # images and recreates those two containers with the same settings (data
-  # volumes untouched, rolled back if it fails). It needs the Docker socket,
-  # which is why it is its own container on the internal network (no
-  # published port) instead of privilege handed to the app backend.
   updater:
     build:
       context: ./updater
-    image: ghcr.io/raktim94/nodedr-restaurant-pos-updater:latest
-    container_name: nodedr-restaurant-updater
+    image: khaobhar-updater:latest
+    container_name: khaobhar-updater
     restart: unless-stopped
     environment:
-      UPDATER_TOKEN: "${UPDATER_TOKEN:-nodedr-restaurant-updater}"
-      TARGET_CONTAINERS: "nodedr-restaurant-backend,nodedr-restaurant-web"
+      UPDATER_TOKEN: "${UPDATER_TOKEN:-khaobhar-restaurant-updater}"
+      TARGET_CONTAINERS: "khaobhar-backend,khaobhar-web"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

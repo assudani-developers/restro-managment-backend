@@ -37,11 +37,10 @@ export function MarketingFooter() {
           <div>
             <Link href="/" className="flex items-center gap-2.5">
               <Logo size={28} />
-              <span className="text-sm font-semibold text-foreground">OrderRestro</span>
+              <span className="text-sm font-semibold text-foreground">KhaoBhar</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Offline-first restaurant management, self-hosted on your own
-              server. Built by Nodedr Infotech Private Limited.
+              Offline-first restaurant management & billing system. Self-hosted on your own server.
             </p>
           </div>
 

@@ -1,15 +1,16 @@
 <div align="center">
 
-<img src="apps/web/public/brand-lockup.png" alt="Nodedr OrderRestro" width="520">
+<img src="apps/web/public/brand-lockup.png" alt="KhaoBhar" width="520">
 
 <img src="docs/orderrestro-cover.jpg" alt="Illustrative evening scene in an independent restaurant" width="100%">
 
-**Open-source, self-hosted restaurant POS & management system** — billing
+# KhaoBhar (खाओभर)
+
+**The Complete Offline-First Restaurant POS & Management System** — lightning-fast billing
 with **UPI QR payments**, tables, kitchen display (KDS), reservations,
 inventory, **staff attendance & payroll**, accounting, reports, CRM/loyalty
-and multi-branch control. Offline-first, runs on your own server, no
-subscription. Not a retail POS bolted onto a restaurant; purpose-built for
-dine-in, takeaway, delivery and kitchen operations.
+and multi-branch control. Offline-first, runs on your own server, zero
+subscriptions. Built specifically for dine-in, takeaway, delivery and busy kitchen operations.
 
 [![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-339933?logo=node.js&logoColor=white)](package.json)
@@ -381,7 +382,7 @@ service from Docker Compose).
 pnpm install
 docker compose up -d postgres
 cp apps/backend/.env.example apps/backend/.env   # point DATABASE_URL at your Postgres
-pnpm --filter @nodedr-restaurant/types build
+pnpm --filter @khaobhar/types build
 cd apps/backend && npx prisma migrate dev && npx ts-node prisma/seed.ts && cd ../..
 pnpm dev   # runs backend (:4001) and web (:1995) together via Turborepo
 ```
@@ -415,7 +416,7 @@ docker compose up -d --build
 ```bash
 git pull
 pnpm install
-pnpm --filter @nodedr-restaurant/types build
+pnpm --filter @khaobhar/types build
 cd apps/backend && npx prisma migrate dev && cd ../..
 pnpm dev
 ```

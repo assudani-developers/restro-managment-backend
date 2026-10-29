@@ -4,7 +4,7 @@ import {
   DEFAULT_ROLE_PERMISSIONS,
   PERMISSIONS,
   STAFF_ROLES,
-} from '@nodedr-restaurant/types';
+} from '@khaobhar/types';
 
 // Deliberately not imported from src/modules/orders/pricing — the runtime
 // image only ships apps/backend/dist + prisma (see ARCHITECTURE.md /
@@ -43,22 +43,27 @@ async function main() {
   console.log('Creating demo restaurant + branch...');
   const restaurant = await prisma.restaurant.upsert({
     where: { id: 'demo-restaurant' },
-    update: {},
+    update: {
+      name: 'KhaoBhar Express (Demo)',
+    },
     create: {
       id: 'demo-restaurant',
-      name: 'Nodedr Bistro (Demo)',
+      name: 'KhaoBhar Express (Demo)',
       currency: 'INR',
     },
   });
 
   const branch = await prisma.branch.upsert({
     where: { id: 'demo-branch' },
-    update: {},
+    update: {
+      name: 'KhaoBhar Connaught Place',
+      address: '12, Inner Circle, Connaught Place, New Delhi',
+    },
     create: {
       id: 'demo-branch',
       restaurantId: restaurant.id,
-      name: 'Main Branch',
-      address: '123 Demo Street',
+      name: 'KhaoBhar Connaught Place',
+      address: '12, Inner Circle, Connaught Place, New Delhi',
     },
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginDto } from "@nodedr-restaurant/types";
+import { loginSchema, type LoginDto } from "@khaobhar/types";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -64,10 +64,10 @@ export default function LoginPage() {
       >
         <div className="mb-10 flex flex-col items-center gap-2 text-center">
           <Link href="/">
-            <Logo size={44} />
+            <Logo size={48} />
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Nodedr OrderRestro
+            KhaoBhar
           </h1>
           <p className="text-sm text-muted-foreground">Sign in to manage your restaurant</p>
         </div>

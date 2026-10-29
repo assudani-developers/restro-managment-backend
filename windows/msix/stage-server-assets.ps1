@@ -141,8 +141,8 @@ try {
     & pnpm install --frozen-lockfile
     if ($LASTEXITCODE -ne 0) { throw "pnpm install failed with exit code $LASTEXITCODE" }
 
-    Write-Host "-- Building @nodedr-restaurant/types" -ForegroundColor Yellow
-    & pnpm --filter '@nodedr-restaurant/types' build
+    Write-Host "-- Building @khaobhar/types" -ForegroundColor Yellow
+    & pnpm --filter '@khaobhar/types' build
     if ($LASTEXITCODE -ne 0) { throw "types build failed with exit code $LASTEXITCODE" }
 
     # Runs ON windows-latest, so Prisma's "native" binaryTarget (no
@@ -413,7 +413,7 @@ if (-not (Test-Path (Join-Path $postgresStage 'bin\pg_ctl.exe'))) {
 # --- 6. Strip any stray .env-shaped files that leaked in ------------------
 # pnpm's virtual store links each workspace package's node_modules entry
 # back to its real source directory (that's how e.g. `require
-# ('@nodedr-restaurant/types')` resolves at runtime) — dereferencing those
+# ('@khaobhar/types')` resolves at runtime) — dereferencing those
 # via robocopy above pulls in whatever else lives in that source directory
 # too, including apps/backend/.env.example (a template with no real
 # secrets, but still not something that belongs in a shipped package).
