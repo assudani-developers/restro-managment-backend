@@ -19,34 +19,36 @@ export function LiveStatus() {
   return (
     <div className="flex flex-col gap-2">
       {state === "offline" && (
-        <p role="status" className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">
-          <WifiOff className="h-4 w-4 shrink-0" aria-hidden />
-          Live updates are paused - reconnecting. Tickets still refresh every few seconds; nothing is lost.
+        <p role="status" className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-800">
+          <WifiOff className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
+          Live updates paused - reconnecting in background. No tickets lost.
         </p>
       )}
       <div className="flex flex-wrap items-center gap-2">
         {!muted && !unlocked && (
           <Button
             type="button"
-            className="h-11"
+            size="sm"
+            className="h-8.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs px-3 shadow-2xs gap-1.5"
             onClick={() => {
               void unlockAudio().then((ok) => ok && playNotificationFeedback());
             }}
           >
-            <Volume2 className="h-4 w-4" aria-hidden />
-            Tap to turn on new-ticket sound
+            <Volume2 className="h-3.5 w-3.5" aria-hidden />
+            Enable Audio Chime
           </Button>
         )}
         <Button
           type="button"
           variant="outline"
-          className="h-11"
+          size="sm"
+          className="h-8.5 rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 shadow-2xs gap-1.5"
           aria-pressed={muted}
           onClick={toggleMute}
-          title="Per-device setting"
+          title="Per-device audio setting"
         >
-          {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
-          {muted ? "Sound off" : "Sound on"}
+          {muted ? <VolumeX className="h-3.5 w-3.5 text-slate-400" aria-hidden /> : <Volume2 className="h-3.5 w-3.5 text-indigo-600" aria-hidden />}
+          {muted ? "Muted" : "Chime On"}
         </Button>
       </div>
     </div>

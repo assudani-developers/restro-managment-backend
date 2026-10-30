@@ -10,9 +10,11 @@ import { useForm } from "react-hook-form";
 import {
   AlertCircle,
   ArrowRight,
+  Building2,
   CheckCircle2,
   ChefHat,
   CreditCard,
+  Key,
   Layers,
   Lock,
   Mail,
@@ -43,8 +45,8 @@ export default function LoginPage() {
   } = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@khaobhar.com",
-      password: "Password123!",
+      email: "superadmin@restrocore.com",
+      password: "SuperAdmin@2026!",
     },
   });
 
@@ -70,9 +72,9 @@ export default function LoginPage() {
     });
   };
 
-  const fillCredentials = (email: string) => {
+  const fillCredentials = (email: string, pass = "Password123!") => {
     setValue("email", email, { shouldValidate: true });
-    setValue("password", "Password123!", { shouldValidate: true });
+    setValue("password", pass, { shouldValidate: true });
     setError(null);
   };
 
@@ -181,38 +183,38 @@ export default function LoginPage() {
           </div>
 
           {/* Quick Demo Pre-Fill Chips for User Convenience */}
-          <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3.5">
-            <div className="mb-2 flex items-center justify-between text-xs font-semibold text-indigo-900">
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-                Quick Demo Accounts (1-Click Fill)
+          <div className="mb-6 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs">
+            <div className="mb-2.5 flex items-center justify-between text-xs font-semibold text-slate-700">
+              <span className="flex items-center gap-1.5 text-slate-900 font-bold">
+                <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                Select Demo Credentials
               </span>
-              <span className="text-[10px] text-indigo-600 font-mono">Password123!</span>
+              <span className="text-[11px] text-slate-500 font-mono">1-Click Auto Fill</span>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => fillCredentials("superadmin@restrocore.com")}
-                className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-900 shadow-sm transition-all hover:bg-amber-600 hover:text-white hover:border-amber-600"
+                onClick={() => fillCredentials("superadmin@restrocore.com", "SuperAdmin@2026!")}
+                className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50/80 px-3 py-1.5 text-xs font-bold text-amber-950 shadow-2xs transition-all hover:bg-amber-600 hover:text-white hover:border-amber-600"
               >
                 <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                👑 SuperAdmin (SaaS Malik)
+                Platform SuperAdmin
               </button>
               <button
                 type="button"
-                onClick={() => fillCredentials("admin@khaobhar.com")}
-                className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+                onClick={() => fillCredentials("admin@khaobhar.com", "Password123!")}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900"
               >
-                <ShieldCheck className="h-3.5 w-3.5" />
-                🏨 Hotel Owner (Admin)
+                <Building2 className="h-3.5 w-3.5 text-indigo-600" />
+                Hotel Owner (Admin)
               </button>
               <button
                 type="button"
-                onClick={() => fillCredentials("admin@restrocore.com")}
-                className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+                onClick={() => fillCredentials("admin@restrocore.com", "Password123!")}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900"
               >
-                <ShieldCheck className="h-3.5 w-3.5" />
-                ⚡ RestroCore Admin
+                <Key className="h-3.5 w-3.5 text-indigo-600" />
+                Restaurant Manager
               </button>
             </div>
           </div>

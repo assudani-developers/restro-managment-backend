@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import type { SessionUser } from "@restrocore/types";
 import { hasPermission } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
@@ -28,16 +29,22 @@ export function SidebarNav({
           href="/superadmin"
           onClick={onNavigate}
           className={cn(
-            "mb-2.5 flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all shadow-xs",
+            "mb-2.5 flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all shadow-xs border",
             pathname === "/superadmin"
-              ? "bg-amber-600 text-white shadow-amber-600/25 ring-2 ring-amber-600/30"
-              : "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700",
+              ? "bg-amber-600 text-white border-amber-600 shadow-amber-600/25"
+              : "bg-amber-50 text-amber-950 border-amber-200/90 hover:bg-amber-100/80 hover:border-amber-300",
           )}
         >
           <span className="flex items-center gap-2">
-            👑 SuperAdmin Hub
+            <ShieldCheck className={cn("h-4 w-4 shrink-0", pathname === "/superadmin" ? "text-white" : "text-amber-700")} />
+            SuperAdmin Hub
           </span>
-          <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+          <span
+            className={cn(
+              "text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider",
+              pathname === "/superadmin" ? "bg-white/20 text-white" : "bg-amber-200/70 text-amber-900",
+            )}
+          >
             SaaS
           </span>
         </Link>

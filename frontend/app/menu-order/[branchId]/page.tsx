@@ -207,7 +207,7 @@ export default function CustomerQrMenuPage({
               <div>
                 <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Service Mode</span>
                 <p className="text-sm font-bold text-slate-800">
-                  {orderPlaced.type === "QR_ORDER" ? "🍽️ On-Table Dining" : "🛵 Direct Home Delivery"}
+                  {orderPlaced.type === "QR_ORDER" ? "On-Table Dining" : "Direct Home Delivery"}
                 </p>
               </div>
               <div className="text-right">

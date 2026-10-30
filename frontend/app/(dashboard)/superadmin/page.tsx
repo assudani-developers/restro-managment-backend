@@ -12,6 +12,7 @@ import {
   Plus,
   Power,
   Search,
+  ShieldCheck,
   Sparkles,
   Store,
   Trash2,
@@ -181,9 +182,9 @@ export default function SuperAdminHubPage() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               SuperAdmin Hub
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 ring-1 ring-amber-600/20">
-              <Sparkles className="h-3 w-3 text-amber-600" />
-              SaaS Malik Control
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-800 border border-slate-200 shadow-2xs">
+              <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
+              SaaS Platform Control
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -205,9 +206,9 @@ export default function SuperAdminHubPage() {
         <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Hotels</span>
-            <p className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
+            <div className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
               {stats?.totalRestaurants ?? <Skeleton className="h-8 w-12" />}
-            </p>
+            </div>
             <span className="text-[11px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3" /> {stats?.activeRestaurants ?? 0} Active on Platform
             </span>
@@ -220,9 +221,9 @@ export default function SuperAdminHubPage() {
         <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Outlets</span>
-            <p className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
+            <div className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
               {stats?.totalBranches ?? <Skeleton className="h-8 w-12" />}
-            </p>
+            </div>
             <span className="text-[11px] text-slate-500 font-medium mt-1 inline-block">
               Across all registered franchises
             </span>
@@ -235,9 +236,9 @@ export default function SuperAdminHubPage() {
         <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Platform GMV</span>
-            <p className="text-2xl font-extrabold text-emerald-600 mt-1 tabular-nums">
+            <div className="text-2xl font-extrabold text-emerald-600 mt-1 tabular-nums">
               {stats ? formatCurrency(stats.totalRevenue) : <Skeleton className="h-8 w-20" />}
-            </p>
+            </div>
             <span className="text-[11px] text-slate-500 font-medium mt-1 inline-block">
               Total paid sales processed
             </span>
@@ -574,3 +575,4 @@ export default function SuperAdminHubPage() {
     </div>
   );
 }
+
