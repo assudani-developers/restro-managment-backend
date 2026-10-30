@@ -58,17 +58,30 @@ export class RealtimeGateway
       const token = this.extractSessionCookie(client);
       if (!token) throw new Error('No session cookie');
 
-      const payload = this.jwt.verify<{ sub: string }>(token);
+      const payload = this.jwt.verify<{ sub: string; impersonatedRestaurantId?: string }>(token);
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
+        include: { restaurant: { select: { id: true, isActive: true } } },
       });
       if (!user || !user.isActive) throw new Error('Session no longer valid');
+
+      const isSuper = Boolean(user.isSuperAdmin);
+      const activeRestaurantId =
+        isSuper && payload.impersonatedRestaurantId
+          ? payload.impersonatedRestaurantId
+          : user.restaurantId;
+
+      if (!isSuper && user.restaurant && !user.restaurant.isActive) {
+        throw new Error('Restaurant account suspended');
+      }
 
       const branchId = client.handshake.query.branchId;
       if (typeof branchId !== 'string' || !branchId) {
         throw new Error('Missing branchId');
       }
-      await this.branchAccess.assertAccess(user.restaurantId, branchId);
+      if (!isSuper) {
+        await this.branchAccess.assertAccess(activeRestaurantId, branchId);
+      }
 
       await client.join(this.branchRoom(branchId));
       // Every socket also joins a room keyed to its own authenticated user

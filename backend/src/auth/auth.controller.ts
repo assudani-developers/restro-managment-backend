@@ -27,7 +27,7 @@ import { AuthService } from './auth.service';
 import { TwoFactorService } from './two-factor.service';
 
 const SESSION_COOKIE = 'restrocore_session';
-const COOKIE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+const COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000; // 365 days persistent session (No auto logout)
 
 // A `Secure` cookie is silently dropped by every browser on a plain
 // `http://` origin — including the default `http://<lan-ip>:1995` this app

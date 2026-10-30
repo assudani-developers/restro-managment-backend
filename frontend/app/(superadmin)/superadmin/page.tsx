@@ -6,8 +6,11 @@ import {
   Activity,
   ArrowRight,
   Building,
+  Check,
   CheckCircle2,
+  Copy,
   ExternalLink,
+  Key,
   Lock,
   LogOut,
   Mail,
@@ -81,6 +84,16 @@ export default function SuperAdminPortalPage() {
   const [ownerPassword, setOwnerPassword] = useState("Password123!");
   const [plan, setPlan] = useState("ENTERPRISE");
 
+  // Success modal for created credentials
+  const [createdSuccessData, setCreatedSuccessData] = useState<{
+    restaurantName: string;
+    ownerEmail: string;
+    ownerPassword: string;
+    restaurantId: string;
+    plan: string;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const statsQuery = useQuery({
     queryKey: ["superadmin", "overview"],
     queryFn: () => api.get<PlatformStats>("/superadmin/overview"),
@@ -89,6 +102,21 @@ export default function SuperAdminPortalPage() {
   const restaurantsQuery = useQuery({
     queryKey: ["superadmin", "restaurants"],
     queryFn: () => api.get<RestaurantItem[]>("/superadmin/restaurants"),
+  });
+
+  const switchRestaurantMutation = useMutation({
+    mutationFn: (restaurantId: string) =>
+      api.post<{ token: string; restaurant: { id: string; name: string }; branchId: string | null }>(
+        `/superadmin/restaurants/${restaurantId}/switch`,
+      ),
+    onSuccess: (data) => {
+      queryClient.clear();
+      toast.success(`Switched into ${data.restaurant.name}!`);
+      router.push("/dashboard");
+    },
+    onError: (err: any) => {
+      toast.error(err instanceof ApiError ? err.message : "Failed to switch restaurant");
+    },
   });
 
   const toggleStatusMutation = useMutation({
@@ -103,10 +131,18 @@ export default function SuperAdminPortalPage() {
   });
 
   const createRestaurantMutation = useMutation({
-    mutationFn: (payload: any) => api.post("/superadmin/restaurants", payload),
-    onSuccess: () => {
+    mutationFn: (payload: any) =>
+      api.post<{ restaurantId: string; restaurantName: string; ownerEmail: string }>("/superadmin/restaurants", payload),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["superadmin"] });
       setOnboardOpen(false);
+      setCreatedSuccessData({
+        restaurantName: data.restaurantName,
+        ownerEmail: data.ownerEmail,
+        ownerPassword,
+        restaurantId: data.restaurantId,
+        plan,
+      });
       setRestaurantName("");
       setOwnerName("");
       setOwnerEmail("");
@@ -370,10 +406,12 @@ export default function SuperAdminPortalPage() {
                         </Button>
                         <Button
                           size="sm"
-                          onClick={() => router.push("/dashboard")}
-                          className="h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold hover:bg-indigo-600 hover:text-white"
+                          disabled={switchRestaurantMutation.isPending}
+                          onClick={() => switchRestaurantMutation.mutate(hotel.id)}
+                          className="h-8 rounded-lg bg-indigo-600 border border-indigo-700 text-white text-xs font-bold hover:bg-indigo-700 shadow-2xs"
                         >
-                          Open Dashboard
+                          <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                          Launch & Manage
                         </Button>
                       </div>
                     </td>
@@ -474,6 +512,82 @@ export default function SuperAdminPortalPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Onboard Success Credentials Modal */}
+      <Dialog open={!!createdSuccessData} onOpenChange={() => setCreatedSuccessData(null)}>
+        <DialogContent className="max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-emerald-200">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+              Hotel Setup Complete!
+            </DialogTitle>
+          </DialogHeader>
+
+          {createdSuccessData && (
+            <div className="space-y-4 pt-2">
+              <p className="text-xs text-slate-600">
+                The restaurant & owner admin account have been provisioned on RestroCore SaaS. Share these credentials with the hotel owner:
+              </p>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2.5 font-mono text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-sans">Hotel Name:</span>
+                  <span className="font-bold text-slate-900">{createdSuccessData.restaurantName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-sans">Hotel ID:</span>
+                  <span className="text-slate-700">{createdSuccessData.restaurantId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-sans">SaaS Plan:</span>
+                  <span className="text-purple-700 font-bold">{createdSuccessData.plan}</span>
+                </div>
+                <div className="h-px bg-slate-200 my-1" />
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-sans">Admin Email:</span>
+                  <span className="font-bold text-indigo-700">{createdSuccessData.ownerEmail}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-sans">Password:</span>
+                  <span className="font-bold text-emerald-700">{createdSuccessData.ownerPassword}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const text = `RestroCore Hotel Admin Login:\nURL: http://localhost:3000/login\nEmail: ${createdSuccessData.ownerEmail}\nPassword: ${createdSuccessData.ownerPassword}\nHotel: ${createdSuccessData.restaurantName}`;
+                    navigator.clipboard.writeText(text);
+                    setCopied(true);
+                    toast.success("Credentials copied to clipboard!");
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="flex-1 h-11 rounded-xl border-slate-300 text-xs font-bold text-slate-800"
+                >
+                  {copied ? <Check className="h-4 w-4 mr-1.5 text-emerald-600" /> : <Copy className="h-4 w-4 mr-1.5 text-slate-500" />}
+                  {copied ? "Copied!" : "Copy Credentials"}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const id = createdSuccessData.restaurantId;
+                    setCreatedSuccessData(null);
+                    switchRestaurantMutation.mutate(id);
+                  }}
+                  className="flex-1 h-11 rounded-xl bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700"
+                >
+                  <ExternalLink className="h-4 w-4 mr-1.5" />
+                  Launch & Manage Now
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

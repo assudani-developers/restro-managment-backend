@@ -100,21 +100,18 @@ export class UsersService {
       throw new NotFoundException('Staff account not found');
     }
 
-    if (
-      (dto.isActive === false || dto.roleId) &&
-      existing.role.name === 'OWNER'
-    ) {
-      const otherActiveOwners = await this.prisma.user.count({
-        where: {
-          restaurantId,
-          isActive: true,
-          id: { not: id },
-          role: { name: 'OWNER' },
-        },
-      });
-      if (otherActiveOwners === 0) {
+    if (existing.role.name === 'OWNER') {
+      if (dto.email && existing.email && dto.email.toLowerCase() !== existing.email.toLowerCase()) {
         throw new BadRequestException(
-          'Cannot disable or change the role of the last active owner',
+          'The primary Owner email was established by the SaaS platform administrator and cannot be modified.',
+        );
+      }
+      if (dto.roleId && dto.roleId !== existing.roleId) {
+        throw new BadRequestException('The primary Owner role cannot be changed.');
+      }
+      if (dto.isActive === false) {
+        throw new BadRequestException(
+          'The primary Owner cannot be deactivated from inside the restaurant. Only SaaS SuperAdmin can suspend hotel access.',
         );
       }
     }

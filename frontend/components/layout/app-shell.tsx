@@ -1,7 +1,7 @@
 "use client";
 
 import type { SessionUser } from "@restrocore/types";
-import { ChefHat, Clock, LayoutGrid, Menu, ShoppingCart } from "lucide-react";
+import { ChefHat, Clock, LayoutGrid, Menu, ShoppingCart, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -157,6 +157,18 @@ export function AppShell({
           </div>
 
           <div className="flex items-center gap-2">
+            {user?.isSuperAdmin && (
+              <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-2.5 py-1 border border-amber-200 text-xs font-bold text-amber-900 shadow-2xs">
+                <Sparkles className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                <span className="hidden sm:inline">👑 SuperAdmin Mode</span>
+                <Link
+                  href="/superadmin"
+                  className="inline-flex items-center rounded-lg bg-amber-600 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-amber-700 transition-colors ml-1"
+                >
+                  Portal ↗
+                </Link>
+              </div>
+            )}
             <LiveClock />
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <NotificationBell />

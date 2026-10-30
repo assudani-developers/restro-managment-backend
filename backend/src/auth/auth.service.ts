@@ -49,9 +49,10 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findFirst({
-      where: { email: dto.email, isActive: true },
+      where: { email: dto.email },
       include: {
         role: { include: { permissions: { include: { permission: true } } } },
+        restaurant: { select: { id: true, name: true, isActive: true } },
       },
     });
 
@@ -62,6 +63,18 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) {
       throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException(
+        'Your user account has been deactivated by the administrator',
+      );
+    }
+
+    if (!user.isSuperAdmin && user.restaurant && !user.restaurant.isActive) {
+      throw new UnauthorizedException(
+        'ACCOUNT_SUSPENDED: This restaurant account has been suspended by the SaaS platform administrator',
+      );
     }
 
     // Only asked for after the password is right, so the response never

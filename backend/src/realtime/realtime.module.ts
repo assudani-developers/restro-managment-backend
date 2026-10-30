@@ -17,7 +17,7 @@ import { RealtimeGateway } from './realtime.gateway';
         ({
           secret: config.getOrThrow<string>('JWT_SECRET'),
           signOptions: {
-            expiresIn: config.get<string>('JWT_EXPIRES_IN') ?? '12h',
+            expiresIn: config.get<string>('JWT_EXPIRES_IN') ?? '365d',
           },
         }) as JwtModuleOptions,
     }),

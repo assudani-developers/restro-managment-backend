@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AddStaffDialog } from "@/components/settings/add-staff-dialog";
 import { SettingsTabs } from "@/components/settings/settings-tabs";
@@ -85,9 +85,16 @@ export default function StaffPage() {
                     {member.email || member.phone || "—"}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="font-normal">
-                      {member.role.label}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant="secondary" className="font-normal">
+                        {member.role.label}
+                      </Badge>
+                      {member.role.name === "OWNER" && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200">
+                          <Lock className="h-3 w-3 text-amber-600" /> SaaS Provisioned
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {member.branches.map((b) => b.branch.name).join(", ") || "—"}
@@ -95,6 +102,7 @@ export default function StaffPage() {
                   <TableCell className="text-right">
                     <Switch
                       checked={member.isActive}
+                      disabled={member.role.name === "OWNER"}
                       onCheckedChange={(checked) =>
                         updateStaff.mutate(
                           { id: member.id, dto: { isActive: checked } },
@@ -109,7 +117,7 @@ export default function StaffPage() {
                     />
                   </TableCell>
                   <TableCell>
-                    {member.id !== currentUser?.user.id && (
+                    {member.id !== currentUser?.user.id && member.role.name !== "OWNER" && (
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"

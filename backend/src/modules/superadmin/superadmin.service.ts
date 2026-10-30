@@ -1,11 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PERMISSIONS } from '@restrocore/types';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RealtimeGateway } from '../../realtime/realtime.gateway';
 
 @Injectable()
 export class SuperAdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwt: JwtService,
+    private readonly realtime: RealtimeGateway,
+  ) {}
 
   async getPlatformOverview() {
     const [
@@ -193,15 +199,69 @@ export class SuperAdminService {
   async toggleRestaurantStatus(id: string) {
     const restaurant = await this.prisma.restaurant.findUnique({
       where: { id },
+      include: { branches: { select: { id: true } } },
     });
     if (!restaurant) throw new NotFoundException('Restaurant not found');
 
+    const nextActive = !restaurant.isActive;
     const updated = await this.prisma.restaurant.update({
       where: { id },
-      data: { isActive: !restaurant.isActive },
+      data: { isActive: nextActive },
     });
 
+    // Real-time broadcast: If suspended, alert all active terminal & KDS connections
+    for (const b of restaurant.branches) {
+      this.realtime.emitToBranch(b.id, 'restaurant:status_changed', {
+        restaurantId: id,
+        isActive: nextActive,
+      });
+    }
+
     return { id: updated.id, isActive: updated.isActive };
+  }
+
+  async switchRestaurant(superAdminUserId: string, targetRestaurantId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: superAdminUserId },
+    });
+    if (!user?.isSuperAdmin) {
+      throw new ForbiddenException('Only SaaS SuperAdmin can switch restaurant context');
+    }
+
+    const restaurant = await this.prisma.restaurant.findUnique({
+      where: { id: targetRestaurantId },
+      include: { branches: { take: 1, select: { id: true, name: true } } },
+    });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+
+    const token = this.jwt.sign({
+      sub: user.id,
+      impersonatedRestaurantId: restaurant.id,
+    });
+
+    return {
+      token,
+      restaurant: {
+        id: restaurant.id,
+        name: restaurant.name,
+      },
+      branchId: restaurant.branches[0]?.id ?? null,
+    };
+  }
+
+  async switchBack(superAdminUserId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: superAdminUserId },
+    });
+    if (!user?.isSuperAdmin) {
+      throw new ForbiddenException('Only SaaS SuperAdmin can reset context');
+    }
+
+    const token = this.jwt.sign({
+      sub: user.id,
+    });
+
+    return { token };
   }
 
   async deleteRestaurant(id: string) {

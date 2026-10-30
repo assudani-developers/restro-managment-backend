@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { BranchProvider, useBranch } from "@/hooks/use-branch";
@@ -26,16 +27,19 @@ function RealtimeBridge() {
 export default function DashboardGroupLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data, isLoading, isError } = useCurrentUser();
+  const { data, isLoading, isError, error } = useCurrentUser();
   const permissions = data?.user.permissions;
   const allowed = !permissions || canOpen(pathname ?? "", permissions, NAV_ITEMS);
   const fallback = permissions ? firstAllowedHref(permissions, NAV_ITEMS) : undefined;
 
+  const isSuspended =
+    Boolean(error?.message && (error.message.includes("ACCOUNT_SUSPENDED") || error.message.includes("suspended")));
+
   useEffect(() => {
-    if (!isLoading && isError) {
+    if (!isLoading && isError && !isSuspended) {
       router.replace("/login");
     }
-  }, [isLoading, isError, router]);
+  }, [isLoading, isError, isSuspended, router]);
 
   // Direct URL to a page the role may not use (e.g. a waiter opening /dashboard
   // after login): send them to their first permitted screen.
@@ -45,6 +49,33 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
 
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-background" />;
+  }
+
+  if (isSuspended) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-6 text-center">
+        <div className="max-w-md rounded-3xl border border-rose-200 bg-white p-8 shadow-xl">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-4">
+            <ShieldAlert className="h-7 w-7" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Hotel Account Suspended</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            This hotel account has been suspended in real time by the SaaS platform administrator. All billing, table ordering, and kitchen operations are currently paused.
+          </p>
+          <div className="mt-6 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/login";
+              }}
+              className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800"
+            >
+              Back to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (isError || !data) {
