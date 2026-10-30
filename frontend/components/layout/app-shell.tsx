@@ -1,7 +1,7 @@
 "use client";
 
 import type { SessionUser } from "@restrocore/types";
-import { ChefHat, Clock, LayoutGrid, Menu, ShoppingCart, Sparkles } from "lucide-react";
+import { ChefHat, Clock, LayoutGrid, Menu, PanelLeft, PanelLeftClose, PanelLeftOpen, ShoppingCart, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -9,6 +9,7 @@ import { EntityDialogHost } from "@/components/layout/entity-dialog-host";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useBranch } from "@/hooks/use-branch";
 import { useSettings } from "@/hooks/use-settings";
+import { cn } from "@/lib/utils";
 import { BrandFooter } from "./brand-footer";
 import { BranchSwitcher } from "./branch-switcher";
 import { SuperAdminRestaurantSwitcher } from "./superadmin-restaurant-switcher";
@@ -81,24 +82,70 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("restrocore_sidebar_collapsed");
+      if (saved === "true") setCollapsed(true);
+    } catch {
+      // Local storage inaccessible
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("restrocore_sidebar_collapsed", String(next));
+      } catch {
+        // Local storage inaccessible
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-900">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex h-full">
-        <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100 shrink-0">
-          <RestaurantBrand />
+      {/* Desktop collapsible sidebar */}
+      <aside
+        className={cn(
+          "hidden shrink-0 flex-col border-r border-slate-200 bg-white lg:flex h-full transition-all duration-200 ease-in-out",
+          collapsed ? "w-18" : "w-64",
+        )}
+      >
+        <div
+          className={cn(
+            "flex h-16 items-center px-4 border-b border-slate-100 shrink-0",
+            collapsed ? "justify-center" : "justify-between",
+          )}
+        >
+          {!collapsed && <RestaurantBrand />}
+          {collapsed && <Logo size={32} />}
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          </button>
         </div>
-        <div className="px-3 py-3 border-b border-slate-100/60 shrink-0 space-y-2">
-          {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
-          <BranchSwitcher />
-        </div>
+        {!collapsed && (
+          <div className="px-3 py-3 border-b border-slate-100/60 shrink-0 space-y-2">
+            {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
+            <BranchSwitcher />
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto py-3">
-          <SidebarNav user={user} />
+          <SidebarNav user={user} collapsed={collapsed} />
         </div>
-        <div className="shrink-0">
-          <BrandFooter />
-        </div>
+        {!collapsed && (
+          <div className="shrink-0">
+            <BrandFooter />
+          </div>
+        )}
       </aside>
 
       {/* Mobile drawer */}
@@ -122,8 +169,8 @@ export function AppShell({
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/95 px-4 backdrop-blur sm:px-6 shadow-2xs">
-          <div className="flex items-center gap-3">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/95 px-3 sm:px-6 backdrop-blur shadow-2xs">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
@@ -131,6 +178,16 @@ export function AppShell({
               aria-label="Open navigation"
             >
               <Menu className="h-5 w-5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className="hidden lg:flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
             </button>
 
             {/* Quick Terminal Actions */}

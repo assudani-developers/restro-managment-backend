@@ -100,10 +100,20 @@ export class SuperAdminService {
 
   async createRestaurant(dto: {
     restaurantName: string;
+    legalName?: string;
+    currency?: string;
+    timezone?: string;
     branchName?: string;
+    branchAddress?: string;
+    branchPhone?: string;
+    gstNumber?: string;
+    country?: string;
+    tableCount?: number;
+    kitchenStations?: string[];
     ownerName: string;
     ownerEmail: string;
     ownerPassword: string;
+    ownerPhone?: string;
     plan?: string;
   }) {
     const existing = await this.prisma.user.findFirst({
@@ -129,6 +139,9 @@ export class SuperAdminService {
       const restaurant = await tx.restaurant.create({
         data: {
           name: dto.restaurantName,
+          legalName: dto.legalName || `${dto.restaurantName} Hospitality Pvt Ltd`,
+          currency: dto.currency || 'INR',
+          timezone: dto.timezone || 'Asia/Kolkata',
           plan: dto.plan ?? 'ENTERPRISE',
           isActive: true,
         },
@@ -137,9 +150,26 @@ export class SuperAdminService {
       const branch = await tx.branch.create({
         data: {
           restaurantId: restaurant.id,
-          name: dto.branchName || 'Main Branch',
+          name: dto.branchName || 'Main Outlet',
+          address: dto.branchAddress,
+          phone: dto.branchPhone,
+          gstNumber: dto.gstNumber,
+          country: dto.country || 'IN',
         },
       });
+
+      // Create pre-configured kitchen stations
+      const stations = (dto.kitchenStations && dto.kitchenStations.length > 0)
+        ? dto.kitchenStations
+        : ['Main Kitchen', 'Bar Counter'];
+      for (const stationName of stations) {
+        await tx.kitchenStation.create({
+          data: {
+            branchId: branch.id,
+            name: stationName,
+          },
+        });
+      }
 
       // Create owner role with all permissions
       const ownerRole = await tx.role.create({
@@ -161,29 +191,79 @@ export class SuperAdminService {
           roleId: ownerRole.id,
           name: dto.ownerName,
           email: dto.ownerEmail,
+          phone: dto.ownerPhone,
           passwordHash,
           branches: { create: { branchId: branch.id } },
         },
       });
 
-      // Create Floor & Sample Table for quick start
+      // Create Floor & Tables for ready-to-run operations
       const floor = await tx.floor.create({
         data: {
           branchId: branch.id,
-          name: 'Ground Floor',
+          name: 'Main Dining Floor',
         },
       });
 
-      await tx.table.create({
-        data: {
-          floorId: floor.id,
-          number: '1',
-          name: 'Table 1',
-          capacity: 4,
-          shape: 'SQUARE',
-          posX: 40,
-          posY: 40,
-        },
+      const count = Math.min(Math.max(Number(dto.tableCount) || 8, 1), 50);
+      for (let i = 1; i <= count; i++) {
+        const row = Math.floor((i - 1) / 4);
+        const col = (i - 1) % 4;
+        await tx.table.create({
+          data: {
+            floorId: floor.id,
+            number: String(i),
+            name: `Table ${i}`,
+            capacity: (i % 3 === 0) ? 6 : 4,
+            shape: (i % 3 === 0) ? 'ROUND' : 'SQUARE',
+            posX: 30 + col * 90,
+            posY: 30 + row * 90,
+          },
+        });
+      }
+
+      // Seed core menu categories and signature items so hotel is 100% ready immediately
+      const catStarters = await tx.menuCategory.create({
+        data: { branchId: branch.id, name: 'Starters & Appetizers', sortOrder: 1 },
+      });
+      const catMains = await tx.menuCategory.create({
+        data: { branchId: branch.id, name: 'Main Course Specialties', sortOrder: 2 },
+      });
+      const catDrinks = await tx.menuCategory.create({
+        data: { branchId: branch.id, name: 'Beverages & Mocktails', sortOrder: 3 },
+      });
+
+      await tx.menuItem.createMany({
+        data: [
+          {
+            branchId: branch.id,
+            categoryId: catStarters.id,
+            name: 'Crispy Veg Spring Rolls',
+            price: 249,
+            isVeg: true,
+          },
+          {
+            branchId: branch.id,
+            categoryId: catStarters.id,
+            name: 'Chicken Tikka Kebab',
+            price: 349,
+            isVeg: false,
+          },
+          {
+            branchId: branch.id,
+            categoryId: catMains.id,
+            name: 'Paneer Butter Masala',
+            price: 389,
+            isVeg: true,
+          },
+          {
+            branchId: branch.id,
+            categoryId: catDrinks.id,
+            name: 'Signature Mint Mojito',
+            price: 199,
+            isVeg: true,
+          },
+        ],
       });
 
       return {
@@ -192,8 +272,142 @@ export class SuperAdminService {
         branchId: branch.id,
         ownerId: owner.id,
         ownerEmail: owner.email,
+        ownerPhone: owner.phone,
+        tableCount: count,
+        stationsCount: stations.length,
       };
     });
+  }
+
+  async getTenantCrm() {
+    const restaurants = await this.prisma.restaurant.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        users: {
+          where: { role: { name: 'OWNER' } },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            isActive: true,
+            createdAt: true,
+          },
+        },
+        branches: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            _count: { select: { orders: true } },
+          },
+        },
+        _count: {
+          select: {
+            branches: true,
+            users: true,
+          },
+        },
+      },
+    });
+
+    const crmTenants = await Promise.all(
+      restaurants.map(async (r: any) => {
+        const orderAgg = await this.prisma.order.aggregate({
+          where: { branch: { restaurantId: r.id }, status: 'PAID' },
+          _sum: { totalAmount: true },
+          _count: { id: true },
+        });
+
+        const owner = r.users[0] ?? null;
+
+        return {
+          restaurantId: r.id,
+          restaurantName: r.name,
+          legalName: r.legalName,
+          plan: r.plan,
+          isActive: r.isActive,
+          createdAt: r.createdAt,
+          currency: r.currency,
+          owner: owner
+            ? {
+                id: owner.id,
+                name: owner.name,
+                email: owner.email,
+                phone: owner.phone,
+                isActive: owner.isActive,
+              }
+            : null,
+          branchesCount: r._count.branches,
+          totalOrders: orderAgg._count.id,
+          totalGmv: Number(orderAgg._sum.totalAmount ?? 0),
+        };
+      }),
+    );
+
+    return crmTenants;
+  }
+
+  async getSubscriptions() {
+    const restaurants = await this.prisma.restaurant.findMany({
+      select: {
+        id: true,
+        name: true,
+        plan: true,
+        isActive: true,
+        createdAt: true,
+        currency: true,
+        users: {
+          where: { role: { name: 'OWNER' } },
+          take: 1,
+          select: { name: true, email: true, phone: true },
+        },
+        _count: { select: { branches: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const PLAN_PRICES: Record<string, number> = {
+      STARTER: 49,
+      GROWTH: 99,
+      ENTERPRISE: 199,
+      CUSTOM: 299,
+    };
+
+    let totalMrr = 0;
+    const items = restaurants.map((r: any) => {
+      const price = PLAN_PRICES[r.plan?.toUpperCase()] ?? 199;
+      if (r.isActive) totalMrr += price;
+      const created = new Date(r.createdAt);
+      const nextBilling = new Date(created);
+      nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+      return {
+        id: r.id,
+        restaurantName: r.name,
+        plan: r.plan,
+        monthlyFee: price,
+        currency: 'USD',
+        status: r.isActive ? 'ACTIVE' : 'SUSPENDED',
+        billingCycle: 'MONTHLY',
+        nextBillingDate: nextBilling.toISOString(),
+        owner: r.users[0] ?? null,
+        branchesCount: r._count.branches,
+        createdAt: r.createdAt,
+      };
+    });
+
+    return {
+      totalMrr,
+      totalArr: totalMrr * 12,
+      activeSubscribers: restaurants.filter((r: any) => r.isActive).length,
+      planBreakdown: {
+        STARTER: restaurants.filter((r: any) => r.plan === 'STARTER').length,
+        GROWTH: restaurants.filter((r: any) => r.plan === 'GROWTH').length,
+        ENTERPRISE: restaurants.filter((r: any) => r.plan === 'ENTERPRISE').length,
+      },
+      subscriptions: items,
+    };
   }
 
   async toggleRestaurantStatus(id: string) {

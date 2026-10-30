@@ -48,16 +48,38 @@ export class SuperAdminController {
     return this.superAdminService.getAllRestaurants();
   }
 
+  @Get('crm')
+  getTenantCrm(@CurrentUser() user: SessionUser) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.getTenantCrm();
+  }
+
+  @Get('subscriptions')
+  getSubscriptions(@CurrentUser() user: SessionUser) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.getSubscriptions();
+  }
+
   @Post('restaurants')
   createRestaurant(
     @CurrentUser() user: SessionUser,
     @Body()
     body: {
       restaurantName: string;
+      legalName?: string;
+      currency?: string;
+      timezone?: string;
       branchName?: string;
+      branchAddress?: string;
+      branchPhone?: string;
+      gstNumber?: string;
+      country?: string;
+      tableCount?: number;
+      kitchenStations?: string[];
       ownerName: string;
       ownerEmail: string;
       ownerPassword: string;
+      ownerPhone?: string;
       plan?: string;
     },
   ) {
