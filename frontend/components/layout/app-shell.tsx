@@ -216,6 +216,10 @@ export function AppShell({
             </div>
           </div>
 
+          <div className="min-w-0 flex-1 px-1.5 lg:hidden sm:px-3">
+            <RestaurantBrand />
+          </div>
+
           <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="hidden xl:block">
               <SuperAdminRestaurantSwitcher />

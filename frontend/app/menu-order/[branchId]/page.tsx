@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiError } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface BranchMenuData {
   branchId: string;
@@ -129,11 +130,11 @@ export default function CustomerQrMenuPage({
   });
 
   const handlePlaceOrder = () => {
-    if (cartList.length === 0) return;
+    if (cartList.length === 0 || placeOrderMutation.isPending) return;
 
     const items = cartList.map((c) => ({
       menuItemId: c.menuItemId,
-      quantity: c.quantity,
+      quantity: Math.max(1, Math.floor(Number(c.quantity) || 1)),
       modifierIds: [],
     }));
 
@@ -145,10 +146,19 @@ export default function CustomerQrMenuPage({
         items,
       });
     } else {
+      const cleanPhone = customerPhone.replace(/\D/g, "");
+      if (!cleanPhone || cleanPhone.length < 8) {
+        toast.error("Please enter a valid phone number (at least 8-10 digits) for delivery.");
+        return;
+      }
+      if (!deliveryAddress.trim() || deliveryAddress.trim().length < 5) {
+        toast.error("Please enter your complete delivery address.");
+        return;
+      }
       placeOrderMutation.mutate({
         orderType: "DELIVERY",
         customerName: customerName.trim() || "Delivery Guest",
-        customerPhone: customerPhone.trim(),
+        customerPhone: cleanPhone,
         deliveryAddress: deliveryAddress.trim(),
         pincode: pincode.trim(),
         items,
@@ -319,7 +329,7 @@ export default function CustomerQrMenuPage({
                 <Input
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  placeholder="e.g. Piyush"
+                  placeholder="Your name"
                   className="mt-1 h-10 rounded-xl border-teal-200 bg-white text-xs text-slate-800 shadow-xs"
                 />
               </div>
@@ -538,4 +548,3 @@ export default function CustomerQrMenuPage({
     </main>
   );
 }
-

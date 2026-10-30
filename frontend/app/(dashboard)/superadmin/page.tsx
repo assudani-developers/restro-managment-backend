@@ -160,23 +160,20 @@ interface PlatformConfig {
   };
 }
 
-const CUISINE_CATEGORIES = [
-  "Fine Dining Restaurant",
-  "Casual Dining & Bistro",
-  "Cafe & Artisan Bakery",
-  "Fast Food & QSR",
-  "Cloud / Ghost Kitchen",
-  "Pub, Brewery & Bar",
-  "Buffet & Banquet Hall",
-  "Food Truck & Pop-up",
-];
-
 const CURRENCIES = [
   { code: "INR", label: "INR (₹) - Indian Rupee" },
   { code: "USD", label: "USD ($) - US Dollar" },
   { code: "EUR", label: "EUR (€) - Euro" },
   { code: "AED", label: "AED (د.إ) - UAE Dirham" },
   { code: "GBP", label: "GBP (£) - British Pound" },
+];
+
+const COUNTRIES = [
+  { code: "IN", label: "India" },
+  { code: "US", label: "United States" },
+  { code: "ES", label: "Spain" },
+  { code: "AE", label: "United Arab Emirates" },
+  { code: "GB", label: "United Kingdom" },
 ];
 
 const TIMEZONES = [
@@ -265,39 +262,26 @@ export default function SuperAdminHubPage() {
   // Step 1: Brand & Entity
   const [restaurantName, setRestaurantName] = useState("");
   const [legalName, setLegalName] = useState("");
-  const [category, setCategory] = useState("Fine Dining Restaurant");
   const [currency, setCurrency] = useState("INR");
+  const [country, setCountry] = useState("IN");
   const [timezone, setTimezone] = useState("Asia/Kolkata");
   const [gstNumber, setGstNumber] = useState("");
 
   // Step 2: Outlet & Kitchen Architecture
-  const [branchName, setBranchName] = useState("Main Flagship Outlet");
-  const [branchAddress, setBranchAddress] = useState("Connaught Place, Central Ring");
-  const [branchPhone, setBranchPhone] = useState("+91 98765 43210");
-  const [tableCount, setTableCount] = useState<number>(12);
-  const [kitchenStations, setKitchenStations] = useState<string[]>([
-    "Main Kitchen",
-    "Bar Counter",
-    "Tandoor & Grill",
-  ]);
+  const [branchName, setBranchName] = useState("");
+  const [branchAddress, setBranchAddress] = useState("");
+  const [branchPhone, setBranchPhone] = useState("");
+  const [tableCount, setTableCount] = useState<number>(0);
+  const [kitchenStations, setKitchenStations] = useState<string[]>([]);
 
   // Step 3: Owner Credentials & Access
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
   const [ownerPhone, setOwnerPhone] = useState("");
-  const [ownerPassword, setOwnerPassword] = useState("Owner@2026!");
+  const [ownerPassword, setOwnerPassword] = useState("");
 
   // Step 4: SaaS Plan & Entitlements
-  const [plan, setPlan] = useState("ENTERPRISE");
-  const [billingCycle, setBillingCycle] = useState("MONTHLY");
-  const [enabledModules, setEnabledModules] = useState({
-    qrMenu: true,
-    kds: true,
-    pos: true,
-    inventory: true,
-    delivery: true,
-    loyalty: true,
-  });
+  const [plan, setPlan] = useState("");
 
   // Success Confirmation State
   const [createdSuccessData, setCreatedSuccessData] = useState<{
@@ -525,11 +509,18 @@ export default function SuperAdminHubPage() {
       // Reset form
       setRestaurantName("");
       setLegalName("");
+      setBranchName("");
+      setBranchAddress("");
+      setBranchPhone("");
+      setTableCount(0);
+      setKitchenStations([]);
       setOwnerName("");
       setOwnerEmail("");
       setOwnerPhone("");
+      setOwnerPassword("");
+      setPlan("");
       setOnboardStep(1);
-      toast.success("Full hotel franchise onboarded with tables & stations ready!");
+      toast.success("Restaurant account created successfully.");
     },
     onError: (err: any) => {
       toast.error(err instanceof ApiError ? err.message : "Failed to onboard hotel");
@@ -538,37 +529,55 @@ export default function SuperAdminHubPage() {
 
   const handleOnboardSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!restaurantName.trim() || !ownerEmail.trim() || !ownerPassword.trim()) {
-      toast.error("Please fill in Restaurant Name, Owner Email, and Password");
+    if (createRestaurantMutation.isPending) return;
+    if (onboardStep !== 4) return;
+    if (
+      !restaurantName.trim() ||
+      !branchName.trim() ||
+      !ownerName.trim() ||
+      !ownerEmail.trim() ||
+      !ownerPhone.trim() ||
+      !ownerPassword.trim() ||
+      !plan
+    ) {
+      toast.error("Complete the restaurant, branch, owner, and plan details before creating the account.");
+      return;
+    }
+    if (!Number.isInteger(tableCount) || tableCount < 0 || tableCount > 50) {
+      toast.error("Choose between 0 and 50 tables to pre-create.");
       return;
     }
     createRestaurantMutation.mutate({
-      restaurantName,
-      legalName: legalName || `${restaurantName} Hospitality Pvt Ltd`,
+      restaurantName: restaurantName.trim(),
+      legalName: legalName.trim() || undefined,
       currency,
       timezone,
-      branchName: branchName || "Main Outlet",
-      branchAddress,
-      branchPhone,
-      gstNumber,
-      country: currency === "INR" ? "IN" : currency === "USD" ? "US" : "ES",
-      tableCount: Number(tableCount) || 12,
+      branchName: branchName.trim(),
+      branchAddress: branchAddress.trim(),
+      branchPhone: branchPhone.trim(),
+      gstNumber: gstNumber.trim(),
+      country,
+      tableCount,
       kitchenStations,
-      ownerName: ownerName || "Hotel Administrator",
-      ownerEmail,
+      ownerName: ownerName.trim(),
+      ownerEmail: ownerEmail.trim(),
       ownerPassword,
-      ownerPhone,
+      ownerPhone: ownerPhone.trim(),
       plan,
     });
   };
 
-  const copyCredentials = () => {
+  const copyCredentials = async () => {
     if (!createdSuccessData) return;
-    const text = `RestroCore Hotel Onboarded!\nHotel: ${createdSuccessData.restaurantName}\nPlan: ${createdSuccessData.plan}\nTables: ${createdSuccessData.tableCount}\nLogin URL: http://localhost:3000/login\nEmail: ${createdSuccessData.ownerEmail}\nPassword: ${createdSuccessData.ownerPassword}`;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    toast.success("Credentials & Onboarding Summary copied to clipboard!");
-    setTimeout(() => setCopied(false), 2500);
+    const text = `Restaurant onboarded\nRestaurant: ${createdSuccessData.restaurantName}\nPlan: ${createdSuccessData.plan}\nTables: ${createdSuccessData.tableCount}\nLogin URL: ${window.location.origin}/login\nEmail: ${createdSuccessData.ownerEmail}\nPassword: ${createdSuccessData.ownerPassword}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success("Credentials and onboarding summary copied.");
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast.error("Could not copy credentials. Copy them manually instead.");
+    }
   };
 
   const openEditHotel = (hotel: RestaurantItem) => {
@@ -1328,9 +1337,10 @@ export default function SuperAdminHubPage() {
               <div>
                 <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">SaaS Platform Name</Label>
                 <Input
-                  defaultValue={configQuery.data?.platformName || "RestroCore SaaS Enterprise"}
+                  value={configForm.platformName ?? configQuery.data?.platformName ?? ""}
                   onChange={(e) => setConfigForm({ ...configForm, platformName: e.target.value })}
                   className="mt-1 h-9.5 rounded-xl"
+                  placeholder="Enter platform name"
                 />
               </div>
 
@@ -1340,13 +1350,10 @@ export default function SuperAdminHubPage() {
                 </Label>
                 <textarea
                   rows={2}
-                  defaultValue={
-                    configQuery.data?.announcement ||
-                    "RestroCore Cloud 2.0 is live. All POS, KDS & QR systems are operational."
-                  }
+                  value={configForm.announcement ?? configQuery.data?.announcement ?? ""}
                   onChange={(e) => setConfigForm({ ...configForm, announcement: e.target.value })}
                   className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800"
-                  placeholder="Broadcast message to all hotel terminals & staff"
+                  placeholder="Enter a message to share with restaurant workspaces"
                 />
               </div>
 
@@ -1354,17 +1361,19 @@ export default function SuperAdminHubPage() {
                 <div>
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Support Email</Label>
                   <Input
-                    defaultValue={configQuery.data?.supportEmail || "support@restrocore.com"}
+                    value={configForm.supportEmail ?? configQuery.data?.supportEmail ?? ""}
                     onChange={(e) => setConfigForm({ ...configForm, supportEmail: e.target.value })}
                     className="mt-1 h-9.5 rounded-xl font-mono text-xs"
+                    placeholder="Enter support email"
                   />
                 </div>
                 <div>
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Support Phone</Label>
                   <Input
-                    defaultValue={configQuery.data?.supportPhone || "+91 80000 12345"}
+                    value={configForm.supportPhone ?? configQuery.data?.supportPhone ?? ""}
                     onChange={(e) => setConfigForm({ ...configForm, supportPhone: e.target.value })}
                     className="mt-1 h-9.5 rounded-xl font-mono text-xs"
+                    placeholder="Enter support phone"
                   />
                 </div>
               </div>
@@ -1508,6 +1517,20 @@ export default function SuperAdminHubPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Country</Label>
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="mt-1 w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-800"
+                >
+                  {COUNTRIES.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">SaaS Plan</Label>
                 <select
                   value={editHotelForm.plan}
@@ -1559,7 +1582,7 @@ export default function SuperAdminHubPage() {
                 <Input
                   value={editHotelForm.upiVpa}
                   onChange={(e) => setEditHotelForm({ ...editHotelForm, upiVpa: e.target.value })}
-                  placeholder="e.g. merchant@okhdfcbank"
+                  placeholder="Enter merchant UPI ID"
                   className="mt-1 h-10 rounded-xl font-mono"
                 />
               </div>
@@ -1569,7 +1592,7 @@ export default function SuperAdminHubPage() {
                 <Input
                   value={editHotelForm.upiPayeeName}
                   onChange={(e) => setEditHotelForm({ ...editHotelForm, upiPayeeName: e.target.value })}
-                  placeholder="e.g. Royal Palace Foods"
+                  placeholder="Enter registered payee name"
                   className="mt-1 h-10 rounded-xl"
                 />
               </div>
@@ -1812,7 +1835,7 @@ export default function SuperAdminHubPage() {
               <Input
                 value={addBranchForm.name}
                 onChange={(e) => setAddBranchForm({ ...addBranchForm, name: e.target.value })}
-                placeholder="e.g. South Extension Branch"
+                placeholder="Enter branch name"
                 className="mt-1 h-10 rounded-xl"
                 required
               />
@@ -1823,7 +1846,7 @@ export default function SuperAdminHubPage() {
               <Input
                 value={addBranchForm.address}
                 onChange={(e) => setAddBranchForm({ ...addBranchForm, address: e.target.value })}
-                placeholder="e.g. Ring Road, South Extension"
+                placeholder="Enter branch address"
                 className="mt-1 h-10 rounded-xl"
               />
             </div>
@@ -1834,7 +1857,7 @@ export default function SuperAdminHubPage() {
                 <Input
                   value={addBranchForm.phone}
                   onChange={(e) => setAddBranchForm({ ...addBranchForm, phone: e.target.value })}
-                  placeholder="e.g. +91 99999 33333"
+                  placeholder="Enter branch phone number"
                   className="mt-1 h-10 rounded-xl font-mono"
                 />
               </div>
@@ -1844,7 +1867,7 @@ export default function SuperAdminHubPage() {
                 <Input
                   value={addBranchForm.gstNumber}
                   onChange={(e) => setAddBranchForm({ ...addBranchForm, gstNumber: e.target.value })}
-                  placeholder="e.g. 07AAAAA0000A1Z5"
+                  placeholder="Enter tax ID"
                   className="mt-1 h-10 rounded-xl font-mono uppercase"
                 />
               </div>
@@ -1974,7 +1997,7 @@ export default function SuperAdminHubPage() {
               Onboard New Hotel / Restaurant
             </DialogTitle>
             <p className="text-xs text-slate-500 mt-0.5">
-              Configure brand details, outlets, kitchen stations, tables, and owner root credentials
+              Enter the restaurant&apos;s real details, set up its first outlet, and create the owner&apos;s account.
             </p>
           </DialogHeader>
 
@@ -1989,7 +2012,7 @@ export default function SuperAdminHubPage() {
               <button
                 key={s.num}
                 type="button"
-                onClick={() => setOnboardStep(s.num as any)}
+                onClick={() => setOnboardStep(s.num as 1 | 2 | 3 | 4)}
                 className={cn(
                   "flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all border",
                   onboardStep === s.num
@@ -2016,13 +2039,13 @@ export default function SuperAdminHubPage() {
                   <Input
                     value={restaurantName}
                     onChange={(e) => setRestaurantName(e.target.value)}
-                    placeholder="e.g. Royal Palace & Brewery"
+                    placeholder="Enter restaurant name"
                     className="mt-1 h-10 rounded-xl"
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
                   <div>
                     <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
                       Legal Business Entity
@@ -2030,29 +2053,13 @@ export default function SuperAdminHubPage() {
                     <Input
                       value={legalName}
                       onChange={(e) => setLegalName(e.target.value)}
-                      placeholder="e.g. Royal Hospitality Pvt Ltd"
+                      placeholder="Enter legal name (optional)"
                       className="mt-1 h-10 rounded-xl"
                     />
                   </div>
-                  <div>
-                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Cuisine / Concept
-                    </Label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="mt-1 w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-800"
-                    >
-                      {CUISINE_CATEGORIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Currency</Label>
                     <select
@@ -2088,7 +2095,7 @@ export default function SuperAdminHubPage() {
                     <Input
                       value={gstNumber}
                       onChange={(e) => setGstNumber(e.target.value)}
-                      placeholder="e.g. 07AAAAA0000A1Z5"
+                      placeholder="Enter tax ID (optional)"
                       className="mt-1 h-10 rounded-xl font-mono uppercase"
                     />
                   </div>
@@ -2123,7 +2130,7 @@ export default function SuperAdminHubPage() {
                     <Input
                       value={branchName}
                       onChange={(e) => setBranchName(e.target.value)}
-                      placeholder="e.g. Flagship - Connaught Place"
+                      placeholder="Enter branch name"
                       className="mt-1 h-10 rounded-xl"
                       required
                     />
@@ -2135,7 +2142,7 @@ export default function SuperAdminHubPage() {
                     <Input
                       value={branchPhone}
                       onChange={(e) => setBranchPhone(e.target.value)}
-                      placeholder="e.g. +91 98765 43210"
+                      placeholder="Enter branch contact number"
                       className="mt-1 h-10 rounded-xl"
                     />
                   </div>
@@ -2146,26 +2153,28 @@ export default function SuperAdminHubPage() {
                   <Input
                     value={branchAddress}
                     onChange={(e) => setBranchAddress(e.target.value)}
-                    placeholder="e.g. 14 Inner Circle, Connaught Place, New Delhi"
+                    placeholder="Enter branch address (optional)"
                     className="mt-1 h-10 rounded-xl"
                   />
                 </div>
 
                 <div>
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Tables to Auto-Generate (Pre-configured floor plan)
+                    Tables to pre-create (optional)
                   </Label>
                   <div className="flex items-center gap-3 mt-1">
                     <Input
                       type="number"
-                      min={1}
+                      min={0}
                       max={50}
                       value={tableCount}
-                      onChange={(e) => setTableCount(Number(e.target.value))}
+                      onChange={(e) => setTableCount(e.target.value === "" ? 0 : e.target.valueAsNumber)}
                       className="h-10 w-28 rounded-xl font-bold tabular-nums"
                     />
                     <span className="text-xs text-slate-500">
-                      Automatically creates Table 1 through Table {tableCount} with QR codes ready.
+                      {tableCount === 0
+                        ? "Leave at 0 to add tables later from Floor & Tables."
+                        : `Creates Table 1 through Table ${tableCount}.`}
                     </span>
                   </div>
                 </div>
@@ -2223,7 +2232,13 @@ export default function SuperAdminHubPage() {
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => setOnboardStep(3)}
+                    onClick={() => {
+                      if (!branchName.trim()) {
+                        toast.error("Please enter the first branch name");
+                        return;
+                      }
+                      setOnboardStep(3);
+                    }}
                     className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5"
                   >
                     Next: Owner ID &rarr;
@@ -2240,8 +2255,7 @@ export default function SuperAdminHubPage() {
                   <div>
                     <p className="font-bold">Root Hotel Administrator Account</p>
                     <p className="text-[11px] text-amber-800 mt-0.5">
-                      This owner ID will be granted full administrative root privileges for this hotel, with all 33 system
-                      permissions enabled.
+                      This account will have full administrative access to the restaurant workspace.
                     </p>
                   </div>
                 </div>
@@ -2254,7 +2268,7 @@ export default function SuperAdminHubPage() {
                     <Input
                       value={ownerName}
                       onChange={(e) => setOwnerName(e.target.value)}
-                      placeholder="e.g. Ramesh Sharma"
+                      placeholder="Enter owner full name"
                       className="mt-1 h-10 rounded-xl"
                       required
                     />
@@ -2266,7 +2280,7 @@ export default function SuperAdminHubPage() {
                     <Input
                       value={ownerPhone}
                       onChange={(e) => setOwnerPhone(e.target.value)}
-                      placeholder="e.g. +91 98111 22334"
+                      placeholder="Enter owner contact number"
                       className="mt-1 h-10 rounded-xl font-mono"
                       required
                     />
@@ -2281,7 +2295,7 @@ export default function SuperAdminHubPage() {
                     type="email"
                     value={ownerEmail}
                     onChange={(e) => setOwnerEmail(e.target.value)}
-                    placeholder="e.g. ramesh@royalpalace.com"
+                    placeholder="Enter owner email"
                     className="mt-1 h-10 rounded-xl font-mono"
                     required
                   />
@@ -2290,6 +2304,8 @@ export default function SuperAdminHubPage() {
                 <div>
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Initial Password *</Label>
                   <Input
+                    type="password"
+                    autoComplete="new-password"
                     value={ownerPassword}
                     onChange={(e) => setOwnerPassword(e.target.value)}
                     placeholder="Set temporary secure password"
@@ -2313,8 +2329,8 @@ export default function SuperAdminHubPage() {
                   <Button
                     type="button"
                     onClick={() => {
-                      if (!ownerName.trim() || !ownerEmail.trim() || !ownerPassword.trim()) {
-                        toast.error("Please fill in Owner Name, Email, and Password");
+                      if (!ownerName.trim() || !ownerPhone.trim() || !ownerEmail.trim() || !ownerPassword.trim()) {
+                        toast.error("Please fill in Owner Name, Contact Number, Email, and Password");
                         return;
                       }
                       setOnboardStep(4);
@@ -2332,16 +2348,17 @@ export default function SuperAdminHubPage() {
               <div className="space-y-4">
                 <div>
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Select SaaS Tier</Label>
-                  <div className="grid grid-cols-3 gap-2.5 mt-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-1.5">
                     {[
-                      { key: "STARTER", name: "Starter", price: "$49/mo" },
-                      { key: "GROWTH", name: "Growth", price: "$99/mo" },
-                      { key: "ENTERPRISE", name: "Enterprise", price: "$199/mo" },
+                      { key: "STARTER", name: "Starter" },
+                      { key: "GROWTH", name: "Growth" },
+                      { key: "ENTERPRISE", name: "Enterprise" },
                     ].map((p) => (
                       <button
                         key={p.key}
                         type="button"
                         onClick={() => setPlan(p.key)}
+                        aria-pressed={plan === p.key}
                         className={cn(
                           "p-3 rounded-2xl border text-center transition-all",
                           plan === p.key
@@ -2350,70 +2367,14 @@ export default function SuperAdminHubPage() {
                         )}
                       >
                         <p className="text-xs font-black">{p.name}</p>
-                        <p className="text-[11px] text-slate-500 font-bold mt-0.5">{p.price}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Billing Frequency</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-1.5">
-                    {[
-                      { key: "MONTHLY", label: "Monthly Billing" },
-                      { key: "ANNUAL", label: "Annual Billing (20% Off)" },
-                    ].map((b) => (
-                      <button
-                        key={b.key}
-                        type="button"
-                        onClick={() => setBillingCycle(b.key)}
-                        className={cn(
-                          "py-2 rounded-xl border text-xs font-bold transition-all",
-                          billingCycle === b.key
-                            ? "border-slate-900 bg-slate-900 text-white shadow-xs"
-                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-                        )}
-                      >
-                        {b.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Feature Modules Entitlement
-                  </Label>
-                  <div className="grid grid-cols-2 gap-2 mt-1.5 text-xs">
-                    {[
-                      { key: "qrMenu", label: "Table QR Digital Menu" },
-                      { key: "kds", label: "KDS Kitchen Routing" },
-                      { key: "pos", label: "Cloud POS Terminal" },
-                      { key: "inventory", label: "Inventory & Recipe Control" },
-                      { key: "delivery", label: "Direct Online Delivery" },
-                      { key: "loyalty", label: "Customer Loyalty Points" },
-                    ].map((mod) => {
-                      const enabled = (enabledModules as any)[mod.key];
-                      return (
-                        <div
-                          key={mod.key}
-                          onClick={() =>
-                            setEnabledModules({ ...enabledModules, [mod.key]: !enabled })
-                          }
-                          className={cn(
-                            "p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all",
-                            enabled ? "border-emerald-300 bg-emerald-50/50 text-emerald-950 font-bold" : "border-slate-200 bg-slate-50 text-slate-500",
-                          )}
-                        >
-                          <span>{mod.label}</span>
-                          <CheckCircle2
-                            className={cn("h-4 w-4", enabled ? "text-emerald-600" : "text-slate-300")}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                <p className="text-xs leading-5 text-slate-500">
+                  The selected tier is applied when the restaurant is created. Billing frequency and module access can be configured after onboarding.
+                </p>
 
                 <div className="flex justify-between pt-3 border-t border-slate-100">
                   <Button
@@ -2426,7 +2387,7 @@ export default function SuperAdminHubPage() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={createRestaurantMutation.isPending}
+                    disabled={createRestaurantMutation.isPending || !plan}
                     className="h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs px-6 shadow-md shadow-teal-600/30"
                   >
                     {createRestaurantMutation.isPending ? "Generating Franchise…" : "Complete Onboarding & Deploy"}

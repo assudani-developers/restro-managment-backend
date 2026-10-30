@@ -66,7 +66,7 @@ export default function SignupPage() {
         <div className="relative z-10 my-auto flex max-w-sm flex-col gap-6 py-10">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-teal-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-teal-800 shadow-xs">
             <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-            Launch in under 60 seconds
+            Quick restaurant setup
           </div>
           <h2 className="text-3xl font-semibold leading-snug tracking-tight">
             Equip your staff with the fastest POS on the market.
@@ -92,7 +92,7 @@ export default function SignupPage() {
         </div>
 
         <div className="relative z-10 border-t border-teal-200/70 pt-4 text-xs text-slate-500">
-          RestroCore Enterprise • 100% Light Theme Only
+          RestroCore restaurant workspace
         </div>
       </div>
 
@@ -130,7 +130,7 @@ export default function SignupPage() {
                     id="restaurantName"
                     autoFocus
                     className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-                    placeholder="e.g. Olive Bistro"
+                    placeholder="Enter restaurant name"
                     {...field("restaurantName")}
                   />
                   <Store className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
@@ -148,7 +148,7 @@ export default function SignupPage() {
                   <Input
                     id="branchName"
                     className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-                    placeholder="e.g. Main Outlet"
+                    placeholder="Enter branch name"
                     {...field("branchName")}
                   />
                   <MapPin className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
@@ -167,7 +167,7 @@ export default function SignupPage() {
                 <Input
                   id="ownerName"
                   className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-                  placeholder="e.g. Rahul Sharma"
+                  placeholder="Enter your full name"
                   {...field("ownerName")}
                 />
                 <User className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
@@ -187,7 +187,7 @@ export default function SignupPage() {
                   type="email"
                   autoComplete="username"
                   className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-                  placeholder="owner@restaurant.com"
+                  placeholder="you@yourrestaurant.com"
                   {...field("email")}
                 />
                 <Mail className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />

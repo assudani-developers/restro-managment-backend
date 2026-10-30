@@ -106,9 +106,16 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
+  // Permissive CORS: Never block QR menus, mobile devices, POS kiosks, or cross-network requests
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:1995',
+    origin: (origin, callback) => {
+      // Allow any requesting origin (including undefined for mobile apps, curl, kiosk webviews)
+      callback(null, true);
+    },
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: '*',
+    exposedHeaders: ['Set-Cookie'],
   });
   app.setGlobalPrefix('api');
   app.useStaticAssets(uploadsDir(), { prefix: '/api/uploads/' });

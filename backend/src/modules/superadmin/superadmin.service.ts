@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { PERMISSIONS } from '@restrocore/types';
+import { PERMISSIONS, registerSchema } from '@restrocore/types';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RealtimeGateway } from '../../realtime/realtime.gateway';
 
@@ -42,7 +42,6 @@ export class SuperAdminService {
       totalOrders,
       totalUsers,
       totalRevenue,
-      systemHealth: '100% OPERATIONAL',
       version: 'v2.0-SaaS',
     };
   }
@@ -116,8 +115,33 @@ export class SuperAdminService {
     ownerPhone?: string;
     plan?: string;
   }) {
+    const restaurantName = typeof dto.restaurantName === 'string' ? dto.restaurantName.trim() : '';
+    const branchName = typeof dto.branchName === 'string' ? dto.branchName.trim() : '';
+    const ownerName = typeof dto.ownerName === 'string' ? dto.ownerName.trim() : '';
+    const ownerEmail = typeof dto.ownerEmail === 'string' ? dto.ownerEmail.trim() : '';
+    const registration = registerSchema.safeParse({
+      restaurantName,
+      branchName,
+      ownerName,
+      email: ownerEmail,
+      password: dto.ownerPassword,
+    });
+
+    if (!registration.success) {
+      throw new BadRequestException(
+        'Enter a restaurant name, branch name, owner name, valid email, and password of at least 8 characters',
+      );
+    }
+
+    if (
+      dto.tableCount !== undefined &&
+      (!Number.isInteger(dto.tableCount) || dto.tableCount < 0 || dto.tableCount > 50)
+    ) {
+      throw new BadRequestException('Table count must be an integer between 0 and 50');
+    }
+
     const existing = await this.prisma.user.findFirst({
-      where: { email: dto.ownerEmail },
+      where: { email: ownerEmail },
     });
     if (existing) {
       throw new BadRequestException('An account with this email already exists');
@@ -138,8 +162,8 @@ export class SuperAdminService {
     return this.prisma.$transaction(async (tx) => {
       const restaurant = await tx.restaurant.create({
         data: {
-          name: dto.restaurantName,
-          legalName: dto.legalName || `${dto.restaurantName} Hospitality Pvt Ltd`,
+          name: restaurantName,
+          legalName: dto.legalName?.trim() || null,
           currency: dto.currency || 'INR',
           timezone: dto.timezone || 'Asia/Kolkata',
           plan: dto.plan ?? 'ENTERPRISE',
@@ -150,7 +174,7 @@ export class SuperAdminService {
       const branch = await tx.branch.create({
         data: {
           restaurantId: restaurant.id,
-          name: dto.branchName || 'Main Outlet',
+          name: branchName,
           address: dto.branchAddress,
           phone: dto.branchPhone,
           gstNumber: dto.gstNumber,
@@ -159,9 +183,15 @@ export class SuperAdminService {
       });
 
       // Create pre-configured kitchen stations
-      const stations = (dto.kitchenStations && dto.kitchenStations.length > 0)
+      if (dto.kitchenStations && (!Array.isArray(dto.kitchenStations) || dto.kitchenStations.length > 20)) {
+        throw new BadRequestException('Choose no more than 20 kitchen stations');
+      }
+      const stations = Array.isArray(dto.kitchenStations)
         ? dto.kitchenStations
-        : ['Main Kitchen', 'Bar Counter'];
+            .filter((station): station is string => typeof station === 'string')
+            .map((station) => station.trim())
+            .filter(Boolean)
+        : [];
       for (const stationName of stations) {
         await tx.kitchenStation.create({
           data: {
@@ -189,8 +219,8 @@ export class SuperAdminService {
         data: {
           restaurantId: restaurant.id,
           roleId: ownerRole.id,
-          name: dto.ownerName,
-          email: dto.ownerEmail,
+          name: ownerName,
+          email: ownerEmail,
           phone: dto.ownerPhone,
           passwordHash,
           branches: { create: { branchId: branch.id } },
@@ -205,7 +235,7 @@ export class SuperAdminService {
         },
       });
 
-      const count = Math.min(Math.max(Number(dto.tableCount) || 8, 1), 50);
+      const count = dto.tableCount ?? 0;
       for (let i = 1; i <= count; i++) {
         const row = Math.floor((i - 1) / 4);
         const col = (i - 1) % 4;
@@ -221,50 +251,6 @@ export class SuperAdminService {
           },
         });
       }
-
-      // Seed core menu categories and signature items so hotel is 100% ready immediately
-      const catStarters = await tx.menuCategory.create({
-        data: { branchId: branch.id, name: 'Starters & Appetizers', sortOrder: 1 },
-      });
-      const catMains = await tx.menuCategory.create({
-        data: { branchId: branch.id, name: 'Main Course Specialties', sortOrder: 2 },
-      });
-      const catDrinks = await tx.menuCategory.create({
-        data: { branchId: branch.id, name: 'Beverages & Mocktails', sortOrder: 3 },
-      });
-
-      await tx.menuItem.createMany({
-        data: [
-          {
-            branchId: branch.id,
-            categoryId: catStarters.id,
-            name: 'Crispy Veg Spring Rolls',
-            price: 249,
-            isVeg: true,
-          },
-          {
-            branchId: branch.id,
-            categoryId: catStarters.id,
-            name: 'Chicken Tikka Kebab',
-            price: 349,
-            isVeg: false,
-          },
-          {
-            branchId: branch.id,
-            categoryId: catMains.id,
-            name: 'Paneer Butter Masala',
-            price: 389,
-            isVeg: true,
-          },
-          {
-            branchId: branch.id,
-            categoryId: catDrinks.id,
-            name: 'Signature Mint Mojito',
-            price: 199,
-            isVeg: true,
-          },
-        ],
-      });
 
       return {
         restaurantId: restaurant.id,

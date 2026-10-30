@@ -47,7 +47,11 @@ export function SettingsTabs() {
   );
 
   return (
-    <nav className="flex gap-1 border-b border-border">
+    <nav
+      aria-label="Settings sections"
+      className="relative -mx-3 overflow-x-auto border-b border-border px-3 [scrollbar-width:none] after:pointer-events-none after:absolute after:right-3 after:top-0 after:h-full after:w-7 after:bg-gradient-to-l after:from-background after:to-transparent after:content-[''] sm:-mx-6 sm:px-6 sm:after:right-6 lg:mx-0 lg:rounded-2xl lg:border lg:bg-card lg:p-1.5 lg:after:hidden"
+    >
+      <div className="flex min-w-max items-center gap-1">
       {visibleTabs.map((tab) => {
         const isActive =
           tab.href === "/settings" ? pathname === "/settings" : pathname?.startsWith(tab.href);
@@ -55,11 +59,12 @@ export function SettingsTabs() {
           <Link
             key={tab.href}
             href={tab.href}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center gap-2 border-b-2 px-3 pb-3 text-sm font-medium transition-colors",
+              "flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition-colors",
               isActive
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                ? "bg-accent text-accent-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             {tab.label}
@@ -67,6 +72,7 @@ export function SettingsTabs() {
           </Link>
         );
       })}
+      </div>
     </nav>
   );
 }

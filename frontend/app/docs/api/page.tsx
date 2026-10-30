@@ -80,8 +80,8 @@ GET  /locations/:branchId/reservations/:id   (scope: reservations:read)`}</Code>
   -H "Content-Type: application/json" \\
   -d '{
     "type": "TAKEAWAY",
-    "customerName": "Jane Doe",
-    "customerPhone": "+15550100",
+    "customerName": "Rohit Sharma",
+    "customerPhone": "+919876543210",
     "items": [{ "menuItemId": "...", "quantity": 2 }]
   }'`}</Code>
         <p>Booking a table:</p>
@@ -89,8 +89,8 @@ GET  /locations/:branchId/reservations/:id   (scope: reservations:read)`}</Code>
   -H "Authorization: Bearer ordr_ext_..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "customerName": "Jane Doe",
-    "phone": "+15550100",
+    "customerName": "Rohit Sharma",
+    "phone": "+919876543210",
     "guestCount": 4,
     "reservedAt": "2026-08-25T19:00:00Z"
   }'`}</Code>

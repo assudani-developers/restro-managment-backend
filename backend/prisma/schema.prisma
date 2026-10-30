@@ -1099,6 +1099,8 @@ model MenuItem {
   recipeLines     RecipeIngredient[]
 
   @@index([branchId, categoryId])
+  @@index([branchId, isActive])
+  @@index([branchId, isVeg])
   @@map("menu_items")
 }
 
@@ -1376,6 +1378,9 @@ model Order {
   @@unique([branchId, orderNumber])
   @@unique([branchId, clientRequestId])
   @@index([branchId, status])
+  @@index([branchId, createdAt])
+  @@index([branchId, tableId])
+  @@index([customerId])
   @@index([branchId, deliveryStatus])
   @@map("orders")
 }
@@ -1472,6 +1477,7 @@ model Kot {
 
   @@index([orderId])
   @@index([stationId, status])
+  @@index([status, createdAt])
   @@map("kots")
 }
 
@@ -1485,6 +1491,8 @@ model KotItem {
   status KotItemStatus @default(NEW)
 
   @@index([kotId])
+  @@index([orderItemId])
+  @@index([status])
   @@map("kot_items")
 }
 
@@ -1541,6 +1549,7 @@ model Reservation {
   updatedAt DateTime @updatedAt
 
   @@index([branchId, reservedAt])
+  @@index([branchId, status])
   @@map("reservations")
 }
 
@@ -1592,6 +1601,8 @@ model Payment {
 
   @@unique([orderId, clientRequestId])
   @@index([orderId])
+  @@index([createdAt])
+  @@index([method])
   @@map("payments")
 }
 

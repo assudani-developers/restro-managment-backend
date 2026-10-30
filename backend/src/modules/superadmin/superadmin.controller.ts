@@ -13,6 +13,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import type { SessionUser } from '@restrocore/types';
 import type { Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { SuperAdminService } from './superadmin.service';
@@ -26,6 +27,7 @@ function isCookieSecure(): boolean {
 
 @ApiTags('superadmin')
 @Controller('v1/superadmin')
+@Throttle({ default: { limit: 120, ttl: 60_000 } })
 @UseGuards(JwtAuthGuard)
 export class SuperAdminController {
   constructor(private readonly superAdminService: SuperAdminService) {}

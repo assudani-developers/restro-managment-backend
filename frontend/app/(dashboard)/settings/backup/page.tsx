@@ -2,6 +2,16 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  ArrowDownToLine,
+  Archive,
+  CalendarClock,
+  Cloud,
+  HardDrive,
+  History,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 import { RestoreBackupDialog } from "@/components/settings/restore-backup-dialog";
 import { SettingsTabs } from "@/components/settings/settings-tabs";
 import { Badge } from "@/components/ui/badge";
@@ -136,210 +146,264 @@ export default function BackupPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-[32px] font-semibold tracking-tight text-foreground">Settings</h1>
-        <p className="text-sm text-muted-foreground">Restaurant, branch, and staff configuration</p>
-      </div>
+    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 sm:gap-6">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            Workspace settings
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            Backups &amp; restore
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Protect your restaurant data with a local copy or automated cloud backups.
+          </p>
+        </div>
+        <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground sm:flex">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          Your data stays protected
+        </div>
+      </header>
 
       <SettingsTabs />
 
-      <Card className="flex flex-col gap-3 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-[18px] font-medium text-foreground">Download a backup</h2>
-            <p className="text-sm text-muted-foreground">
-              Save a complete copy of the database and uploaded files (menu photos, logos) to
-              this computer as a .zip. No cloud bucket needed — keep it on a USB drive or
-              private cloud folder. Contains customer and sales data, so store it safely.
+      <div className="grid gap-4 xl:grid-cols-[0.82fr_1.18fr]">
+        <Card className="relative flex flex-col justify-between gap-6 overflow-hidden border-teal-200/70 bg-gradient-to-br from-teal-50 via-white to-white p-5 sm:p-6">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 h-44 w-44 rounded-full bg-teal-100/70 blur-2xl" />
+          <div className="relative">
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-primary shadow-sm ring-1 ring-teal-100">
+              <HardDrive className="h-5 w-5" />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+              Quick export
+            </p>
+            <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-foreground">
+              Keep a copy close
+            </h2>
+            <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+              Download a complete database and uploaded-file archive straight to this device.
+              No cloud setup required.
             </p>
           </div>
-          <Button nativeButton={false} render={<a href={LOCAL_BACKUP_URL} download />}>Download backup now</Button>
-        </div>
-      </Card>
-
-      <Card className="flex flex-col gap-4 p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-[18px] font-medium text-foreground">Backup &amp; restore</h2>
-            <p className="text-sm text-muted-foreground">
-              Full database and uploaded-file backups to any S3-compatible bucket. This is
-              instance-wide — it covers every restaurant hosted on this server, not just yours.
-            </p>
+          <div className="relative flex flex-col gap-4">
+            <div className="flex items-start gap-3 rounded-xl border border-teal-100 bg-white/80 p-3.5">
+              <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" />
+              <p className="text-xs leading-5 text-muted-foreground">
+                Includes customer and sales data. Store the downloaded archive somewhere private.
+              </p>
+            </div>
+            <Button
+              nativeButton={false}
+              render={<a href={LOCAL_BACKUP_URL} download />}
+              className="w-full sm:w-fit"
+            >
+              <ArrowDownToLine data-icon="inline-start" />
+              Download backup
+            </Button>
           </div>
-          {status ? (
-            <Badge variant={status.configured ? "secondary" : "outline"}>
-              {status.configured ? "Configured" : "Not configured"}
-            </Badge>
-          ) : null}
-        </div>
+        </Card>
 
-        {statusLoading ? (
-          <Skeleton className="h-32 rounded-lg" />
-        ) : !status?.configured || showConfigForm ? (
-          <form onSubmit={onSaveConfig} className="flex flex-col gap-4">
-            <p className="text-sm text-muted-foreground">
-              Connect any S3-compatible bucket (AWS S3, MinIO, RustFS, R2, …) to enable
-              automatic backups. Runs on its own schedule from here on.
-            </p>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="b-endpoint">Endpoint URL</Label>
-                <Input
-                  id="b-endpoint"
-                  placeholder="https://s3.example.com"
-                  value={configForm.endpoint}
-                  onChange={(e) => setConfigForm((f) => ({ ...f, endpoint: e.target.value }))}
-                  required
-                />
+        <Card className="flex flex-col gap-5 p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                <Cloud className="h-5 w-5" />
               </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="b-bucket">Bucket</Label>
-                <Input
-                  id="b-bucket"
-                  value={configForm.bucket}
-                  onChange={(e) => setConfigForm((f) => ({ ...f, bucket: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="b-key">Access key ID</Label>
-                <Input
-                  id="b-key"
-                  value={configForm.accessKeyId}
-                  onChange={(e) => setConfigForm((f) => ({ ...f, accessKeyId: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="b-secret">Secret access key</Label>
-                <Input
-                  id="b-secret"
-                  type="password"
-                  value={configForm.secretAccessKey}
-                  onChange={(e) =>
-                    setConfigForm((f) => ({ ...f, secretAccessKey: e.target.value }))
-                  }
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="b-region">Region</Label>
-                <Input
-                  id="b-region"
-                  placeholder="auto"
-                  value={configForm.region}
-                  onChange={(e) => setConfigForm((f) => ({ ...f, region: e.target.value }))}
-                />
-              </div>
-              <div className="flex gap-4">
-                <div className="flex flex-1 flex-col gap-2">
-                  <Label htmlFor="b-interval">Backup every (days)</Label>
-                  <Input
-                    id="b-interval"
-                    type="number"
-                    min={1}
-                    max={30}
-                    value={configForm.intervalDays}
-                    onChange={(e) =>
-                      setConfigForm((f) => ({ ...f, intervalDays: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="flex flex-1 flex-col gap-2">
-                  <Label htmlFor="b-retain">Keep last (backups)</Label>
-                  <Input
-                    id="b-retain"
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={configForm.retainCount}
-                    onChange={(e) =>
-                      setConfigForm((f) => ({ ...f, retainCount: e.target.value }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button type="submit" disabled={setConfig.isPending}>
-                {setConfig.isPending ? "Testing connection…" : "Connect & save"}
-              </Button>
-              {status?.configured ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setShowConfigForm(false)}
-                >
-                  Cancel
-                </Button>
-              ) : null}
-            </div>
-          </form>
-        ) : (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">
               <div>
-                <p className="text-foreground">
-                  {status.bucket}{" "}
-                  <span className="text-muted-foreground">at {status.endpoint}</span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Key {status.accessKeyIdMasked} ·{" "}
-                  {status.source === "environment"
-                    ? "configured via environment variables"
-                    : "configured here"}
+                <h2 className="text-base font-semibold text-foreground">Automated cloud backups</h2>
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                  Connect an S3-compatible bucket for scheduled backups.
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={openConfigForm}>
-                  Change
+            </div>
+            {status ? (
+              <Badge
+                variant={status.configured ? "secondary" : "outline"}
+                className="mt-0.5"
+              >
+                {status.configured ? "Connected" : "Not connected"}
+              </Badge>
+            ) : null}
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-3 text-xs leading-5 text-muted-foreground">
+            <span className="font-semibold text-foreground">Server-wide setting.</span>{" "}
+            This bucket covers every restaurant hosted on this server.
+          </div>
+
+          {statusLoading ? (
+            <Skeleton className="h-32 rounded-lg" />
+          ) : !status?.configured || showConfigForm ? (
+            <form onSubmit={onSaveConfig} className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Works with AWS S3, MinIO, RustFS, Cloudflare R2, and other compatible storage.
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="b-endpoint">Endpoint URL</Label>
+                  <Input
+                    id="b-endpoint"
+                    placeholder="https://s3.example.com"
+                    value={configForm.endpoint}
+                    onChange={(e) => setConfigForm((f) => ({ ...f, endpoint: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="b-bucket">Bucket</Label>
+                  <Input
+                    id="b-bucket"
+                    value={configForm.bucket}
+                    onChange={(e) => setConfigForm((f) => ({ ...f, bucket: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="b-key">Access key ID</Label>
+                  <Input
+                    id="b-key"
+                    value={configForm.accessKeyId}
+                    onChange={(e) => setConfigForm((f) => ({ ...f, accessKeyId: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="b-secret">Secret access key</Label>
+                  <Input
+                    id="b-secret"
+                    type="password"
+                    value={configForm.secretAccessKey}
+                    onChange={(e) =>
+                      setConfigForm((f) => ({ ...f, secretAccessKey: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="b-region">Region</Label>
+                  <Input
+                    id="b-region"
+                    placeholder="auto"
+                    value={configForm.region}
+                    onChange={(e) => setConfigForm((f) => ({ ...f, region: e.target.value }))}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="b-interval">Every (days)</Label>
+                    <Input
+                      id="b-interval"
+                      type="number"
+                      min={1}
+                      max={30}
+                      value={configForm.intervalDays}
+                      onChange={(e) =>
+                        setConfigForm((f) => ({ ...f, intervalDays: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="b-retain">Keep copies</Label>
+                    <Input
+                      id="b-retain"
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={configForm.retainCount}
+                      onChange={(e) =>
+                        setConfigForm((f) => ({ ...f, retainCount: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+                <Button type="submit" disabled={setConfig.isPending}>
+                  {setConfig.isPending ? "Testing connection…" : "Connect & save"}
                 </Button>
-                {status.source === "database" ? (
+                {status?.configured ? (
                   <Button
-                    size="sm"
-                    variant="destructive"
-                    disabled={clearConfig.isPending}
-                    onClick={onDisconnect}
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setShowConfigForm(false)}
                   >
-                    Disconnect
+                    Cancel
                   </Button>
                 ) : null}
               </div>
-            </div>
+            </form>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background p-3.5 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-foreground">{status.bucket}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {status.endpoint} · Key {status.accessKeyIdMasked}
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {status.source === "environment"
+                      ? "Managed by environment variables"
+                      : "Configured in settings"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={openConfigForm}>
+                    Change
+                  </Button>
+                  {status.source === "database" ? (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={clearConfig.isPending}
+                      onClick={onDisconnect}
+                    >
+                      Disconnect
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <Stat label="Runs every" value={`${status.intervalDays} days`} />
-              <Stat label="Keeps" value={`${status.retainCount} backups`} />
-              <Stat
-                label="Last backup"
-                value={
-                  status.lastBackup
-                    ? new Date(status.lastBackup.createdAt).toLocaleString()
-                    : "Never"
-                }
-              />
-              <Stat
-                label="Next scheduled"
-                value={
-                  status.nextScheduledAt
-                    ? new Date(status.nextScheduledAt).toLocaleString()
-                    : "—"
-                }
-              />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <Stat label="Frequency" value={`Every ${status.intervalDays} days`} />
+                <Stat label="Retention" value={`${status.retainCount} copies`} />
+                <Stat
+                  label="Last backup"
+                  value={
+                    status.lastBackup
+                      ? new Date(status.lastBackup.createdAt).toLocaleString()
+                      : "Never"
+                  }
+                />
+                <Stat
+                  label="Next backup"
+                  value={
+                    status.nextScheduledAt
+                      ? new Date(status.nextScheduledAt).toLocaleString()
+                      : "—"
+                  }
+                />
+              </div>
+              <div className="border-t border-border pt-4">
+                <Button onClick={onTrigger} disabled={triggerBackup.isPending}>
+                  <CalendarClock data-icon="inline-start" />
+                  {triggerBackup.isPending ? "Starting…" : "Back up now"}
+                </Button>
+              </div>
             </div>
+          )}
+        </Card>
+      </div>
 
-            <div>
-              <Button onClick={onTrigger} disabled={triggerBackup.isPending}>
-                {triggerBackup.isPending ? "Starting…" : "Back up now"}
-              </Button>
-            </div>
+      <Card className="flex flex-col gap-4 p-5 sm:p-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+            <History className="h-5 w-5" />
           </div>
-        )}
-      </Card>
-
-      <Card className="flex flex-col gap-4 p-6">
-        <h2 className="text-[18px] font-medium text-foreground">History</h2>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">Backup history</h2>
+            <p className="text-sm text-muted-foreground">Review, download, or restore a verified copy.</p>
+          </div>
+        </div>
 
         {backupsLoading ? (
           <div className="flex flex-col gap-2">
@@ -407,11 +471,16 @@ export default function BackupPage() {
             </TableBody>
           </Table>
         ) : (
-          <div className="flex flex-col items-center gap-2 py-16 text-center">
-            <p className="text-sm font-medium text-foreground">No backups yet</p>
-            <p className="text-sm text-muted-foreground">
-              Connect a bucket above and back up now to get started.
-            </p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-muted/30 px-5 py-10 text-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted-foreground shadow-sm ring-1 ring-border">
+              <Archive className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">No backups yet</p>
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                Connect cloud storage above and create your first backup to see it here.
+              </p>
+            </div>
           </div>
         )}
       </Card>
@@ -429,9 +498,9 @@ export default function BackupPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
+    <div className="min-w-0 rounded-xl border border-border bg-muted/30 p-3">
+      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-foreground">{value}</p>
     </div>
   );
 }

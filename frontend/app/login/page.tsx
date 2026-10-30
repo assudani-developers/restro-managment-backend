@@ -10,15 +10,12 @@ import { useForm } from "react-hook-form";
 import {
   AlertCircle,
   ArrowRight,
-  Building2,
   CheckCircle2,
   ChefHat,
   CreditCard,
-  Key,
   Layers,
   Lock,
   Mail,
-  ShieldCheck,
   Sparkles,
   Zap,
 } from "lucide-react";
@@ -40,14 +37,9 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "superadmin@restrocore.com",
-      password: "SuperAdmin@2026!",
-    },
   });
 
   const onSubmit = (dto: LoginDto) => {
@@ -72,12 +64,6 @@ export default function LoginPage() {
     });
   };
 
-  const fillCredentials = (email: string, pass = "Password123!") => {
-    setValue("email", email, { shouldValidate: true });
-    setValue("password", pass, { shouldValidate: true });
-    setError(null);
-  };
-
   return (
     <main className="relative flex min-h-screen w-full flex-col bg-background text-foreground lg:flex-row">
       {/* Left Feature Showcase (Desktop) */}
@@ -92,7 +78,7 @@ export default function LoginPage() {
           <div>
             <span className="text-xl font-semibold tracking-tight">RestroCore</span>
             <span className="ml-2 rounded-full bg-white/80 px-2.5 py-0.5 text-xs font-semibold text-teal-800 ring-1 ring-teal-200/80">
-              Cloud POS v2.0
+              Restaurant operations
             </span>
           </div>
         </div>
@@ -149,9 +135,9 @@ export default function LoginPage() {
         <div className="relative z-10 flex items-center justify-between border-t border-teal-200/70 pt-4 text-xs text-slate-500">
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            System Status: 100% Operational
+            Secure access for your restaurant team
           </span>
-          <span>Light Edition • RestroCore POS</span>
+          <span>RestroCore</span>
         </div>
       </div>
 
@@ -182,43 +168,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Quick Demo Pre-Fill Chips for User Convenience */}
-          <div className="mb-6 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs">
-            <div className="mb-2.5 flex items-center justify-between text-xs font-semibold text-slate-700">
-              <span className="flex items-center gap-1.5 text-slate-900 font-bold">
-                <ShieldCheck className="h-4 w-4 text-teal-800" />
-                Select Demo Credentials
-              </span>
-              <span className="text-[11px] text-slate-500 font-mono">1-Click Auto Fill</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => fillCredentials("superadmin@restrocore.com", "SuperAdmin@2026!")}
-                className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50/80 px-3 py-1.5 text-xs font-bold text-amber-950 shadow-2xs transition-all hover:bg-amber-600 hover:text-white hover:border-amber-600"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                Platform SuperAdmin
-              </button>
-              <button
-                type="button"
-                onClick={() => fillCredentials("admin@khaobhar.com", "Password123!")}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900"
-              >
-                <Building2 className="h-3.5 w-3.5 text-teal-800" />
-                Hotel Owner (Admin)
-              </button>
-              <button
-                type="button"
-                onClick={() => fillCredentials("admin@restrocore.com", "Password123!")}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900"
-              >
-                <Key className="h-3.5 w-3.5 text-teal-800" />
-                Restaurant Manager
-              </button>
-            </div>
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
@@ -236,7 +185,7 @@ export default function LoginPage() {
                   spellCheck={false}
                   autoFocus
                   className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-                  placeholder="admin@restrocore.com"
+                  placeholder="Work email"
                   {...register("email")}
                 />
                 <Mail className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-slate-400" />
