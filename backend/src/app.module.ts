@@ -43,6 +43,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
 import { McpModule } from './mcp/mcp.module';
 import { SystemModule } from './system/system.module';
 import { VerifactuModule } from './modules/verifactu/verifactu.module';
+import { SuperAdminModule } from './modules/superadmin/superadmin.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { VerifactuModule } from './modules/verifactu/verifactu.module';
     IntegrationsModule,
     McpModule,
     SystemModule,
+    SuperAdminModule,
   ],
   controllers: [AppController],
   providers: [

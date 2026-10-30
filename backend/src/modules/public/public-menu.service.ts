@@ -34,6 +34,121 @@ export class PublicMenuService {
     };
   }
 
+  /** Public digital menu for a whole branch, used for universal table QR and direct delivery ordering. */
+  async getBranchMenu(branchId: string) {
+    const branch = await this.prisma.branch.findUnique({
+      where: { id: branchId },
+      include: {
+        restaurant: true,
+        floors: {
+          include: {
+            tables: {
+              where: { status: { not: 'OUT_OF_SERVICE' } },
+              orderBy: { number: 'asc' },
+            },
+          },
+        },
+      },
+    });
+    if (!branch) throw new NotFoundException('Branch not found');
+
+    const categories = await this.menuCategoriesForBranch(branchId);
+    const tables = branch.floors.flatMap((f) =>
+      f.tables.map((t) => ({
+        id: t.id,
+        number: t.number,
+        name: t.name ?? `Table ${t.number}`,
+        status: t.status,
+      })),
+    );
+
+    return {
+      branchId: branch.id,
+      branchName: branch.name,
+      restaurantName: branch.restaurant.name,
+      logoUrl: branch.restaurant.logoUrl,
+      currency: branch.restaurant.currency,
+      tables,
+      categories,
+    };
+  }
+
+  async createBranchOrder(
+    branchId: string,
+    dto: {
+      orderType: 'DINE_IN' | 'DELIVERY';
+      tableId?: string;
+      guestName?: string;
+      customerName?: string;
+      customerPhone?: string;
+      deliveryAddress?: string;
+      pincode?: string;
+      items: CartItemDto[];
+    },
+  ) {
+    const branch = await this.prisma.branch.findUnique({
+      where: { id: branchId },
+    });
+    if (!branch) throw new NotFoundException('Branch not found');
+
+    const staff = await this.prisma.userBranch.findFirst({
+      where: { branchId },
+      orderBy: { userId: 'asc' },
+    });
+    const createdById = staff?.userId;
+    if (!createdById) {
+      throw new NotFoundException('This branch has no staff to receive the order');
+    }
+
+    const normalizedItems = dto.items.map((i) => ({
+      menuItemId: i.menuItemId,
+      quantity: i.quantity,
+      modifierIds: i.modifierIds ?? [],
+    }));
+
+    if (dto.orderType === 'DINE_IN') {
+      let tableId = dto.tableId;
+      if (!tableId) {
+        const firstTable = await this.prisma.table.findFirst({
+          where: { floor: { branchId } },
+        });
+        tableId = firstTable?.id;
+      }
+
+      return this.ordersService.createOrder(
+        branchId,
+        createdById,
+        {
+          type: 'QR_ORDER',
+          tableId,
+          guestName: dto.guestName ?? 'Guest (QR)',
+          items: normalizedItems,
+        },
+        { channel: 'ONLINE', requireAcceptance: false },
+      );
+    } else {
+      const notes = [
+        dto.deliveryAddress ? `Address: ${dto.deliveryAddress}` : null,
+        dto.pincode ? `Pincode: ${dto.pincode}` : null,
+        dto.customerPhone ? `Phone: ${dto.customerPhone}` : null,
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
+      return this.ordersService.createOrder(
+        branchId,
+        createdById,
+        {
+          type: 'DELIVERY',
+          guestName: dto.customerName ?? 'Delivery Guest',
+          notes: notes || undefined,
+          items: normalizedItems,
+        },
+        { channel: 'ONLINE', requireAcceptance: false },
+      );
+    }
+  }
+
   /** Customer-visible menu tree, shared by the table-QR page and the kiosk. */
   menuCategoriesForBranch(branchId: string) {
     return this.prisma.menuCategory.findMany({

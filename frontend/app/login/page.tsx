@@ -43,7 +43,7 @@ export default function LoginPage() {
   } = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@restrocore.com",
+      email: "admin@khaobhar.com",
       password: "Password123!",
     },
   });
@@ -51,7 +51,13 @@ export default function LoginPage() {
   const onSubmit = (dto: LoginDto) => {
     setError(null);
     login.mutate(dto, {
-      onSuccess: () => router.push("/dashboard"),
+      onSuccess: (data) => {
+        if (data.user.isSuperAdmin || data.user.roleName === "SUPERADMIN") {
+          router.push("/superadmin");
+        } else {
+          router.push("/dashboard");
+        }
+      },
       onError: (err) => {
         if (err instanceof ApiError && err.message === "TWO_FACTOR_REQUIRED") {
           setNeedsCode(true);
@@ -190,11 +196,11 @@ export default function LoginPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => fillCredentials("admin@restrocore.com")}
-                className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+                onClick={() => fillCredentials("superadmin@restrocore.com")}
+                className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-900 shadow-sm transition-all hover:bg-amber-600 hover:text-white hover:border-amber-600"
               >
-                <ShieldCheck className="h-3.5 w-3.5" />
-                admin@restrocore.com
+                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                👑 SuperAdmin (SaaS Malik)
               </button>
               <button
                 type="button"
@@ -202,7 +208,15 @@ export default function LoginPage() {
                 className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
               >
                 <ShieldCheck className="h-3.5 w-3.5" />
-                admin@khaobhar.com
+                🏨 Hotel Owner (Admin)
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials("admin@restrocore.com")}
+                className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                ⚡ RestroCore Admin
               </button>
             </div>
           </div>

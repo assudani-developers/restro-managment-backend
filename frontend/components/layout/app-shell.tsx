@@ -11,7 +11,6 @@ import { useBranch } from "@/hooks/use-branch";
 import { useSettings } from "@/hooks/use-settings";
 import { BrandFooter } from "./brand-footer";
 import { BranchSwitcher } from "./branch-switcher";
-import { LanguageSwitcher } from "./language-switcher";
 import { Logo } from "./logo";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
@@ -83,39 +82,43 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
+    <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-900">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
-        <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex h-full">
+        <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100 shrink-0">
           <RestaurantBrand />
         </div>
-        <div className="px-3 py-3 border-b border-slate-100/60">
+        <div className="px-3 py-3 border-b border-slate-100/60 shrink-0">
           <BranchSwitcher />
         </div>
         <div className="flex-1 overflow-y-auto py-3">
           <SidebarNav user={user} />
         </div>
-        <BrandFooter />
+        <div className="shrink-0">
+          <BrandFooter />
+        </div>
       </aside>
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 bg-white p-0">
+        <SheetContent side="left" className="w-72 bg-white p-0 flex flex-col h-full">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100">
+          <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100 shrink-0">
             <RestaurantBrand />
           </div>
-          <div className="px-3 py-3 border-b border-slate-100/60">
+          <div className="px-3 py-3 border-b border-slate-100/60 shrink-0">
             <BranchSwitcher />
           </div>
           <div className="flex-1 overflow-y-auto py-3">
             <SidebarNav user={user} onNavigate={() => setMobileOpen(false)} />
           </div>
-          <BrandFooter />
+          <div className="shrink-0">
+            <BrandFooter />
+          </div>
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/95 px-4 backdrop-blur sm:px-6 shadow-2xs">
           <div className="flex items-center gap-3">
             <button
@@ -156,7 +159,6 @@ export function AppShell({
           <div className="flex items-center gap-2">
             <LiveClock />
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-            <LanguageSwitcher compact />
             <NotificationBell />
             <UserMenu user={user} />
           </div>

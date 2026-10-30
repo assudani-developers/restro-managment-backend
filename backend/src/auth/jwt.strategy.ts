@@ -40,13 +40,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Session no longer valid');
     }
 
+    const isSuper = Boolean(user.isSuperAdmin);
     return {
       id: user.id,
       restaurantId: user.restaurantId,
       name: user.name,
       roleId: user.roleId,
-      roleName: user.role.name,
+      roleName: isSuper ? 'SUPERADMIN' : user.role.name,
       permissions: user.role.permissions.map((rp) => rp.permission.key),
+      isSuperAdmin: isSuper,
     };
   }
 }

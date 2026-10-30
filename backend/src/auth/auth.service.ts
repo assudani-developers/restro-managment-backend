@@ -31,14 +31,19 @@ export class AuthService {
     name: string;
     roleId: string;
     role: { name: string; permissions: { permission: { key: string } }[] };
+    isSuperAdmin?: boolean;
   }): SessionUser {
+    const isSuper = Boolean(user.isSuperAdmin);
     return {
       id: user.id,
       restaurantId: user.restaurantId,
       name: user.name,
       roleId: user.roleId,
-      roleName: user.role.name,
-      permissions: user.role.permissions.map((rp) => rp.permission.key),
+      roleName: isSuper ? 'SUPERADMIN' : user.role.name,
+      permissions: isSuper
+        ? PERMISSIONS.map((p) => p.key)
+        : user.role.permissions.map((rp) => rp.permission.key),
+      isSuperAdmin: isSuper,
     };
   }
 

@@ -23,6 +23,18 @@ export function SidebarNav({
 
   return (
     <nav className="flex flex-col gap-1 px-3">
+      {(user?.isSuperAdmin || user?.roleName === "SUPERADMIN") && (
+        <Link
+          href="/superadmin"
+          onClick={onNavigate}
+          className="mb-2 flex items-center justify-between rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-2 text-xs font-bold text-white shadow-xs hover:from-amber-600 hover:to-amber-700 transition-all"
+        >
+          <span className="flex items-center gap-2">
+            👑 SuperAdmin Portal
+          </span>
+          <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded uppercase">SaaS Malik</span>
+        </Link>
+      )}
       {NAV_ITEMS.filter((item) => !item.permission || hasPermission(user, item.permission)).map(
         (item) => {
           const isActive = pathname?.startsWith(item.href);

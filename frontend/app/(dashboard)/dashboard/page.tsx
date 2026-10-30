@@ -195,15 +195,17 @@ export default function DashboardPage() {
             {data?.recentOrders.map((order) => {
               const isOnline = ONLINE_ORDER_TYPES.has(order.type);
               return (
-                <button
+                <div
                   key={order.id}
-                  type="button"
-                  onClick={() => setViewingOrderId(order.id)}
-                  className="flex items-center justify-between py-2.5 text-left text-sm transition hover:bg-slate-50 rounded-lg px-1.5"
-                  title="View order details"
+                  className="flex items-center justify-between py-2.5 text-left text-sm hover:bg-slate-50 rounded-lg px-1.5 transition-colors"
                 >
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-slate-900">#{order.orderNumber}</span>
+                  <button
+                    type="button"
+                    onClick={() => setViewingOrderId(order.id)}
+                    className="flex flex-col text-left flex-1"
+                    title="View order details"
+                  >
+                    <span className="font-semibold text-slate-900 hover:text-indigo-600 transition-colors">#{order.orderNumber}</span>
                     <Badge
                       variant="secondary"
                       className={cn(
@@ -213,7 +215,7 @@ export default function DashboardPage() {
                     >
                       {order.type.replace("_", " ")}
                     </Badge>
-                  </div>
+                  </button>
                   <div className="flex items-center gap-1.5">
                     <span className="font-bold tabular-nums text-slate-900">
                       {formatCurrency(order.totalAmount)}
@@ -225,7 +227,7 @@ export default function DashboardPage() {
                       maxAmount={Number(order.totalAmount)}
                     />
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

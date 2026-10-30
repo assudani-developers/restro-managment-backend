@@ -22,6 +22,30 @@ export class PublicMenuController {
     return this.publicMenuService.getMenuByQrToken(qrToken);
   }
 
+  @Get('branch/:branchId/menu')
+  getBranchMenu(@Param('branchId') branchId: string) {
+    return this.publicMenuService.getBranchMenu(branchId);
+  }
+
+  @Throttle({ default: { limit: 15, ttl: 60_000 } })
+  @Post('branch/:branchId/order')
+  createBranchOrder(
+    @Param('branchId') branchId: string,
+    @Body()
+    body: {
+      orderType: 'DINE_IN' | 'DELIVERY';
+      tableId?: string;
+      guestName?: string;
+      customerName?: string;
+      customerPhone?: string;
+      deliveryAddress?: string;
+      pincode?: string;
+      items: any[];
+    },
+  ) {
+    return this.publicMenuService.createBranchOrder(branchId, body);
+  }
+
   // Tighter than the app-wide default (300/min) — this is unauthenticated
   // and directly creates kitchen tickets, so it's a more attractive abuse
   // target than an authenticated staff endpoint.
