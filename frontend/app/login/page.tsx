@@ -51,12 +51,8 @@ export default function LoginPage() {
   const onSubmit = (dto: LoginDto) => {
     setError(null);
     login.mutate(dto, {
-      onSuccess: (data) => {
-        if (data.user.isSuperAdmin || data.user.roleName === "SUPERADMIN") {
-          router.push("/superadmin");
-        } else {
-          router.push("/dashboard");
-        }
+      onSuccess: () => {
+        router.push("/dashboard");
       },
       onError: (err) => {
         if (err instanceof ApiError && err.message === "TWO_FACTOR_REQUIRED") {

@@ -11,6 +11,7 @@ import { useBranch } from "@/hooks/use-branch";
 import { useSettings } from "@/hooks/use-settings";
 import { BrandFooter } from "./brand-footer";
 import { BranchSwitcher } from "./branch-switcher";
+import { SuperAdminRestaurantSwitcher } from "./superadmin-restaurant-switcher";
 import { Logo } from "./logo";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
@@ -88,7 +89,8 @@ export function AppShell({
         <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100 shrink-0">
           <RestaurantBrand />
         </div>
-        <div className="px-3 py-3 border-b border-slate-100/60 shrink-0">
+        <div className="px-3 py-3 border-b border-slate-100/60 shrink-0 space-y-2">
+          {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
           <BranchSwitcher />
         </div>
         <div className="flex-1 overflow-y-auto py-3">
@@ -106,7 +108,8 @@ export function AppShell({
           <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100 shrink-0">
             <RestaurantBrand />
           </div>
-          <div className="px-3 py-3 border-b border-slate-100/60 shrink-0">
+          <div className="px-3 py-3 border-b border-slate-100/60 shrink-0 space-y-2">
+            {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
             <BranchSwitcher />
           </div>
           <div className="flex-1 overflow-y-auto py-3">
@@ -157,18 +160,7 @@ export function AppShell({
           </div>
 
           <div className="flex items-center gap-2">
-            {user?.isSuperAdmin && (
-              <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-2.5 py-1 border border-amber-200 text-xs font-bold text-amber-900 shadow-2xs">
-                <Sparkles className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                <span className="hidden sm:inline">👑 SuperAdmin Mode</span>
-                <Link
-                  href="/superadmin"
-                  className="inline-flex items-center rounded-lg bg-amber-600 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-amber-700 transition-colors ml-1"
-                >
-                  Portal ↗
-                </Link>
-              </div>
-            )}
+            <SuperAdminRestaurantSwitcher />
             <LiveClock />
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <NotificationBell />

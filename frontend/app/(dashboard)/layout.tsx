@@ -29,7 +29,8 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
   const pathname = usePathname();
   const { data, isLoading, isError, error } = useCurrentUser();
   const permissions = data?.user.permissions;
-  const allowed = !permissions || canOpen(pathname ?? "", permissions, NAV_ITEMS);
+  const isSuper = Boolean(data?.user.isSuperAdmin || data?.user.roleName === "SUPERADMIN");
+  const allowed = isSuper || !permissions || canOpen(pathname ?? "", permissions, NAV_ITEMS);
   const fallback = permissions ? firstAllowedHref(permissions, NAV_ITEMS) : undefined;
 
   const isSuspended =

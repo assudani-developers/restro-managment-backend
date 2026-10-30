@@ -4,38 +4,29 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
-  ArrowRight,
   Building,
   Check,
   CheckCircle2,
   Copy,
   ExternalLink,
-  Key,
-  Lock,
-  LogOut,
-  Mail,
   Plus,
   Power,
   Search,
-  Shield,
   Sparkles,
   Store,
   Trash2,
   TrendingUp,
-  User,
   Users,
-  Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCurrentUser, useLogout } from "@/hooks/use-auth";
+import { useCurrentUser } from "@/hooks/use-auth";
 import { api, ApiError } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -67,11 +58,11 @@ interface RestaurantItem {
   owner: { id: string; name: string; email: string; isActive: boolean; createdAt: string } | null;
 }
 
-export default function SuperAdminPortalPage() {
+export default function SuperAdminHubPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: userResp, isLoading: userLoading } = useCurrentUser();
-  const logout = useLogout();
+  const { data: userResp } = useCurrentUser();
+  const user = userResp?.user;
 
   const [onboardOpen, setOnboardOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -111,8 +102,11 @@ export default function SuperAdminPortalPage() {
       ),
     onSuccess: (data) => {
       queryClient.clear();
-      toast.success(`Switched into ${data.restaurant.name}!`);
-      router.push("/dashboard");
+      if (data.branchId && typeof window !== "undefined") {
+        localStorage.setItem("restrocore_active_branch", data.branchId);
+      }
+      toast.success(`Instant Switch: Now viewing ${data.restaurant.name}!`);
+      window.location.href = "/dashboard";
     },
     onError: (err: any) => {
       toast.error(err instanceof ApiError ? err.message : "Failed to switch restaurant");
@@ -179,160 +173,137 @@ export default function SuperAdminPortalPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* SuperAdmin Top Navigation */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 py-3.5 shadow-2xs">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Logo size={36} />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-900 text-lg">RestroCore</span>
-                <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800 uppercase tracking-wider">
-                  SaaS Malik • SuperAdmin
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">Multi-Tenant Hotel & Platform Management Control</p>
-            </div>
+    <div className="flex flex-col gap-6 pb-12">
+      {/* Top Banner / Title */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              SuperAdmin Hub
+            </h1>
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 ring-1 ring-amber-600/20">
+              <Sparkles className="h-3 w-3 text-amber-600" />
+              SaaS Malik Control
+            </span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push("/dashboard")}
-              className="rounded-xl border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              <Store className="h-3.5 w-3.5 mr-1.5 text-indigo-600" />
-              Switch to Restaurant App
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => logout.mutate(undefined, { onSuccess: () => router.push("/login") })}
-              className="rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50"
-            >
-              <LogOut className="h-3.5 w-3.5 mr-1.5" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
-        {/* KPI Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Hotels</span>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
-                {stats?.totalRestaurants ?? <Skeleton className="h-8 w-12" />}
-              </p>
-              <span className="text-[11px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> {stats?.activeRestaurants ?? 0} Active on Platform
-              </span>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Building className="h-6 w-6" />
-            </div>
-          </Card>
-
-          <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Outlets</span>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
-                {stats?.totalBranches ?? <Skeleton className="h-8 w-12" />}
-              </p>
-              <span className="text-[11px] text-slate-500 font-medium mt-1 inline-block">
-                Across all registered franchises
-              </span>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Store className="h-6 w-6" />
-            </div>
-          </Card>
-
-          <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Platform GMV</span>
-              <p className="text-2xl font-extrabold text-emerald-600 mt-1 tabular-nums">
-                {stats ? formatCurrency(stats.totalRevenue) : <Skeleton className="h-8 w-20" />}
-              </p>
-              <span className="text-[11px] text-slate-500 font-medium mt-1 inline-block">
-                Total paid sales processed
-              </span>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <TrendingUp className="h-6 w-6" />
-            </div>
-          </Card>
-
-          <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Platform Health</span>
-              <p className="text-xl font-bold text-slate-900 mt-1">100% Operational</p>
-              <span className="text-[11px] text-indigo-600 font-semibold mt-1 inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Multi-Tenant Active
-              </span>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Activity className="h-6 w-6" />
-            </div>
-          </Card>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Manage multi-tenant franchises, onboard hotels, control live access, and monitor platform GMV
+          </p>
         </div>
 
-        {/* Action Header & Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+        <Button
+          onClick={() => setOnboardOpen(true)}
+          className="h-10 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white hover:bg-indigo-700 shadow-xs"
+        >
+          <Plus className="h-4 w-4 mr-1.5" />
+          Onboard New Hotel
+        </Button>
+      </div>
+
+      {/* KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Hotel & Restaurant Directory</h2>
-            <p className="text-xs text-slate-500">Manage client accounts, subscription plans & activation status</p>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Hotels</span>
+            <p className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
+              {stats?.totalRestaurants ?? <Skeleton className="h-8 w-12" />}
+            </p>
+            <span className="text-[11px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" /> {stats?.activeRestaurants ?? 0} Active on Platform
+            </span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search hotel or owner…"
-                className="h-10 w-64 rounded-xl border-slate-300 bg-white pl-9 text-xs shadow-xs"
-              />
-              <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
-            </div>
-
-            <Button
-              onClick={() => setOnboardOpen(true)}
-              className="h-10 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white hover:bg-indigo-700 shadow-xs"
-            >
-              <Plus className="h-4 w-4 mr-1.5" />
-              Onboard New Hotel
-            </Button>
+          <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <Building className="h-6 w-6" />
           </div>
+        </Card>
+
+        <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Outlets</span>
+            <p className="text-2xl font-extrabold text-slate-900 mt-1 tabular-nums">
+              {stats?.totalBranches ?? <Skeleton className="h-8 w-12" />}
+            </p>
+            <span className="text-[11px] text-slate-500 font-medium mt-1 inline-block">
+              Across all registered franchises
+            </span>
+          </div>
+          <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <Store className="h-6 w-6" />
+          </div>
+        </Card>
+
+        <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Platform GMV</span>
+            <p className="text-2xl font-extrabold text-emerald-600 mt-1 tabular-nums">
+              {stats ? formatCurrency(stats.totalRevenue) : <Skeleton className="h-8 w-20" />}
+            </p>
+            <span className="text-[11px] text-slate-500 font-medium mt-1 inline-block">
+              Total paid sales processed
+            </span>
+          </div>
+          <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <TrendingUp className="h-6 w-6" />
+          </div>
+        </Card>
+
+        <Card className="p-5 border-slate-200/90 bg-white shadow-xs rounded-2xl flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Platform Health</span>
+            <p className="text-xl font-bold text-slate-900 mt-1">100% Operational</p>
+            <span className="text-[11px] text-indigo-600 font-semibold mt-1 inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Multi-Tenant Active
+            </span>
+          </div>
+          <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <Activity className="h-6 w-6" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Directory & Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">Registered Hotels & Franchises</h2>
+          <p className="text-xs text-slate-500">Directory of all client hotels and their allocated administrator</p>
         </div>
 
-        {/* Hotels Table */}
-        <Card className="border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50/80 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+        <div className="relative">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search hotel or owner…"
+            className="h-10 w-64 rounded-xl border-slate-300 bg-white pl-9 text-xs shadow-xs"
+          />
+          <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
+        </div>
+      </div>
+
+      {/* Hotels Table */}
+      <Card className="border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/80 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <tr>
+                <th className="px-5 py-3.5">Hotel / Restaurant</th>
+                <th className="px-5 py-3.5">Owner Credentials</th>
+                <th className="px-5 py-3.5">Outlets</th>
+                <th className="px-5 py-3.5">Plan</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {restaurantsQuery.isLoading && (
                 <tr>
-                  <th className="px-5 py-3.5">Hotel / Restaurant</th>
-                  <th className="px-5 py-3.5">Owner Credentials</th>
-                  <th className="px-5 py-3.5">Outlets</th>
-                  <th className="px-5 py-3.5">Plan</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <td colSpan={6} className="p-8 text-center text-xs text-slate-400">
+                    Loading hotel directory…
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {restaurantsQuery.isLoading && (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-xs text-slate-400">
-                      Loading hotel directory…
-                    </td>
-                  </tr>
-                )}
-                {filteredRestaurants.map((hotel) => (
+              )}
+              {filteredRestaurants.map((hotel) => {
+                const isCurrent = hotel.id === user?.restaurantId;
+                return (
                   <tr key={hotel.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
@@ -340,7 +311,14 @@ export default function SuperAdminPortalPage() {
                           {hotel.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 leading-tight">{hotel.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-bold text-slate-900 leading-tight">{hotel.name}</p>
+                            {isCurrent && (
+                              <span className="rounded bg-amber-100 text-amber-900 text-[10px] font-black px-1.5 py-0.2 uppercase">
+                                Viewing Now
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[11px] text-slate-400 font-mono mt-0.5">ID: {hotel.id}</p>
                         </div>
                       </div>
@@ -350,7 +328,7 @@ export default function SuperAdminPortalPage() {
                       {hotel.owner ? (
                         <div>
                           <p className="font-semibold text-slate-800 text-xs">{hotel.owner.name}</p>
-                          <p className="text-xs text-indigo-600">{hotel.owner.email}</p>
+                          <p className="text-xs text-indigo-600 font-mono">{hotel.owner.email}</p>
                         </div>
                       ) : (
                         <span className="text-xs text-slate-400">No owner assigned</span>
@@ -408,20 +386,25 @@ export default function SuperAdminPortalPage() {
                           size="sm"
                           disabled={switchRestaurantMutation.isPending}
                           onClick={() => switchRestaurantMutation.mutate(hotel.id)}
-                          className="h-8 rounded-lg bg-indigo-600 border border-indigo-700 text-white text-xs font-bold hover:bg-indigo-700 shadow-2xs"
+                          className={cn(
+                            "h-8 rounded-lg text-xs font-bold transition-all shadow-2xs",
+                            isCurrent
+                              ? "bg-slate-100 text-slate-700 border border-slate-200"
+                              : "bg-indigo-600 border border-indigo-700 text-white hover:bg-indigo-700",
+                          )}
                         >
                           <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                          Launch & Manage
+                          {isCurrent ? "Active in Dashboard" : "1-Click Switch"}
                         </Button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      </main>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
       {/* Onboard Hotel Modal */}
       <Dialog open={onboardOpen} onOpenChange={setOnboardOpen}>
@@ -461,20 +444,21 @@ export default function SuperAdminPortalPage() {
                 <Input
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
-                  placeholder="e.g. Vikram Seth"
+                  placeholder="e.g. Ramesh Sharma"
                   className="mt-1 h-10 rounded-xl border-slate-300"
                 />
               </div>
+
               <div>
-                <Label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Plan</Label>
+                <Label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">SaaS Plan</Label>
                 <select
                   value={plan}
                   onChange={(e) => setPlan(e.target.value)}
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-300 bg-white px-2.5 text-xs font-semibold text-slate-800"
+                  className="mt-1 flex h-10 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-xs"
                 >
-                  <option value="STARTER">Starter Tier</option>
-                  <option value="PRO">Pro Tier</option>
-                  <option value="ENTERPRISE">Enterprise (Full)</option>
+                  <option value="STARTER">Starter ($29/mo)</option>
+                  <option value="PRO">Pro ($79/mo)</option>
+                  <option value="ENTERPRISE">Enterprise ($199/mo)</option>
                 </select>
               </div>
             </div>
@@ -580,7 +564,7 @@ export default function SuperAdminPortalPage() {
                   className="flex-1 h-11 rounded-xl bg-indigo-600 text-xs font-bold text-white hover:bg-indigo-700"
                 >
                   <ExternalLink className="h-4 w-4 mr-1.5" />
-                  Launch & Manage Now
+                  1-Click Switch Now
                 </Button>
               </div>
             </div>
@@ -590,4 +574,3 @@ export default function SuperAdminPortalPage() {
     </div>
   );
 }
-

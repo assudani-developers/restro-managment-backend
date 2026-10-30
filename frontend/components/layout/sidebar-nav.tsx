@@ -27,12 +27,19 @@ export function SidebarNav({
         <Link
           href="/superadmin"
           onClick={onNavigate}
-          className="mb-2 flex items-center justify-between rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-2 text-xs font-bold text-white shadow-xs hover:from-amber-600 hover:to-amber-700 transition-all"
+          className={cn(
+            "mb-2.5 flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold transition-all shadow-xs",
+            pathname === "/superadmin"
+              ? "bg-amber-600 text-white shadow-amber-600/25 ring-2 ring-amber-600/30"
+              : "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700",
+          )}
         >
           <span className="flex items-center gap-2">
-            👑 SuperAdmin Portal
+            👑 SuperAdmin Hub
           </span>
-          <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded uppercase">SaaS Malik</span>
+          <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+            SaaS
+          </span>
         </Link>
       )}
       {NAV_ITEMS.filter((item) => !item.permission || hasPermission(user, item.permission)).map(
