@@ -1,7 +1,7 @@
 "use client";
 
 import type { SessionUser } from "@restrocore/types";
-import { ChefHat, Clock, LayoutGrid, Menu, PanelLeft, PanelLeftClose, PanelLeftOpen, ShoppingCart, Sparkles } from "lucide-react";
+import { ChefHat, Clock, LayoutGrid, Menu, PanelLeft, PanelLeftClose, PanelLeftOpen, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -32,7 +32,7 @@ function RestaurantBrand() {
           alt={restaurant.name}
           className="h-8 w-8 shrink-0 rounded-lg object-contain shadow-xs"
         />
-        <span className="truncate text-sm font-bold tracking-tight text-slate-900">
+        <span className="truncate text-sm font-semibold tracking-tight text-slate-900">
           {restaurant.name}
         </span>
       </div>
@@ -42,7 +42,7 @@ function RestaurantBrand() {
   return (
     <div className="flex items-center gap-2.5 min-w-0">
       <Logo size={32} />
-      <span className="truncate text-base font-bold tracking-tight text-slate-900">
+      <span className="truncate text-base font-semibold tracking-tight text-slate-900">
         {restaurant?.name ?? "RestroCore"}
       </span>
     </div>
@@ -68,7 +68,7 @@ function LiveClock() {
 
   return (
     <div className="hidden xl:flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
-      <Clock className="h-3.5 w-3.5 text-indigo-600" />
+      <Clock className="h-3.5 w-3.5 text-primary" />
       <span className="tabular-nums">{time}</span>
     </div>
   );
@@ -106,17 +106,17 @@ export function AppShell({
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-900">
+    <div className="flex h-screen h-dvh overflow-hidden bg-background text-foreground">
       {/* Desktop collapsible sidebar */}
       <aside
         className={cn(
-          "hidden shrink-0 flex-col border-r border-slate-200 bg-white lg:flex h-full transition-all duration-200 ease-in-out",
+          "hidden h-full shrink-0 flex-col border-r border-slate-200/80 bg-sidebar lg:flex transition-[width] duration-200 ease-in-out",
           collapsed ? "w-18" : "w-64",
         )}
       >
         <div
           className={cn(
-            "flex h-16 items-center px-4 border-b border-slate-100 shrink-0",
+            "flex h-16 shrink-0 items-center border-b border-sidebar-border/80 px-4",
             collapsed ? "justify-center" : "justify-between",
           )}
         >
@@ -133,12 +133,12 @@ export function AppShell({
           </button>
         </div>
         {!collapsed && (
-          <div className="px-3 py-3 border-b border-slate-100/60 shrink-0 space-y-2">
+          <div className="shrink-0 space-y-2 border-b border-sidebar-border/70 px-3 py-4">
             {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
             <BranchSwitcher />
           </div>
         )}
-        <div className="flex-1 overflow-y-auto py-3">
+        <div className="min-h-0 flex-1 overflow-y-auto py-4">
           <SidebarNav user={user} collapsed={collapsed} />
         </div>
         {!collapsed && (
@@ -150,16 +150,16 @@ export function AppShell({
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 bg-white p-0 flex flex-col h-full">
+        <SheetContent side="left" className="flex h-full w-72 flex-col bg-sidebar p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100 shrink-0">
+          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/80 px-5">
             <RestaurantBrand />
           </div>
-          <div className="px-3 py-3 border-b border-slate-100/60 shrink-0 space-y-2">
+          <div className="shrink-0 space-y-2 border-b border-sidebar-border/70 px-3 py-4">
             {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
             <BranchSwitcher />
           </div>
-          <div className="flex-1 overflow-y-auto py-3">
+          <div className="min-h-0 flex-1 overflow-y-auto py-4">
             <SidebarNav user={user} onNavigate={() => setMobileOpen(false)} />
           </div>
           <div className="shrink-0">
@@ -168,13 +168,13 @@ export function AppShell({
         </SheetContent>
       </Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/95 px-3 sm:px-6 backdrop-blur shadow-2xs">
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-slate-200/80 bg-white/90 px-3 shadow-[0_1px_3px_rgb(17_24_39/0.03)] backdrop-blur-xl sm:px-6">
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-primary lg:hidden"
               aria-label="Open navigation"
             >
               <Menu className="h-5 w-5" />
@@ -183,7 +183,7 @@ export function AppShell({
             <button
               type="button"
               onClick={toggleSidebar}
-              className="hidden lg:flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+              className="hidden h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 lg:flex"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
@@ -194,21 +194,21 @@ export function AppShell({
             <div className="hidden lg:flex items-center gap-2">
               <Link
                 href="/pos"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
+                className="inline-flex min-h-9 items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm shadow-teal-900/15 transition-all hover:-translate-y-px hover:bg-teal-800 hover:shadow-md"
               >
                 <ShoppingCart className="h-3.5 w-3.5" />
                 POS Terminal
               </Link>
               <Link
                 href="/tables"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+                className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-xs transition-all hover:border-slate-300 hover:bg-slate-50"
               >
                 <LayoutGrid className="h-3.5 w-3.5 text-slate-500" />
                 Tables
               </Link>
               <Link
                 href="/kds"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+                className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-xs transition-all hover:border-slate-300 hover:bg-slate-50"
               >
                 <ChefHat className="h-3.5 w-3.5 text-slate-500" />
                 KDS Kitchen
@@ -216,8 +216,10 @@ export function AppShell({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <SuperAdminRestaurantSwitcher />
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="hidden xl:block">
+              <SuperAdminRestaurantSwitcher />
+            </div>
             <LiveClock />
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <NotificationBell />
@@ -225,7 +227,7 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-24 lg:p-6 lg:pb-6">
+        <main className="min-h-0 flex-1 overflow-y-auto bg-background/80 p-3 pb-[calc(6rem+env(safe-area-inset-bottom))] min-[360px]:p-4 min-[360px]:pb-[calc(6rem+env(safe-area-inset-bottom))] sm:p-6 sm:pb-[calc(6rem+env(safe-area-inset-bottom))] lg:p-7 lg:pb-8">
           {children}
         </main>
         <EntityDialogHost />

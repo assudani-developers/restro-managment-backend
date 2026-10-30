@@ -79,13 +79,13 @@ export function CartPanel({
     <div className="flex h-full flex-col gap-4 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
       <Tabs value={orderType} onValueChange={(v) => onOrderTypeChange(v as PosOrderType)}>
         <TabsList className="w-full bg-slate-100 p-1 rounded-xl">
-          <TabsTrigger value="DINE_IN" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-xs">
+          <TabsTrigger value="DINE_IN" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-xs">
             Dine-in
           </TabsTrigger>
-          <TabsTrigger value="TAKEAWAY" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-xs">
+          <TabsTrigger value="TAKEAWAY" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-xs">
             Takeaway
           </TabsTrigger>
-          <TabsTrigger value="DELIVERY" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-xs">
+          <TabsTrigger value="DELIVERY" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-xs">
             Delivery
           </TabsTrigger>
         </TabsList>
@@ -214,7 +214,7 @@ export function CartPanel({
                   {line.modifierLabel && (
                     <p className="text-xs text-slate-500 mt-0.5">{line.modifierLabel}</p>
                   )}
-                  <p className="mt-1 text-sm font-bold tabular-nums text-indigo-700">
+                  <p className="mt-1 text-sm font-bold tabular-nums text-teal-700">
                     {formatCurrency(line.unitPrice * line.quantity)}
                   </p>
                 </div>
@@ -259,7 +259,7 @@ export function CartPanel({
           </span>
         </div>
         <Button
-          className="h-12 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-sm font-bold text-white shadow-md shadow-indigo-600/25 transition-all hover:from-indigo-500 hover:to-indigo-600 disabled:opacity-50"
+          className="h-12 w-full rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-sm font-bold text-white shadow-md shadow-teal-600/25 transition-all hover:from-teal-500 hover:to-teal-600 disabled:opacity-50"
           disabled={!canSubmit}
           onClick={onSubmit}
         >

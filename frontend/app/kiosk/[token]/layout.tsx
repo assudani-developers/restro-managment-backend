@@ -33,7 +33,7 @@ export const viewport: Viewport = {
   // When the on-screen keyboard opens, shrink the layout (so the search box
   // stays visible) instead of panning the page under it.
   interactiveWidget: "resizes-content",
-  themeColor: "#4F46E5",
+  themeColor: "#147D70",
 };
 
 export default function KioskLayout({ children }: { children: React.ReactNode }) {

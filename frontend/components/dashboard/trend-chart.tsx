@@ -38,9 +38,9 @@ export function TrendChart({
   const hasData = data.some((d) => Number(d[valueKey]) > 0);
 
   return (
-    <Card className="flex flex-col gap-3 p-6">
-      <h2 className="flex items-center gap-2 text-[18px] font-medium text-foreground">
-        <Icon className="h-[18px] w-[18px] text-muted-foreground" />
+    <Card className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
+      <h2 className="flex items-center gap-2 text-base font-semibold tracking-tight text-slate-900">
+        <Icon className="h-[18px] w-[18px] text-primary" />
         {title}
       </h2>
 

@@ -21,7 +21,7 @@ import { TableShapeIcon } from "./table-shape-icon";
 
 const STATUS_STYLES: Record<TableStatusDto, string> = {
   AVAILABLE: "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-2xs hover:border-emerald-500",
-  OCCUPIED: "bg-indigo-50 border-indigo-300 text-indigo-900 shadow-2xs hover:border-indigo-500",
+  OCCUPIED: "bg-teal-50 border-teal-300 text-teal-900 shadow-2xs hover:border-teal-500",
   RESERVED: "bg-amber-50 border-amber-300 text-amber-900 shadow-2xs hover:border-amber-500",
   CLEANING: "bg-slate-100 border-slate-300 text-slate-700 opacity-90",
   OUT_OF_SERVICE: "bg-slate-100 border-slate-200 text-slate-400 opacity-60",

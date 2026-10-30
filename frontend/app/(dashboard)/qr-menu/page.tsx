@@ -67,7 +67,7 @@ export default function QrMenuDashboardPage() {
           </Button>
           <Button
             onClick={handleCopy}
-            className="rounded-xl bg-indigo-600 text-xs font-semibold text-white hover:bg-indigo-700 shadow-xs"
+            className="rounded-xl bg-teal-600 text-xs font-semibold text-white hover:bg-teal-700 shadow-xs"
           >
             {copied ? <Check className="h-3.5 w-3.5 mr-1.5" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
             {copied ? "Copied!" : "Copy Public Link"}
@@ -78,7 +78,7 @@ export default function QrMenuDashboardPage() {
       {/* Main Universal QR Feature Card */}
       <Card className="flex flex-col lg:flex-row items-center gap-8 p-8 border-slate-200/90 bg-white shadow-xs rounded-3xl">
         {/* QR Display */}
-        <div className="flex flex-col items-center gap-3 shrink-0 rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 shadow-2xs">
+        <div className="flex flex-col items-center gap-3 shrink-0 rounded-2xl border border-teal-100 bg-teal-50/40 p-6 shadow-2xs">
           <div className="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
             {universalUrl ? (
               <QRCodeSVG
@@ -99,7 +99,7 @@ export default function QrMenuDashboardPage() {
               <Skeleton className="h-[200px] w-[200px] rounded-xl" />
             )}
           </div>
-          <span className="text-xs font-bold text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-xs font-bold text-teal-950 uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
             Scan to Open Live Menu
           </span>
@@ -108,7 +108,7 @@ export default function QrMenuDashboardPage() {
         {/* Info & Details */}
         <div className="flex flex-col gap-4 flex-1">
           <div className="space-y-1.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700 ring-1 ring-indigo-500/20">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700 ring-1 ring-teal-500/20">
               Universal Smart QR
             </span>
             <h2 className="text-2xl font-bold text-slate-900">
@@ -121,7 +121,7 @@ export default function QrMenuDashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-700">
                 <UtensilsCrossed className="h-4 w-4" />
               </div>
               <div>
@@ -204,7 +204,7 @@ export default function QrMenuDashboardPage() {
                       navigator.clipboard.writeText(tableUrl);
                       toast.success(`Copied link for ${table.name ?? `Table ${table.number}`}!`);
                     }}
-                    className="mt-3 w-full h-8 rounded-lg text-xs font-semibold border-slate-200 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700"
+                    className="mt-3 w-full h-8 rounded-lg text-xs font-semibold border-slate-200 text-slate-700 hover:bg-teal-50 hover:text-teal-700"
                   >
                     Copy Link
                   </Button>

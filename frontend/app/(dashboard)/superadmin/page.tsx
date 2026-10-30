@@ -13,21 +13,28 @@ import {
   Copy,
   CreditCard,
   DollarSign,
+  Edit2,
   ExternalLink,
   Flame,
   Globe,
+  KeyRound,
   Layers,
   Mail,
   MapPin,
+  Megaphone,
   MessageSquare,
+  Pencil,
   Phone,
   Plus,
   Power,
+  RefreshCw,
+  Save,
   Search,
   Server,
   Settings,
   ShieldAlert,
   ShieldCheck,
+  Sliders,
   Sparkles,
   Store,
   Table,
@@ -69,13 +76,30 @@ interface RestaurantItem {
   logoUrl: string | null;
   currency: string;
   timezone: string;
+  upiVpa?: string | null;
+  upiPayeeName?: string | null;
   isActive: boolean;
   plan: string;
   createdAt: string;
   branchesCount: number;
   usersCount: number;
-  branches: { id: string; name: string; address?: string | null; phone?: string | null; isActive: boolean; _count: { orders: number } }[];
-  owner: { id: string; name: string; email: string; phone?: string | null; isActive: boolean; createdAt: string } | null;
+  branches: {
+    id: string;
+    name: string;
+    address?: string | null;
+    phone?: string | null;
+    gstNumber?: string | null;
+    isActive: boolean;
+    _count: { orders: number };
+  }[];
+  owner: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+    isActive: boolean;
+    createdAt: string;
+  } | null;
 }
 
 interface CrmTenant {
@@ -122,6 +146,20 @@ interface SubscriptionOverview {
   }[];
 }
 
+interface PlatformConfig {
+  platformName: string;
+  maintenanceMode: boolean;
+  announcement: string;
+  supportEmail: string;
+  supportPhone: string;
+  allowRegistration: boolean;
+  planPrices: {
+    STARTER: number;
+    GROWTH: number;
+    ENTERPRISE: number;
+  };
+}
+
 const CUISINE_CATEGORIES = [
   "Fine Dining Restaurant",
   "Casual Dining & Bistro",
@@ -159,7 +197,6 @@ const SAAS_PLANS_MATRIX = [
     priceInr: 3999,
     description: "Ideal for single-location cafes, food trucks, and small bistros.",
     badge: "Essential",
-    color: "slate",
     features: [
       "1 Physical Outlet",
       "Up to 5 Staff User Accounts",
@@ -176,7 +213,6 @@ const SAAS_PLANS_MATRIX = [
     priceInr: 7999,
     description: "For busy restaurants needing digital menus, kitchen routing, and stock.",
     badge: "Popular",
-    color: "indigo",
     features: [
       "Up to 3 Outlets",
       "Up to 15 Staff Accounts",
@@ -195,7 +231,6 @@ const SAAS_PLANS_MATRIX = [
     priceInr: 15999,
     description: "Complete full-stack restaurant OS for luxury hotels, pubs, and franchises.",
     badge: "Full Suite",
-    color: "amber",
     features: [
       "Unlimited Outlets & Franchises",
       "Unlimited Staff & Custom Roles",
@@ -277,8 +312,54 @@ export default function SuperAdminHubPage() {
   } | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Inspector Drawer for Branches
+  // Inspector & Outlets Drawer
   const [inspectHotel, setInspectHotel] = useState<RestaurantItem | null>(null);
+
+  // --- EDIT MODAL STATES ---
+  // 1. Edit Hotel Modal
+  const [editHotelModal, setEditHotelModal] = useState<RestaurantItem | null>(null);
+  const [editHotelForm, setEditHotelForm] = useState({
+    name: "",
+    legalName: "",
+    plan: "ENTERPRISE",
+    currency: "INR",
+    timezone: "Asia/Kolkata",
+    upiVpa: "",
+    upiPayeeName: "",
+    isActive: true,
+  });
+
+  // 2. Edit Owner / Password Reset Modal
+  const [editOwnerModal, setEditOwnerModal] = useState<{
+    restaurantId: string;
+    restaurantName: string;
+    owner: RestaurantItem["owner"];
+  } | null>(null);
+  const [editOwnerForm, setEditOwnerForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    newPassword: "",
+  });
+
+  // 3. Add Outlet Modal
+  const [addBranchHotelId, setAddBranchHotelId] = useState<string | null>(null);
+  const [addBranchForm, setAddBranchForm] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    gstNumber: "",
+  });
+
+  // 4. Edit Branch Modal
+  const [editBranchModal, setEditBranchModal] = useState<{
+    branchId: string;
+    name: string;
+    address?: string | null;
+    phone?: string | null;
+    gstNumber?: string | null;
+    isActive: boolean;
+  } | null>(null);
 
   // Queries
   const statsQuery = useQuery({
@@ -302,6 +383,15 @@ export default function SuperAdminHubPage() {
     queryFn: () => api.get<SubscriptionOverview>("/superadmin/subscriptions"),
     enabled: activeTab === "billing",
   });
+
+  const configQuery = useQuery({
+    queryKey: ["superadmin", "config"],
+    queryFn: () => api.get<PlatformConfig>("/superadmin/config"),
+    enabled: activeTab === "config",
+  });
+
+  // Config edit state
+  const [configForm, setConfigForm] = useState<Partial<PlatformConfig>>({});
 
   // Mutations
   const switchRestaurantMutation = useMutation({
@@ -330,6 +420,71 @@ export default function SuperAdminHubPage() {
     },
     onError: (err: any) => {
       toast.error(err instanceof ApiError ? err.message : "Failed to update status");
+    },
+  });
+
+  const updateRestaurantMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      api.patch(`/superadmin/restaurants/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["superadmin"] });
+      setEditHotelModal(null);
+      toast.success("Hotel details updated successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err instanceof ApiError ? err.message : "Failed to update hotel");
+    },
+  });
+
+  const updateOwnerMutation = useMutation({
+    mutationFn: ({ restaurantId, data }: { restaurantId: string; data: any }) =>
+      api.patch(`/superadmin/restaurants/${restaurantId}/owner`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["superadmin"] });
+      setEditOwnerModal(null);
+      toast.success("Owner credentials updated & password reset successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err instanceof ApiError ? err.message : "Failed to update owner");
+    },
+  });
+
+  const addBranchMutation = useMutation({
+    mutationFn: ({ restaurantId, data }: { restaurantId: string; data: any }) =>
+      api.post(`/superadmin/restaurants/${restaurantId}/branches`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["superadmin"] });
+      setAddBranchHotelId(null);
+      setInspectHotel(null);
+      toast.success("New branch outlet added with tables successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err instanceof ApiError ? err.message : "Failed to add branch");
+    },
+  });
+
+  const updateBranchMutation = useMutation({
+    mutationFn: ({ branchId, data }: { branchId: string; data: any }) =>
+      api.patch(`/superadmin/branches/${branchId}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["superadmin"] });
+      setEditBranchModal(null);
+      setInspectHotel(null);
+      toast.success("Branch outlet updated successfully!");
+    },
+    onError: (err: any) => {
+      toast.error(err instanceof ApiError ? err.message : "Failed to update branch");
+    },
+  });
+
+  const updateConfigMutation = useMutation({
+    mutationFn: (data: any) => api.patch("/superadmin/config", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["superadmin", "config"] });
+      toast.success("Platform system configuration saved!");
+    },
+    onError: (err: any) => {
+      toast.error(err instanceof ApiError ? err.message : "Failed to save configuration");
     },
   });
 
@@ -416,6 +571,34 @@ export default function SuperAdminHubPage() {
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const openEditHotel = (hotel: RestaurantItem) => {
+    setEditHotelModal(hotel);
+    setEditHotelForm({
+      name: hotel.name,
+      legalName: hotel.legalName || "",
+      plan: hotel.plan || "ENTERPRISE",
+      currency: hotel.currency || "INR",
+      timezone: hotel.timezone || "Asia/Kolkata",
+      upiVpa: hotel.upiVpa || "",
+      upiPayeeName: hotel.upiPayeeName || "",
+      isActive: hotel.isActive,
+    });
+  };
+
+  const openEditOwner = (hotel: RestaurantItem) => {
+    setEditOwnerModal({
+      restaurantId: hotel.id,
+      restaurantName: hotel.name,
+      owner: hotel.owner,
+    });
+    setEditOwnerForm({
+      name: hotel.owner?.name || "",
+      email: hotel.owner?.email || "",
+      phone: hotel.owner?.phone || "",
+      newPassword: "",
+    });
+  };
+
   const stats = statsQuery.data;
   const restaurants = restaurantsQuery.data ?? [];
 
@@ -450,11 +633,11 @@ export default function SuperAdminHubPage() {
             </h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800 border border-amber-200">
               <Sparkles className="h-3 w-3 text-amber-600" />
-              SaaS Platform Owner
+              SaaS Malik Control
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Centralized multi-tenant hotel administration, client CRM, subscriptions & real-time controls
+            Complete platform management: live editing of hotels, branches, owner credentials, subscriptions & announcements
           </p>
         </div>
 
@@ -464,7 +647,7 @@ export default function SuperAdminHubPage() {
               setOnboardStep(1);
               setOnboardOpen(true);
             }}
-            className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 shadow-sm shadow-indigo-600/25 gap-2"
+            className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 shadow-sm shadow-teal-600/25 gap-2"
           >
             <Plus className="h-4 w-4" />
             Onboard New Hotel
@@ -484,7 +667,7 @@ export default function SuperAdminHubPage() {
               <CheckCircle2 className="h-3 w-3" /> {stats?.activeRestaurants ?? 0} Active on Platform
             </span>
           </div>
-          <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center">
             <Building className="h-6 w-6" />
           </div>
         </Card>
@@ -556,17 +739,17 @@ export default function SuperAdminHubPage() {
                 className={cn(
                   "flex items-center gap-2 py-3 px-3.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap",
                   isActive
-                    ? "border-indigo-600 text-indigo-600"
+                    ? "border-teal-600 text-teal-600"
                     : "border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300",
                 )}
               >
-                <Icon className={cn("h-4 w-4", isActive ? "text-indigo-600" : "text-slate-400")} />
+                <Icon className={cn("h-4 w-4", isActive ? "text-teal-600" : "text-slate-400")} />
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
                   <span
                     className={cn(
                       "px-1.5 py-0.2 rounded-full text-[10px] font-extrabold tabular-nums",
-                      isActive ? "bg-indigo-100 text-indigo-800" : "bg-slate-100 text-slate-600",
+                      isActive ? "bg-teal-100 text-teal-800" : "bg-slate-100 text-slate-600",
                     )}
                   >
                     {tab.count}
@@ -578,14 +761,14 @@ export default function SuperAdminHubPage() {
         </nav>
       </div>
 
-      {/* TAB 1: HOTELS & OUTLETS */}
+      {/* TAB 1: HOTELS & OUTLETS (EDITABLE) */}
       {activeTab === "hotels" && (
         <Card className="border-slate-200/90 bg-white shadow-xs rounded-2xl overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-bold text-slate-900">Registered Hotels & Franchises</h2>
               <p className="text-xs text-slate-500">
-                1-click instant impersonation into any client portal, real-time suspension, and franchise management
+                Live edit hotel parameters, add/edit outlets, reset owner passwords, and 1-click instant switch
               </p>
             </div>
 
@@ -628,7 +811,7 @@ export default function SuperAdminHubPage() {
               <thead className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-5 py-3.5">Hotel / Restaurant</th>
-                  <th className="px-5 py-3.5">Owner & Contact</th>
+                  <th className="px-5 py-3.5">Owner & Credentials</th>
                   <th className="px-5 py-3.5">Outlets</th>
                   <th className="px-5 py-3.5">Plan</th>
                   <th className="px-5 py-3.5">Platform Status</th>
@@ -656,7 +839,7 @@ export default function SuperAdminHubPage() {
                     <tr key={hotel.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-extrabold text-sm shrink-0">
+                          <div className="h-10 w-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700 font-extrabold text-sm shrink-0">
                             {hotel.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -678,8 +861,18 @@ export default function SuperAdminHubPage() {
                       <td className="px-5 py-4">
                         {hotel.owner ? (
                           <div>
-                            <p className="font-semibold text-slate-900 text-xs">{hotel.owner.name}</p>
-                            <p className="text-xs text-indigo-600 font-mono mt-0.5">{hotel.owner.email}</p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-semibold text-slate-900 text-xs">{hotel.owner.name}</p>
+                              <button
+                                type="button"
+                                onClick={() => openEditOwner(hotel)}
+                                className="text-slate-400 hover:text-teal-600 transition-colors p-0.5"
+                                title="Edit owner or reset password"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </button>
+                            </div>
+                            <p className="text-xs text-teal-600 font-mono mt-0.5">{hotel.owner.email}</p>
                             {hotel.owner.phone && (
                               <p className="text-[11px] text-slate-500 mt-0.5">{hotel.owner.phone}</p>
                             )}
@@ -693,27 +886,30 @@ export default function SuperAdminHubPage() {
                         <button
                           type="button"
                           onClick={() => setInspectHotel(hotel)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1 text-xs font-bold text-slate-700 transition-colors"
-                          title="Click to inspect all outlets"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1 text-xs font-bold text-slate-700 transition-colors"
+                          title="Click to manage all branches"
                         >
-                          <Store className="h-3 w-3 text-slate-500" />
+                          <Store className="h-3.5 w-3.5 text-slate-500" />
                           <span>{hotel.branchesCount} Outlets</span>
                         </button>
                       </td>
 
                       <td className="px-5 py-4">
-                        <span
+                        <button
+                          type="button"
+                          onClick={() => openEditHotel(hotel)}
                           className={cn(
-                            "rounded-md px-2.5 py-1 text-xs font-bold border",
+                            "rounded-md px-2.5 py-1 text-xs font-bold border transition-colors hover:ring-2 hover:ring-teal-200",
                             hotel.plan === "ENTERPRISE"
                               ? "bg-amber-50 text-amber-800 border-amber-200"
                               : hotel.plan === "GROWTH"
-                              ? "bg-indigo-50 text-indigo-800 border-indigo-200"
+                              ? "bg-teal-50 text-teal-800 border-teal-200"
                               : "bg-slate-100 text-slate-700 border-slate-200",
                           )}
+                          title="Click to edit plan & tier"
                         >
                           {hotel.plan}
-                        </span>
+                        </button>
                       </td>
 
                       <td className="px-5 py-4">
@@ -736,7 +932,17 @@ export default function SuperAdminHubPage() {
                       </td>
 
                       <td className="px-5 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEditHotel(hotel)}
+                            className="h-8 rounded-xl text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
+                            title="Edit Hotel Details"
+                          >
+                            <Pencil className="h-3 w-3 mr-1 text-slate-500" />
+                            Edit
+                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
@@ -748,7 +954,7 @@ export default function SuperAdminHubPage() {
                                 : "border-emerald-200 text-emerald-700 hover:bg-emerald-50",
                             )}
                           >
-                            <Power className="h-3.5 w-3.5 mr-1" />
+                            <Power className="h-3 w-3 mr-1" />
                             {hotel.isActive ? "Suspend" : "Activate"}
                           </Button>
                           <Button
@@ -759,11 +965,11 @@ export default function SuperAdminHubPage() {
                               "h-8 rounded-xl text-xs font-bold transition-all shadow-2xs",
                               isCurrent
                                 ? "bg-slate-100 text-slate-700 border border-slate-200"
-                                : "bg-indigo-600 border border-indigo-700 text-white hover:bg-indigo-700",
+                                : "bg-teal-600 border border-teal-700 text-white hover:bg-teal-700",
                             )}
                           >
-                            <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                            {isCurrent ? "Active in Dashboard" : "1-Click Switch"}
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            {isCurrent ? "Active" : "1-Click"}
                           </Button>
                         </div>
                       </td>
@@ -782,11 +988,11 @@ export default function SuperAdminHubPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Users className="h-4 w-4 text-indigo-600" />
+                <Users className="h-4 w-4 text-teal-600" />
                 Global Tenant CRM & Hotel Owners
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Contact information, total sales processed, lifetime orders, and direct WhatsApp / call channels
+                Contact information, total sales processed, lifetime orders, direct WhatsApp & edit credentials
               </p>
             </div>
             <div className="w-full sm:w-64">
@@ -809,6 +1015,7 @@ export default function SuperAdminHubPage() {
               const waUrl = client.owner?.phone
                 ? `https://wa.me/${client.owner.phone.replace(/[^0-9]/g, "")}`
                 : undefined;
+              const matchingHotel = restaurants.find((r) => r.id === client.restaurantId);
               return (
                 <Card
                   key={client.restaurantId}
@@ -817,7 +1024,7 @@ export default function SuperAdminHubPage() {
                   <div>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-10 w-10 rounded-xl bg-indigo-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                        <div className="h-10 w-10 rounded-xl bg-teal-600 text-white font-bold flex items-center justify-center text-sm shadow-xs">
                           {client.owner?.name?.charAt(0).toUpperCase() || "H"}
                         </div>
                         <div>
@@ -840,7 +1047,7 @@ export default function SuperAdminHubPage() {
                     <div className="mt-4 space-y-1.5 text-xs text-slate-600">
                       <div className="flex items-center gap-2">
                         <Mail className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        <span className="font-mono text-indigo-600 truncate">{client.owner?.email || "No email"}</span>
+                        <span className="font-mono text-teal-600 truncate">{client.owner?.email || "No email"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -887,6 +1094,17 @@ export default function SuperAdminHubPage() {
                         <Phone className="h-3.5 w-3.5" />
                       </a>
                     )}
+                    {matchingHotel && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEditOwner(matchingHotel)}
+                        className="rounded-xl border-slate-200 text-slate-700 h-8.5 px-3 text-xs font-semibold"
+                        title="Edit Owner & Reset Password"
+                      >
+                        <KeyRound className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={() => switchRestaurantMutation.mutate(client.restaurantId)}
@@ -908,7 +1126,7 @@ export default function SuperAdminHubPage() {
         <div className="space-y-6">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Layers className="h-4 w-4 text-indigo-600" />
+              <Layers className="h-4 w-4 text-teal-600" />
               SaaS Subscription Plans & Feature Matrix
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -932,7 +1150,7 @@ export default function SuperAdminHubPage() {
                       <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">
                         {tier.badge}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-bold text-indigo-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700">
                         {activeCount} Hotels Subscribed
                       </span>
                     </div>
@@ -965,7 +1183,7 @@ export default function SuperAdminHubPage() {
                       "w-full h-10 rounded-xl font-bold text-xs shadow-2xs",
                       tier.key === "ENTERPRISE"
                         ? "bg-amber-600 hover:bg-amber-700 text-white"
-                        : "bg-indigo-600 hover:bg-indigo-700 text-white",
+                        : "bg-teal-600 hover:bg-teal-700 text-white",
                     )}
                   >
                     Onboard Hotel on {tier.name}
@@ -983,7 +1201,7 @@ export default function SuperAdminHubPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-indigo-600" />
+                <CreditCard className="h-4 w-4 text-teal-600" />
                 SaaS Subscription Revenue & Invoicing
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -1009,7 +1227,7 @@ export default function SuperAdminHubPage() {
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Paying Clients</span>
-              <p className="text-2xl font-black text-indigo-600 mt-1 tabular-nums">
+              <p className="text-2xl font-black text-teal-600 mt-1 tabular-nums">
                 {subscriptionsQuery.data?.activeSubscribers ?? 0}
               </p>
               <span className="text-[11px] text-slate-400">Active platform tenants</span>
@@ -1026,107 +1244,171 @@ export default function SuperAdminHubPage() {
                   <th className="px-4 py-3">Billing Cycle</th>
                   <th className="px-4 py-3">Next Due Date</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Edit Plan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {subscriptionsQuery.isLoading && (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-xs text-slate-400">
+                    <td colSpan={7} className="p-8 text-center text-xs text-slate-400">
                       Loading subscription records…
                     </td>
                   </tr>
                 )}
-                {subscriptionsQuery.data?.subscriptions.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-slate-50/60">
-                    <td className="px-4 py-3.5 font-bold text-slate-900">{sub.restaurantName}</td>
-                    <td className="px-4 py-3.5">
-                      <span className="rounded bg-indigo-50 px-2 py-0.5 text-xs font-bold text-indigo-700">
-                        {sub.plan}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">${sub.monthlyFee}/mo</td>
-                    <td className="px-4 py-3.5 text-slate-600 font-medium">{sub.billingCycle}</td>
-                    <td className="px-4 py-3.5 text-slate-500 font-mono">
-                      {new Date(sub.nextBillingDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span
-                        className={cn(
-                          "rounded-full px-2.5 py-0.5 text-xs font-bold",
-                          sub.status === "ACTIVE"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-rose-50 text-rose-700 border border-rose-200",
+                {subscriptionsQuery.data?.subscriptions.map((sub) => {
+                  const match = restaurants.find((r) => r.id === sub.id);
+                  return (
+                    <tr key={sub.id} className="hover:bg-slate-50/60">
+                      <td className="px-4 py-3.5 font-bold text-slate-900">{sub.restaurantName}</td>
+                      <td className="px-4 py-3.5">
+                        <span className="rounded bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-700">
+                          {sub.plan}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">${sub.monthlyFee}/mo</td>
+                      <td className="px-4 py-3.5 text-slate-600 font-medium">{sub.billingCycle}</td>
+                      <td className="px-4 py-3.5 text-slate-500 font-mono">
+                        {new Date(sub.nextBillingDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={cn(
+                            "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                            sub.status === "ACTIVE"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-rose-50 text-rose-700 border border-rose-200",
+                          )}
+                        >
+                          {sub.status === "ACTIVE" ? "Paid & Active" : "Suspended"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        {match && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEditHotel(match)}
+                            className="h-7 text-xs rounded-lg px-2.5"
+                          >
+                            <Pencil className="h-3 w-3 mr-1" />
+                            Edit
+                          </Button>
                         )}
-                      >
-                        {sub.status === "ACTIVE" ? "Paid & Active" : "Suspended"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </Card>
       )}
 
-      {/* TAB 5: SYSTEM CONFIGURATION & SECURITY */}
+      {/* TAB 5: SYSTEM CONFIGURATION & EDITABLE SETTINGS */}
       {activeTab === "config" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <Card className="p-6 rounded-3xl border-slate-200/90 bg-white shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-indigo-600" />
-              SaaS Security & Session Policies
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Sliders className="h-5 w-5 text-teal-600" />
+                Global Platform Settings (Editable)
+              </h3>
+            </div>
             <p className="text-xs text-slate-500">
-              Platform-wide authentication, impersonation, and persistent session parameters
+              Update platform branding, live broadcast announcement banner, and maintenance mode
             </p>
 
-            <div className="space-y-3 pt-2 text-xs">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div>
-                  <p className="font-bold text-slate-900">Auto-Logout on Inactivity</p>
-                  <p className="text-slate-500 text-[11px]">Strictly disabled across terminals as requested</p>
-                </div>
-                <span className="rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 uppercase">
-                  Disabled (Persistent)
-                </span>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateConfigMutation.mutate(configForm);
+              }}
+              className="space-y-3.5 pt-2 text-xs"
+            >
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">SaaS Platform Name</Label>
+                <Input
+                  defaultValue={configQuery.data?.platformName || "RestroCore SaaS Enterprise"}
+                  onChange={(e) => setConfigForm({ ...configForm, platformName: e.target.value })}
+                  className="mt-1 h-9.5 rounded-xl"
+                />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div>
-                  <p className="font-bold text-slate-900">Persistent Session Lifetime</p>
-                  <p className="text-slate-500 text-[11px]">Keep users logged in seamlessly across reloads</p>
-                </div>
-                <span className="rounded-md bg-indigo-100 text-indigo-800 text-[10px] font-black px-2 py-0.5 uppercase">
-                  365 Days
-                </span>
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Global Broadcast Announcement Banner
+                </Label>
+                <textarea
+                  rows={2}
+                  defaultValue={
+                    configQuery.data?.announcement ||
+                    "RestroCore Cloud 2.0 is live. All POS, KDS & QR systems are operational."
+                  }
+                  onChange={(e) => setConfigForm({ ...configForm, announcement: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 text-xs text-slate-800"
+                  placeholder="Broadcast message to all hotel terminals & staff"
+                />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="font-bold text-slate-900">SuperAdmin 1-Click Impersonation</p>
-                  <p className="text-slate-500 text-[11px]">Instant switch into any hotel without passwords</p>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Support Email</Label>
+                  <Input
+                    defaultValue={configQuery.data?.supportEmail || "support@restrocore.com"}
+                    onChange={(e) => setConfigForm({ ...configForm, supportEmail: e.target.value })}
+                    className="mt-1 h-9.5 rounded-xl font-mono text-xs"
+                  />
                 </div>
-                <span className="rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 uppercase">
-                  Active
-                </span>
+                <div>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Support Phone</Label>
+                  <Input
+                    defaultValue={configQuery.data?.supportPhone || "+91 80000 12345"}
+                    onChange={(e) => setConfigForm({ ...configForm, supportPhone: e.target.value })}
+                    className="mt-1 h-9.5 rounded-xl font-mono text-xs"
+                  />
+                </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div>
-                  <p className="font-bold text-slate-900">Real-Time Suspension Broadcast</p>
-                  <p className="text-slate-500 text-[11px]">Instant live lock on suspended hotel terminals</p>
+                  <p className="font-bold text-slate-900">Platform Maintenance Mode</p>
+                  <p className="text-[11px] text-slate-500">Lock non-superadmin access during critical updates</p>
                 </div>
-                <span className="rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 uppercase">
-                  WebSocket Sync
-                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setConfigForm({
+                      ...configForm,
+                      maintenanceMode: !Boolean(configForm.maintenanceMode ?? configQuery.data?.maintenanceMode),
+                    })
+                  }
+                  className={cn(
+                    "px-3 py-1 rounded-xl text-xs font-bold border transition-colors",
+                    (configForm.maintenanceMode ?? configQuery.data?.maintenanceMode)
+                      ? "bg-rose-600 text-white border-rose-600"
+                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100",
+                  )}
+                >
+                  {(configForm.maintenanceMode ?? configQuery.data?.maintenanceMode) ? "Enabled (Locked)" : "Disabled (Live)"}
+                </button>
               </div>
-            </div>
+
+              <div className="pt-2 flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={updateConfigMutation.isPending}
+                  className="h-9.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5 gap-1.5 shadow-2xs"
+                >
+                  <Save className="h-4 w-4" />
+                  {updateConfigMutation.isPending ? "Saving…" : "Save Platform Config"}
+                </Button>
+              </div>
+            </form>
           </Card>
 
           <Card className="p-6 rounded-3xl border-slate-200/90 bg-white shadow-xs space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Server className="h-5 w-5 text-indigo-600" />
+              <Server className="h-5 w-5 text-teal-600" />
               Platform Infrastructure Health
             </h3>
             <p className="text-xs text-slate-500">
@@ -1166,26 +1448,290 @@ export default function SuperAdminHubPage() {
                 </div>
                 <span className="text-emerald-700 font-bold">v2.0-SaaS</span>
               </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-teal-50/60 border border-teal-200">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="h-4 w-4 text-teal-600" />
+                  <div>
+                    <p className="font-bold text-slate-900">Session Policy</p>
+                    <p className="text-slate-500 text-[11px]">Auto-logout disabled &bull; 365 Days persistent login</p>
+                  </div>
+                </div>
+                <span className="text-teal-700 font-bold">Active</span>
+              </div>
             </div>
           </Card>
         </div>
       )}
 
-      {/* MULTI-BRANCH INSPECTOR DIALOG */}
-      <Dialog open={Boolean(inspectHotel)} onOpenChange={(open) => !open && setInspectHotel(null)}>
-        <DialogContent className="max-w-xl w-[95vw] rounded-3xl bg-white p-6 shadow-xl border border-slate-200 max-h-[85vh] overflow-y-auto">
+      {/* --- EDIT HOTEL DETAILS DIALOG --- */}
+      <Dialog open={Boolean(editHotelModal)} onOpenChange={(open) => !open && setEditHotelModal(null)}>
+        <DialogContent className="max-w-xl w-[95vw] rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Store className="h-5 w-5 text-indigo-600" />
-              {inspectHotel?.name} &mdash; Outlets & Branches
+              <Pencil className="h-5 w-5 text-teal-600" />
+              Edit Hotel: {editHotelModal?.name}
             </DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!editHotelModal) return;
+              updateRestaurantMutation.mutate({
+                id: editHotelModal.id,
+                data: editHotelForm,
+              });
+            }}
+            className="space-y-4 pt-3 text-xs"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Restaurant Name *</Label>
+                <Input
+                  value={editHotelForm.name}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, name: e.target.value })}
+                  className="mt-1 h-10 rounded-xl"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Legal Entity Name</Label>
+                <Input
+                  value={editHotelForm.legalName}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, legalName: e.target.value })}
+                  className="mt-1 h-10 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">SaaS Plan</Label>
+                <select
+                  value={editHotelForm.plan}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, plan: e.target.value })}
+                  className="mt-1 w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold"
+                >
+                  <option value="STARTER">STARTER</option>
+                  <option value="GROWTH">GROWTH</option>
+                  <option value="ENTERPRISE">ENTERPRISE</option>
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Currency</Label>
+                <select
+                  value={editHotelForm.currency}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, currency: e.target.value })}
+                  className="mt-1 w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Timezone</Label>
+                <select
+                  value={editHotelForm.timezone}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, timezone: e.target.value })}
+                  className="mt-1 w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold"
+                >
+                  {TIMEZONES.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  UPI VPA (QR Payment)
+                </Label>
+                <Input
+                  value={editHotelForm.upiVpa}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, upiVpa: e.target.value })}
+                  placeholder="e.g. merchant@okhdfcbank"
+                  className="mt-1 h-10 rounded-xl font-mono"
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">UPI Payee Name</Label>
+                <Input
+                  value={editHotelForm.upiPayeeName}
+                  onChange={(e) => setEditHotelForm({ ...editHotelForm, upiPayeeName: e.target.value })}
+                  placeholder="e.g. Royal Palace Foods"
+                  className="mt-1 h-10 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+              <div>
+                <p className="font-bold text-slate-900">Platform Account Active</p>
+                <p className="text-[11px] text-slate-500">Uncheck to instantly suspend terminal operations</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={editHotelForm.isActive}
+                onChange={(e) => setEditHotelForm({ ...editHotelForm, isActive: e.target.checked })}
+                className="h-5 w-5 rounded border-slate-300 text-teal-600"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditHotelModal(null)}
+                className="h-10 rounded-xl text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={updateRestaurantMutation.isPending}
+                className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5 shadow-2xs"
+              >
+                {updateRestaurantMutation.isPending ? "Saving…" : "Save Hotel Changes"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- EDIT OWNER & RESET PASSWORD DIALOG --- */}
+      <Dialog open={Boolean(editOwnerModal)} onOpenChange={(open) => !open && setEditOwnerModal(null)}>
+        <DialogContent className="max-w-md w-[95vw] rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-teal-600" />
+              Owner & Password: {editOwnerModal?.restaurantName}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!editOwnerModal) return;
+              updateOwnerMutation.mutate({
+                restaurantId: editOwnerModal.restaurantId,
+                data: {
+                  name: editOwnerForm.name,
+                  email: editOwnerForm.email,
+                  phone: editOwnerForm.phone,
+                  ...(editOwnerForm.newPassword ? { password: editOwnerForm.newPassword } : {}),
+                },
+              });
+            }}
+            className="space-y-3.5 pt-3 text-xs"
+          >
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Owner Full Name *</Label>
+              <Input
+                value={editOwnerForm.name}
+                onChange={(e) => setEditOwnerForm({ ...editOwnerForm, name: e.target.value })}
+                className="mt-1 h-10 rounded-xl"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Login Email Address *</Label>
+              <Input
+                type="email"
+                value={editOwnerForm.email}
+                onChange={(e) => setEditOwnerForm({ ...editOwnerForm, email: e.target.value })}
+                className="mt-1 h-10 rounded-xl font-mono"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Mobile / WhatsApp</Label>
+              <Input
+                value={editOwnerForm.phone}
+                onChange={(e) => setEditOwnerForm({ ...editOwnerForm, phone: e.target.value })}
+                className="mt-1 h-10 rounded-xl font-mono"
+              />
+            </div>
+
+            <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+              <Label className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+                Reset Password (Optional)
+              </Label>
+              <Input
+                type="text"
+                placeholder="Leave blank to keep unchanged"
+                value={editOwnerForm.newPassword}
+                onChange={(e) => setEditOwnerForm({ ...editOwnerForm, newPassword: e.target.value })}
+                className="h-10 rounded-xl font-mono bg-white border-amber-300"
+              />
+              <p className="text-[11px] text-amber-800">
+                Entering a new password here will immediately overwrite the owner&apos;s credentials.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditOwnerModal(null)}
+                className="h-10 rounded-xl text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={updateOwnerMutation.isPending}
+                className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5 shadow-2xs"
+              >
+                {updateOwnerMutation.isPending ? "Updating…" : "Update Owner & Password"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- MULTI-BRANCH INSPECTOR & OUTLET MANAGER DIALOG --- */}
+      <Dialog open={Boolean(inspectHotel)} onOpenChange={(open) => !open && setInspectHotel(null)}>
+        <DialogContent className="max-w-2xl w-[95vw] rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Store className="h-5 w-5 text-teal-600" />
+                {inspectHotel?.name} &mdash; Outlets & Branches
+              </DialogTitle>
+              {inspectHotel && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setAddBranchHotelId(inspectHotel.id);
+                    setAddBranchForm({ name: "", address: "", phone: "", gstNumber: "" });
+                  }}
+                  className="h-8 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs gap-1.5"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Outlet
+                </Button>
+              )}
+            </div>
           </DialogHeader>
 
           <div className="space-y-3 pt-3">
             {inspectHotel?.branches?.map((branch) => (
               <div
                 key={branch.id}
-                className="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between"
+                className="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -1210,10 +1756,29 @@ export default function SuperAdminHubPage() {
                     </p>
                   )}
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-lg">
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">
                     {branch._count?.orders ?? 0} Orders
                   </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setEditBranchModal({
+                        branchId: branch.id,
+                        name: branch.name,
+                        address: branch.address,
+                        phone: branch.phone,
+                        gstNumber: branch.gstNumber,
+                        isActive: branch.isActive,
+                      })
+                    }
+                    className="h-8 rounded-xl text-xs font-semibold"
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit Outlet
+                  </Button>
                 </div>
               </div>
             ))}
@@ -1221,12 +1786,191 @@ export default function SuperAdminHubPage() {
         </DialogContent>
       </Dialog>
 
-      {/* COMPREHENSIVE MULTI-STEP HOTEL ONBOARDING MODAL */}
+      {/* --- ADD NEW BRANCH MODAL --- */}
+      <Dialog open={Boolean(addBranchHotelId)} onOpenChange={(open) => !open && setAddBranchHotelId(null)}>
+        <DialogContent className="max-w-md w-[95vw] rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Plus className="h-5 w-5 text-teal-600" />
+              Add New Outlet / Branch
+            </DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!addBranchHotelId) return;
+              addBranchMutation.mutate({
+                restaurantId: addBranchHotelId,
+                data: addBranchForm,
+              });
+            }}
+            className="space-y-3.5 pt-3 text-xs"
+          >
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Outlet Name *</Label>
+              <Input
+                value={addBranchForm.name}
+                onChange={(e) => setAddBranchForm({ ...addBranchForm, name: e.target.value })}
+                placeholder="e.g. South Extension Branch"
+                className="mt-1 h-10 rounded-xl"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Address</Label>
+              <Input
+                value={addBranchForm.address}
+                onChange={(e) => setAddBranchForm({ ...addBranchForm, address: e.target.value })}
+                placeholder="e.g. Ring Road, South Extension"
+                className="mt-1 h-10 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Phone</Label>
+                <Input
+                  value={addBranchForm.phone}
+                  onChange={(e) => setAddBranchForm({ ...addBranchForm, phone: e.target.value })}
+                  placeholder="e.g. +91 99999 33333"
+                  className="mt-1 h-10 rounded-xl font-mono"
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">GSTIN / Tax ID</Label>
+                <Input
+                  value={addBranchForm.gstNumber}
+                  onChange={(e) => setAddBranchForm({ ...addBranchForm, gstNumber: e.target.value })}
+                  placeholder="e.g. 07AAAAA0000A1Z5"
+                  className="mt-1 h-10 rounded-xl font-mono uppercase"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setAddBranchHotelId(null)}
+                className="h-10 rounded-xl text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={addBranchMutation.isPending}
+                className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5 shadow-2xs"
+              >
+                {addBranchMutation.isPending ? "Creating…" : "Create Outlet"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- EDIT BRANCH MODAL --- */}
+      <Dialog open={Boolean(editBranchModal)} onOpenChange={(open) => !open && setEditBranchModal(null)}>
+        <DialogContent className="max-w-md w-[95vw] rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-teal-600" />
+              Edit Outlet: {editBranchModal?.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!editBranchModal) return;
+              updateBranchMutation.mutate({
+                branchId: editBranchModal.branchId,
+                data: editBranchModal,
+              });
+            }}
+            className="space-y-3.5 pt-3 text-xs"
+          >
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Outlet Name *</Label>
+              <Input
+                value={editBranchModal?.name || ""}
+                onChange={(e) => setEditBranchModal({ ...editBranchModal!, name: e.target.value })}
+                className="mt-1 h-10 rounded-xl"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Street Address</Label>
+              <Input
+                value={editBranchModal?.address || ""}
+                onChange={(e) => setEditBranchModal({ ...editBranchModal!, address: e.target.value })}
+                className="mt-1 h-10 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Phone</Label>
+                <Input
+                  value={editBranchModal?.phone || ""}
+                  onChange={(e) => setEditBranchModal({ ...editBranchModal!, phone: e.target.value })}
+                  className="mt-1 h-10 rounded-xl font-mono"
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">GSTIN / Tax ID</Label>
+                <Input
+                  value={editBranchModal?.gstNumber || ""}
+                  onChange={(e) => setEditBranchModal({ ...editBranchModal!, gstNumber: e.target.value })}
+                  className="mt-1 h-10 rounded-xl font-mono uppercase"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
+              <div>
+                <p className="font-bold text-slate-900">Outlet Active</p>
+                <p className="text-[11px] text-slate-500">Uncheck to pause operations at this location</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={editBranchModal?.isActive ?? true}
+                onChange={(e) => setEditBranchModal({ ...editBranchModal!, isActive: e.target.checked })}
+                className="h-5 w-5 rounded border-slate-300 text-teal-600"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditBranchModal(null)}
+                className="h-10 rounded-xl text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={updateBranchMutation.isPending}
+                className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5 shadow-2xs"
+              >
+                {updateBranchMutation.isPending ? "Saving…" : "Save Outlet Changes"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- COMPREHENSIVE MULTI-STEP HOTEL ONBOARDING MODAL --- */}
       <Dialog open={onboardOpen} onOpenChange={setOnboardOpen}>
         <DialogContent className="max-w-2xl w-[95vw] rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-slate-900 flex items-center gap-2.5">
-              <Building className="h-5 w-5 text-indigo-600" />
+              <Building className="h-5 w-5 text-teal-600" />
               Onboard New Hotel / Restaurant
             </DialogTitle>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -1249,7 +1993,7 @@ export default function SuperAdminHubPage() {
                 className={cn(
                   "flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all border",
                   onboardStep === s.num
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                    ? "bg-teal-600 text-white border-teal-600 shadow-xs"
                     : onboardStep > s.num
                     ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                     : "bg-slate-50 text-slate-500 border-slate-200",
@@ -1360,7 +2104,7 @@ export default function SuperAdminHubPage() {
                       }
                       setOnboardStep(2);
                     }}
-                    className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5"
+                    className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5"
                   >
                     Next: Outlets & Kitchen &rarr;
                   </Button>
@@ -1448,14 +2192,14 @@ export default function SuperAdminHubPage() {
                             className={cn(
                               "p-2.5 rounded-xl border text-xs font-semibold text-left transition-all flex items-center gap-2",
                               isChecked
-                                ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 font-bold"
+                                ? "border-teal-600 bg-teal-50/70 text-teal-900 font-bold"
                                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
                             )}
                           >
                             <span
                               className={cn(
                                 "h-4 w-4 rounded border flex items-center justify-center shrink-0",
-                                isChecked ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-300",
+                                isChecked ? "bg-teal-600 border-teal-600 text-white" : "border-slate-300",
                               )}
                             >
                               {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
@@ -1480,7 +2224,7 @@ export default function SuperAdminHubPage() {
                   <Button
                     type="button"
                     onClick={() => setOnboardStep(3)}
-                    className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5"
+                    className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5"
                   >
                     Next: Owner ID &rarr;
                   </Button>
@@ -1575,7 +2319,7 @@ export default function SuperAdminHubPage() {
                       }
                       setOnboardStep(4);
                     }}
-                    className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5"
+                    className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5"
                   >
                     Next: SaaS Plan &rarr;
                   </Button>
@@ -1601,7 +2345,7 @@ export default function SuperAdminHubPage() {
                         className={cn(
                           "p-3 rounded-2xl border text-center transition-all",
                           plan === p.key
-                            ? "border-indigo-600 bg-indigo-50/70 text-indigo-900 ring-2 ring-indigo-600/20"
+                            ? "border-teal-600 bg-teal-50/70 text-teal-900 ring-2 ring-teal-600/20"
                             : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
                         )}
                       >
@@ -1683,7 +2427,7 @@ export default function SuperAdminHubPage() {
                   <Button
                     type="submit"
                     disabled={createRestaurantMutation.isPending}
-                    className="h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 shadow-md shadow-indigo-600/30"
+                    className="h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs px-6 shadow-md shadow-teal-600/30"
                   >
                     {createRestaurantMutation.isPending ? "Generating Franchise…" : "Complete Onboarding & Deploy"}
                   </Button>
@@ -1712,7 +2456,7 @@ export default function SuperAdminHubPage() {
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left space-y-2 text-xs font-mono">
               <div className="flex justify-between">
                 <span className="text-slate-500">Plan:</span>
-                <span className="font-bold text-indigo-600">{createdSuccessData?.plan}</span>
+                <span className="font-bold text-teal-600">{createdSuccessData?.plan}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Owner Login:</span>
@@ -1739,7 +2483,7 @@ export default function SuperAdminHubPage() {
                     switchRestaurantMutation.mutate(createdSuccessData.restaurantId);
                   }
                 }}
-                className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs gap-1.5"
+                className="h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs gap-1.5"
               >
                 <ExternalLink className="h-4 w-4" />
                 1-Click Launch into Hotel Dashboard

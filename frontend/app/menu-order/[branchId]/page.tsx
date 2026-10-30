@@ -198,7 +198,7 @@ export default function CustomerQrMenuPage({
           <h1 className="text-2xl font-extrabold text-slate-900 mt-3">
             Thank you, your order is placed!
           </h1>
-          <p className="text-sm font-semibold text-indigo-600 mt-1">
+          <p className="text-sm font-semibold text-teal-600 mt-1">
             Order #{orderPlaced.orderNumber}
           </p>
 
@@ -218,7 +218,7 @@ export default function CustomerQrMenuPage({
 
             <div className="py-4 space-y-2">
               <div className="flex items-center gap-2 text-xs text-slate-600">
-                <Clock className="h-4 w-4 text-indigo-600 shrink-0" />
+                <Clock className="h-4 w-4 text-teal-600 shrink-0" />
                 <span>Kitchen order ticket (KOT) generated in real time</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-600">
@@ -231,7 +231,7 @@ export default function CustomerQrMenuPage({
 
         <Button
           onClick={() => setOrderPlaced(null)}
-          className="w-full h-12 rounded-xl bg-indigo-600 font-bold text-white hover:bg-indigo-700 mt-6"
+          className="w-full h-12 rounded-xl bg-teal-600 font-bold text-white hover:bg-teal-700 mt-6"
         >
           Order Additional Items
         </Button>
@@ -250,7 +250,7 @@ export default function CustomerQrMenuPage({
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-xs">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-black text-lg shadow-xs">
               {branch.restaurantName.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -272,7 +272,7 @@ export default function CustomerQrMenuPage({
             className={cn(
               "flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all",
               orderType === "DINE_IN"
-                ? "bg-white text-indigo-700 shadow-xs"
+                ? "bg-white text-teal-700 shadow-xs"
                 : "text-slate-600 hover:text-slate-900",
             )}
           >
@@ -285,7 +285,7 @@ export default function CustomerQrMenuPage({
             className={cn(
               "flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all",
               orderType === "DELIVERY"
-                ? "bg-white text-indigo-700 shadow-xs"
+                ? "bg-white text-teal-700 shadow-xs"
                 : "text-slate-600 hover:text-slate-900",
             )}
           >
@@ -298,14 +298,14 @@ export default function CustomerQrMenuPage({
       {/* Dine In / Delivery Configuration Box */}
       <section className="p-4">
         {orderType === "DINE_IN" ? (
-          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-3.5 shadow-2xs">
+          <div className="rounded-2xl border border-teal-100 bg-teal-50/60 p-3.5 shadow-2xs">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[11px] font-semibold uppercase tracking-wider text-indigo-950">Select Table</Label>
+                <Label className="text-[11px] font-semibold uppercase tracking-wider text-teal-950">Select Table</Label>
                 <select
                   value={selectedTableId}
                   onChange={(e) => setSelectedTableId(e.target.value)}
-                  className="mt-1 h-10 w-full rounded-xl border border-indigo-200 bg-white px-2.5 text-xs font-bold text-slate-800 shadow-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="mt-1 h-10 w-full rounded-xl border border-teal-200 bg-white px-2.5 text-xs font-bold text-slate-800 shadow-xs focus:ring-2 focus:ring-teal-500 outline-none"
                 >
                   {branch.tables.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -315,12 +315,12 @@ export default function CustomerQrMenuPage({
                 </select>
               </div>
               <div>
-                <Label className="text-[11px] font-semibold uppercase tracking-wider text-indigo-950">Your Name (Optional)</Label>
+                <Label className="text-[11px] font-semibold uppercase tracking-wider text-teal-950">Your Name (Optional)</Label>
                 <Input
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
                   placeholder="e.g. Piyush"
-                  className="mt-1 h-10 rounded-xl border-indigo-200 bg-white text-xs text-slate-800 shadow-xs"
+                  className="mt-1 h-10 rounded-xl border-teal-200 bg-white text-xs text-slate-800 shadow-xs"
                 />
               </div>
             </div>
@@ -390,7 +390,7 @@ export default function CustomerQrMenuPage({
             className={cn(
               "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
               activeCategory === "ALL"
-                ? "bg-indigo-600 text-white shadow-xs"
+                ? "bg-teal-600 text-white shadow-xs"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100",
             )}
           >
@@ -404,7 +404,7 @@ export default function CustomerQrMenuPage({
               className={cn(
                 "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                 activeCategory === c.id
-                  ? "bg-indigo-600 text-white shadow-xs"
+                  ? "bg-teal-600 text-white shadow-xs"
                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100",
               )}
             >
@@ -457,7 +457,7 @@ export default function CustomerQrMenuPage({
                                 {item.description}
                               </p>
                             )}
-                            <p className="text-xs font-extrabold text-indigo-700 mt-1 tabular-nums">
+                            <p className="text-xs font-extrabold text-teal-700 mt-1 tabular-nums">
                               {formatCurrency(item.price)}
                             </p>
                           </div>
@@ -466,21 +466,21 @@ export default function CustomerQrMenuPage({
                         {/* Add / Stepper Button */}
                         <div className="shrink-0">
                           {currentQty > 0 ? (
-                            <div className="flex items-center gap-2 rounded-xl bg-indigo-50 border border-indigo-200 p-1">
+                            <div className="flex items-center gap-2 rounded-xl bg-teal-50 border border-teal-200 p-1">
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item, -1)}
-                                className="h-7 w-7 rounded-lg bg-white flex items-center justify-center text-indigo-700 shadow-2xs hover:bg-indigo-100"
+                                className="h-7 w-7 rounded-lg bg-white flex items-center justify-center text-teal-700 shadow-2xs hover:bg-teal-100"
                               >
                                 <Minus className="h-3.5 w-3.5" />
                               </button>
-                              <span className="w-5 text-center text-xs font-bold tabular-nums text-indigo-900">
+                              <span className="w-5 text-center text-xs font-bold tabular-nums text-teal-900">
                                 {currentQty}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item, 1)}
-                                className="h-7 w-7 rounded-lg bg-white flex items-center justify-center text-indigo-700 shadow-2xs hover:bg-indigo-100"
+                                className="h-7 w-7 rounded-lg bg-white flex items-center justify-center text-teal-700 shadow-2xs hover:bg-teal-100"
                               >
                                 <Plus className="h-3.5 w-3.5" />
                               </button>
@@ -490,7 +490,7 @@ export default function CustomerQrMenuPage({
                               type="button"
                               size="sm"
                               onClick={() => updateQuantity(item, 1)}
-                              className="h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-xs hover:bg-indigo-600 hover:text-white"
+                              className="h-8 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 font-bold text-xs hover:bg-teal-600 hover:text-white"
                             >
                               Add +
                             </Button>
@@ -509,13 +509,13 @@ export default function CustomerQrMenuPage({
       {/* Floating Sticky Cart Footer */}
       {totalItems > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-40 p-4 max-w-lg mx-auto">
-          <div className="flex items-center justify-between rounded-2xl bg-indigo-900 text-white p-3.5 shadow-xl border border-indigo-800">
+          <div className="flex items-center justify-between rounded-2xl bg-teal-900 text-white p-3.5 shadow-xl border border-teal-800">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white font-bold">
                 <ShoppingBag className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs text-indigo-200">
+                <p className="text-xs text-teal-200">
                   {totalItems} {totalItems === 1 ? "item" : "items"} selected
                 </p>
                 <p className="text-base font-extrabold tabular-nums">
@@ -528,7 +528,7 @@ export default function CustomerQrMenuPage({
               type="button"
               disabled={placeOrderMutation.isPending}
               onClick={handlePlaceOrder}
-              className="h-11 rounded-xl bg-white px-5 font-bold text-xs text-indigo-900 hover:bg-indigo-50 shadow-md"
+              className="h-11 rounded-xl bg-white px-5 font-bold text-xs text-teal-900 hover:bg-teal-50 shadow-md"
             >
               {placeOrderMutation.isPending ? "Placing Order…" : "Place Order →"}
             </Button>

@@ -79,19 +79,19 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col lg:flex-row bg-slate-50 text-slate-900">
+    <main className="relative flex min-h-screen w-full flex-col bg-background text-foreground lg:flex-row">
       {/* Left Feature Showcase (Desktop) */}
-      <div className="relative hidden w-full lg:flex lg:w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 p-12 text-white">
+      <div className="relative hidden w-full flex-col justify-between overflow-hidden border-r border-teal-100/80 bg-gradient-to-br from-teal-50 via-white to-amber-50 p-10 text-slate-900 lg:flex lg:w-1/2 xl:p-14">
         {/* Subtle background glow */}
-        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-teal-200/50 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-amber-200/40 blur-3xl" />
 
         {/* Brand header */}
         <div className="relative z-10 flex items-center gap-3">
           <Logo size={42} />
           <div>
-            <span className="text-xl font-bold tracking-tight">RestroCore</span>
-            <span className="ml-2 rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-xs font-semibold text-indigo-300 ring-1 ring-indigo-400/30">
+            <span className="text-xl font-semibold tracking-tight">RestroCore</span>
+            <span className="ml-2 rounded-full bg-white/80 px-2.5 py-0.5 text-xs font-semibold text-teal-800 ring-1 ring-teal-200/80">
               Cloud POS v2.0
             </span>
           </div>
@@ -100,53 +100,53 @@ export default function LoginPage() {
         {/* Center feature showcase */}
         <div className="relative z-10 my-auto flex max-w-lg flex-col gap-8 py-10">
           <div className="flex flex-col gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-indigo-200 backdrop-blur w-fit border border-white/10">
-              <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-teal-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-teal-800 shadow-xs">
+              <Sparkles className="h-3.5 w-3.5 text-amber-600" />
               Next-Gen Restaurant & Kitchen OS
             </div>
-            <h2 className="text-4xl font-extrabold tracking-tight leading-tight">
+            <h2 className="text-4xl font-semibold leading-tight tracking-tight">
               Speed, simplicity, and full control over your restaurant.
             </h2>
-            <p className="text-base text-slate-300 leading-relaxed">
+            <p className="text-base leading-relaxed text-slate-600">
               Designed for high-volume dining, quick service, cloud kitchens, and multi-branch operations.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-3.5">
-            <div className="flex items-center gap-3.5 rounded-2xl bg-white/5 p-4 backdrop-blur border border-white/10 transition-colors hover:bg-white/10">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
+            <div className="flex items-center gap-3.5 rounded-2xl border border-white/90 bg-white/75 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-800 ring-1 ring-teal-100">
                 <Zap className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-semibold">Lightning-fast Billing & POS</p>
-                <p className="text-xs text-slate-400">Split bills, customized item modifiers & instant receipt print</p>
+                <p className="text-xs text-slate-500">Split bills, customized item modifiers & instant receipt print</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 rounded-2xl bg-white/5 p-4 backdrop-blur border border-white/10 transition-colors hover:bg-white/10">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300">
+            <div className="flex items-center gap-3.5 rounded-2xl border border-white/90 bg-white/75 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
                 <ChefHat className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-semibold">Live Kitchen Display (KDS)</p>
-                <p className="text-xs text-slate-400">Zero-lag ticket routing with real-time station timers</p>
+                <p className="text-xs text-slate-500">Zero-lag ticket routing with real-time station timers</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3.5 rounded-2xl bg-white/5 p-4 backdrop-blur border border-white/10 transition-colors hover:bg-white/10">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
+            <div className="flex items-center gap-3.5 rounded-2xl border border-white/90 bg-white/75 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 ring-1 ring-amber-100">
                 <Layers className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-semibold">Tables & Floor Matrix</p>
-                <p className="text-xs text-slate-400">Live occupancy tracking, reservations & QR table ordering</p>
+                <p className="text-xs text-slate-500">Live occupancy tracking, reservations & QR table ordering</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer status */}
-        <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-4">
+        <div className="relative z-10 flex items-center justify-between border-t border-teal-200/70 pt-4 text-xs text-slate-500">
           <span className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             System Status: 100% Operational
@@ -169,7 +169,7 @@ export default function LoginPage() {
               <Logo size={44} />
               <div className="flex flex-col text-left">
                 <span className="text-2xl font-bold tracking-tight text-slate-900">
-                  Restro<span className="text-indigo-600">Core</span>
+                  Restro<span className="text-teal-700">Core</span>
                 </span>
                 <span className="text-xs font-medium text-slate-500">Restaurant Management Platform</span>
               </div>
@@ -186,7 +186,7 @@ export default function LoginPage() {
           <div className="mb-6 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-xs">
             <div className="mb-2.5 flex items-center justify-between text-xs font-semibold text-slate-700">
               <span className="flex items-center gap-1.5 text-slate-900 font-bold">
-                <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                <ShieldCheck className="h-4 w-4 text-teal-800" />
                 Select Demo Credentials
               </span>
               <span className="text-[11px] text-slate-500 font-mono">1-Click Auto Fill</span>
@@ -205,7 +205,7 @@ export default function LoginPage() {
                 onClick={() => fillCredentials("admin@khaobhar.com", "Password123!")}
                 className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900"
               >
-                <Building2 className="h-3.5 w-3.5 text-indigo-600" />
+                <Building2 className="h-3.5 w-3.5 text-teal-800" />
                 Hotel Owner (Admin)
               </button>
               <button
@@ -213,7 +213,7 @@ export default function LoginPage() {
                 onClick={() => fillCredentials("admin@restrocore.com", "Password123!")}
                 className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-2xs transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900"
               >
-                <Key className="h-3.5 w-3.5 text-indigo-600" />
+                <Key className="h-3.5 w-3.5 text-teal-800" />
                 Restaurant Manager
               </button>
             </div>
@@ -235,7 +235,7 @@ export default function LoginPage() {
                   autoCorrect="off"
                   spellCheck={false}
                   autoFocus
-                  className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                   placeholder="admin@restrocore.com"
                   {...register("email")}
                 />
@@ -256,7 +256,7 @@ export default function LoginPage() {
                 <PasswordInput
                   id="password"
                   autoComplete="current-password"
-                  className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                   placeholder="Enter your password"
                   {...register("password")}
                 />
@@ -268,8 +268,8 @@ export default function LoginPage() {
             </div>
 
             {needsCode && (
-              <div className="flex flex-col gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
-                <Label htmlFor="totp" className="text-xs font-semibold uppercase tracking-wider text-indigo-950">
+              <div className="flex flex-col gap-1.5 rounded-xl border border-teal-200 bg-teal-50/70 p-4">
+              <Label htmlFor="totp" className="text-xs font-semibold uppercase tracking-wider text-teal-950">
                   2-Factor Authentication Code
                 </Label>
                 <Input
@@ -277,11 +277,11 @@ export default function LoginPage() {
                   inputMode="text"
                   autoComplete="one-time-code"
                   autoFocus
-                  className="h-11 rounded-xl border-indigo-300 bg-white text-slate-900 focus:border-indigo-600 focus:ring-indigo-500/20"
+                  className="h-11 rounded-xl border-teal-300 bg-white text-slate-900 focus:border-teal-800 focus:ring-teal-800/15"
                   placeholder="6-digit authenticator code"
                   {...register("totp")}
                 />
-                <p className="text-xs text-indigo-800">
+                <p className="text-xs text-teal-800">
                   Open your authenticator app or enter a backup code.
                 </p>
                 {errors.totp && <p className="text-xs font-medium text-rose-600">{errors.totp.message}</p>}
@@ -305,7 +305,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-base font-semibold text-white shadow-md shadow-indigo-600/25 transition-all hover:from-indigo-500 hover:to-indigo-600 hover:shadow-lg hover:shadow-indigo-600/35 active:scale-[0.99] disabled:opacity-60"
+              className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-teal-700 to-teal-900 text-base font-semibold text-white shadow-md shadow-teal-900/20 transition-all hover:-translate-y-0.5 hover:from-teal-600 hover:to-teal-800 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
               disabled={login.isPending}
             >
               {login.isPending ? (
@@ -325,7 +325,7 @@ export default function LoginPage() {
           <div className="mt-8 flex flex-col items-center gap-4 text-center">
             <p className="text-xs text-slate-600">
               Need to register a new restaurant branch?{" "}
-              <Link href="/signup" className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
+              <Link href="/signup" className="font-semibold text-teal-800 hover:text-teal-950 hover:underline">
                 Create an account
               </Link>
             </p>

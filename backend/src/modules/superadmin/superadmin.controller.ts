@@ -126,6 +126,87 @@ export class SuperAdminController {
     return this.superAdminService.toggleRestaurantStatus(id);
   }
 
+  @Patch('restaurants/:id')
+  updateRestaurant(
+    @CurrentUser() user: SessionUser,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      name?: string;
+      legalName?: string;
+      plan?: string;
+      currency?: string;
+      timezone?: string;
+      upiVpa?: string;
+      upiPayeeName?: string;
+      isActive?: boolean;
+    },
+  ) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.updateRestaurant(id, body);
+  }
+
+  @Post('restaurants/:id/branches')
+  addBranch(
+    @CurrentUser() user: SessionUser,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      name: string;
+      address?: string;
+      phone?: string;
+      gstNumber?: string;
+    },
+  ) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.addBranch(id, body);
+  }
+
+  @Patch('branches/:branchId')
+  updateBranch(
+    @CurrentUser() user: SessionUser,
+    @Param('branchId') branchId: string,
+    @Body()
+    body: {
+      name?: string;
+      address?: string;
+      phone?: string;
+      gstNumber?: string;
+      isActive?: boolean;
+    },
+  ) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.updateBranch(branchId, body);
+  }
+
+  @Patch('restaurants/:id/owner')
+  updateOwner(
+    @CurrentUser() user: SessionUser,
+    @Param('id') id: string,
+    @Body()
+    body: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      password?: string;
+    },
+  ) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.updateOwner(id, body);
+  }
+
+  @Get('config')
+  getConfig(@CurrentUser() user: SessionUser) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.getPlatformConfig();
+  }
+
+  @Patch('config')
+  updateConfig(@CurrentUser() user: SessionUser, @Body() body: any) {
+    this.assertSuperAdmin(user);
+    return this.superAdminService.updatePlatformConfig(body);
+  }
+
   @Delete('restaurants/:id')
   deleteRestaurant(@CurrentUser() user: SessionUser, @Param('id') id: string) {
     this.assertSuperAdmin(user);

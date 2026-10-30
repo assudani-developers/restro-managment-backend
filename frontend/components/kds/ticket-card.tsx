@@ -77,7 +77,7 @@ export function TicketCard({ ticket, branchId }: { ticket: KotTicket; branchId: 
         "flex shrink-0 flex-col gap-3 p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs transition-all",
         isLate && "border-rose-300 ring-1 ring-rose-200 bg-rose-50/15",
         ticket.isPriority && !isLate && "border-amber-300 ring-1 ring-amber-200 bg-amber-50/15",
-        isFresh && "border-indigo-400 ring-2 ring-indigo-200 motion-safe:animate-pulse",
+        isFresh && "border-teal-400 ring-2 ring-teal-200 motion-safe:animate-pulse",
       )}
     >
       <StatusNote note={note} onClear={clearNote} />
@@ -138,7 +138,7 @@ export function TicketCard({ ticket, branchId }: { ticket: KotTicket; branchId: 
             {ticket.station && (
               <>
                 <span className="text-slate-300">·</span>
-                <span className="text-indigo-600 font-semibold">{ticket.station.name}</span>
+                <span className="text-teal-600 font-semibold">{ticket.station.name}</span>
               </>
             )}
             {customerDisplayName(ticket.order) && (
@@ -198,7 +198,7 @@ export function TicketCard({ ticket, branchId }: { ticket: KotTicket; branchId: 
           <Button
             className={cn(
               "h-10 flex-1 text-xs font-bold rounded-xl transition-all shadow-2xs",
-              ticket.status === "NEW" && "bg-indigo-600 hover:bg-indigo-700 text-white",
+              ticket.status === "NEW" && "bg-teal-600 hover:bg-teal-700 text-white",
               ticket.status === "ACCEPTED" && "bg-amber-600 hover:bg-amber-700 text-white",
               ticket.status === "PREPARING" && "bg-blue-600 hover:bg-blue-700 text-white",
               ticket.status === "READY" && "bg-emerald-600 hover:bg-emerald-700 text-white",

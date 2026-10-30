@@ -52,67 +52,67 @@
 
 :root, .dark {
   color-scheme: light;
-  /* RestroCore — Modern Clean Indigo & Slate Light Palette */
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  /* RestroCore — Fieldnote palette: mineral white, botanical teal, citrus brass */
+  --background: #F7F8F5;
+  --foreground: #182722;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #182722;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #4F46E5;
+  --popover-foreground: #182722;
+  --primary: #147D70;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #EEF2FF;
-  --accent-foreground: #4338CA;
-  --destructive: #EF4444;
-  --success: #10B981;
-  --warning: #F59E0B;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #4F46E5;
-  --chart-1: #4F46E5;
-  --chart-2: #10B981;
-  --chart-3: #F59E0B;
-  --chart-4: #06B6D4;
-  --chart-5: #64748B;
+  --secondary: #EEF2ED;
+  --secondary-foreground: #253A33;
+  --muted: #EEF2ED;
+  --muted-foreground: #687871;
+  --accent: #E7F3F0;
+  --accent-foreground: #115F55;
+  --destructive: #C9473F;
+  --success: #25805E;
+  --warning: #C8872D;
+  --border: #E1E7E1;
+  --input: #D7E0D9;
+  --ring: #147D70;
+  --chart-1: #147D70;
+  --chart-2: #D18B35;
+  --chart-3: #5D7D62;
+  --chart-4: #477C9A;
+  --chart-5: #8A6A55;
   --radius: 0.75rem;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #4F46E5;
+  --sidebar: #F2F5EF;
+  --sidebar-foreground: #182722;
+  --sidebar-primary: #147D70;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #EEF2FF;
-  --sidebar-accent-foreground: #4338CA;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #4F46E5;
+  --sidebar-accent: #E5EFEB;
+  --sidebar-accent-foreground: #115F55;
+  --sidebar-border: #E0E7DF;
+  --sidebar-ring: #147D70;
 }
 
 /* Customer kiosk (/kiosk/*): always the light palette, whatever the device's
    dark-mode setting, so contrast is predictable from standing distance. */
 .kiosk-root {
   color-scheme: light;
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  --background: #F7F8F5;
+  --foreground: #182722;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #182722;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #4F46E5;
+  --popover-foreground: #182722;
+  --primary: #147D70;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #EEF2FF;
-  --accent-foreground: #4338CA;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #4F46E5;
-  --destructive: #EF4444;
-  --success: #10B981;
-  --warning: #F59E0B;
+  --secondary: #EEF2ED;
+  --secondary-foreground: #253A33;
+  --muted: #EEF2ED;
+  --muted-foreground: #687871;
+  --accent: #E7F3F0;
+  --accent-foreground: #115F55;
+  --border: #E1E7E1;
+  --input: #D7E0D9;
+  --ring: #147D70;
+  --destructive: #C9473F;
+  --success: #25805E;
+  --warning: #C8872D;
   /* Explicit system fallbacks so the kiosk never renders in a serif face if the
      bundled web font is unavailable (offline start-up, blocked fonts CDN). */
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto,
@@ -198,9 +198,9 @@
    rules would silently beat every utility class.
    --------------------------------------------------------------------------- */
 :root, .dark {
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(79 70 229 / 0.08);
-  --shadow-card-hover: 0 2px 4px rgb(15 23 42 / 0.05), 0 16px 32px -14px rgb(79 70 229 / 0.16);
-  --gradient-primary: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #4338CA 100%);
+  --shadow-card: 0 1px 2px rgb(24 39 34 / 0.035), 0 8px 24px -12px rgb(20 125 112 / 0.1);
+  --shadow-card-hover: 0 2px 4px rgb(24 39 34 / 0.06), 0 16px 32px -14px rgb(20 125 112 / 0.18);
+  --gradient-primary: linear-gradient(135deg, #198B7D 0%, #147D70 52%, #0E665C 100%);
 }
 
 @layer base {
@@ -211,15 +211,15 @@
   }
   body {
     background-image:
-      radial-gradient(60rem 28rem at 100% -10%, rgb(79 70 229 / 0.04), transparent 60%),
-      radial-gradient(48rem 24rem at -10% 110%, rgb(16 185 129 / 0.03), transparent 60%);
+      radial-gradient(60rem 28rem at 100% -10%, rgb(20 125 112 / 0.055), transparent 60%),
+      radial-gradient(48rem 24rem at -10% 110%, rgb(209 139 53 / 0.035), transparent 60%);
     background-attachment: fixed;
   }
   h1, h2, h3 {
     letter-spacing: -0.015em;
   }
   ::selection {
-    background: rgb(79 70 229 / 0.18);
+    background: rgb(20 125 112 / 0.18);
   }
   :focus-visible {
     outline: 2px solid var(--ring);
@@ -267,7 +267,7 @@
   [data-slot="button"][data-variant="default"],
   button[data-slot="button"].bg-primary {
     background-image: var(--gradient-primary);
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 6px 14px -6px rgb(79 70 229 / 0.45);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.2) inset, 0 6px 14px -6px rgb(20 125 112 / 0.3);
     transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease;
   }
   [data-slot="button"][data-variant="default"]:hover:not(:disabled) {

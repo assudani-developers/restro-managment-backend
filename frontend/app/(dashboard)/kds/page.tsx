@@ -28,8 +28,8 @@ const COLUMNS: {
   {
     status: "NEW",
     label: "New Tickets",
-    badgeClass: "bg-indigo-100 text-indigo-800",
-    columnBorder: "border-t-indigo-600",
+    badgeClass: "bg-teal-100 text-teal-800",
+    columnBorder: "border-t-teal-600",
   },
   {
     status: "ACCEPTED",
@@ -109,7 +109,7 @@ export default function KdsPage() {
                   className={cn(
                     "h-8.5 rounded-xl border px-3 text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5",
                     s.id === activeStation
-                      ? "border-indigo-600 bg-indigo-600 text-white shadow-sm shadow-indigo-600/20"
+                      ? "border-teal-600 bg-teal-600 text-white shadow-sm shadow-teal-600/20"
                       : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900",
                   )}
                 >

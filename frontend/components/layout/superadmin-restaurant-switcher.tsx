@@ -6,12 +6,10 @@ import {
   Check,
   ChevronsUpDown,
   ExternalLink,
-  Plus,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -34,7 +32,6 @@ interface RestaurantOption {
 }
 
 export function SuperAdminRestaurantSwitcher() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const { data: userResp } = useCurrentUser();
   const user = userResp?.user;
@@ -62,7 +59,7 @@ export function SuperAdminRestaurantSwitcher() {
       // Reload page to re-initialize layout & queries under the new restaurant
       window.location.href = "/dashboard";
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       toast.error(err instanceof ApiError ? err.message : "Failed to switch restaurant");
     },
   });
@@ -157,10 +154,10 @@ export function SuperAdminRestaurantSwitcher() {
         <div className="p-1">
           <Link
             href="/superadmin"
-            className="flex items-center justify-between w-full rounded-xl px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition-colors"
+            className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-bold text-teal-800 transition-colors hover:bg-teal-50"
           >
             <span className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-indigo-600" />
+              <ShieldCheck className="h-4 w-4 text-teal-700" />
               Manage All Hotels Hub
             </span>
             <ExternalLink className="h-3.5 w-3.5" />
@@ -170,4 +167,3 @@ export function SuperAdminRestaurantSwitcher() {
     </DropdownMenu>
   );
 }
-

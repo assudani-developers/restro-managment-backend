@@ -17,7 +17,7 @@ export function InventoryTabs() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 border-b border-border">
+    <nav aria-label="Inventory sections" className="-mx-3 flex min-w-0 max-w-full gap-1 overflow-x-auto overscroll-x-contain border-b border-border px-3 sm:mx-0 sm:px-0">
       {TABS.map((tab) => {
         const isActive =
           tab.href === "/inventory" ? pathname === "/inventory" : pathname?.startsWith(tab.href);
@@ -26,7 +26,7 @@ export function InventoryTabs() {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "border-b-2 px-3 pb-3 text-sm font-medium transition-colors",
+              "flex min-h-11 flex-none items-center whitespace-nowrap border-b-2 px-3 text-sm font-medium transition-colors",
               isActive
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground",

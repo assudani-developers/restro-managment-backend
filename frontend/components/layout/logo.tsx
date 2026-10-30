@@ -13,7 +13,7 @@ export function Logo({
     <div className={cn("inline-flex items-center gap-2.5", className)}>
       <div
         style={{ width: size, height: size }}
-        className="relative flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-500/25 ring-1 ring-white/20 transition-all"
+        className="relative flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900 text-white shadow-md shadow-teal-900/20 ring-1 ring-white/30 transition-all"
       >
         <svg
           viewBox="0 0 24 24"
@@ -24,17 +24,14 @@ export function Logo({
           strokeLinejoin="round"
           style={{ width: Math.round(size * 0.58), height: Math.round(size * 0.58) }}
         >
-          {/* Modern Restro Core emblem */}
-          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-          <line x1="6" y1="1" x2="6" y2="4" />
-          <line x1="10" y1="1" x2="10" y2="4" />
-          <line x1="14" y1="1" x2="14" y2="4" />
+          <circle cx="12" cy="13" r="8" />
+          <circle cx="12" cy="13" r="4.25" />
+          <path d="M12 5c1.3-2.1 3.2-3 5.2-2.8-.2 2-1.6 3.8-4.2 4.5" />
         </svg>
       </div>
       {showText && (
         <span className="font-bold tracking-tight text-slate-900 text-lg">
-          Restro<span className="text-indigo-600">Core</span>
+          Restro<span className="text-teal-700">Core</span>
         </span>
       )}
     </div>

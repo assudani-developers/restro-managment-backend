@@ -47,7 +47,7 @@ export function LiveStatus() {
           onClick={toggleMute}
           title="Per-device audio setting"
         >
-          {muted ? <VolumeX className="h-3.5 w-3.5 text-slate-400" aria-hidden /> : <Volume2 className="h-3.5 w-3.5 text-indigo-600" aria-hidden />}
+          {muted ? <VolumeX className="h-3.5 w-3.5 text-slate-400" aria-hidden /> : <Volume2 className="h-3.5 w-3.5 text-teal-600" aria-hidden />}
           {muted ? "Muted" : "Chime On"}
         </Button>
       </div>

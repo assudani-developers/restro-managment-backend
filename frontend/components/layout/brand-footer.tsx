@@ -6,7 +6,7 @@ export function BrandFooter() {
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           RestroCore POS
         </span>
-        <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 ring-1 ring-indigo-500/20">
+        <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-semibold text-accent-foreground ring-1 ring-primary/15">
           v2.0 Light
         </span>
       </div>

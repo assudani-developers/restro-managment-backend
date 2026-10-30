@@ -487,4 +487,182 @@ export class SuperAdminService {
     await this.prisma.restaurant.delete({ where: { id } });
     return { ok: true, deletedId: id };
   }
+
+  // In-memory or persisted platform config
+  private platformConfig = {
+    platformName: 'RestroCore SaaS Enterprise',
+    maintenanceMode: false,
+    announcement: 'RestroCore Cloud 2.0 is live. All POS, KDS & QR systems are operational.',
+    supportEmail: 'support@restrocore.com',
+    supportPhone: '+91 80000 12345',
+    allowRegistration: true,
+    planPrices: {
+      STARTER: 49,
+      GROWTH: 99,
+      ENTERPRISE: 199,
+    },
+  };
+
+  getPlatformConfig() {
+    return this.platformConfig;
+  }
+
+  updatePlatformConfig(dto: any) {
+    this.platformConfig = { ...this.platformConfig, ...dto };
+    return this.platformConfig;
+  }
+
+  async updateRestaurant(
+    id: string,
+    dto: {
+      name?: string;
+      legalName?: string;
+      plan?: string;
+      currency?: string;
+      timezone?: string;
+      upiVpa?: string;
+      upiPayeeName?: string;
+      isActive?: boolean;
+    },
+  ) {
+    const restaurant = await this.prisma.restaurant.findUnique({ where: { id } });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+
+    const updated = await this.prisma.restaurant.update({
+      where: { id },
+      data: {
+        ...(dto.name ? { name: dto.name } : {}),
+        ...(dto.legalName !== undefined ? { legalName: dto.legalName } : {}),
+        ...(dto.plan ? { plan: dto.plan } : {}),
+        ...(dto.currency ? { currency: dto.currency } : {}),
+        ...(dto.timezone ? { timezone: dto.timezone } : {}),
+        ...(dto.upiVpa !== undefined ? { upiVpa: dto.upiVpa } : {}),
+        ...(dto.upiPayeeName !== undefined ? { upiPayeeName: dto.upiPayeeName } : {}),
+        ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+      },
+    });
+
+    return updated;
+  }
+
+  async addBranch(
+    restaurantId: string,
+    dto: {
+      name: string;
+      address?: string;
+      phone?: string;
+      gstNumber?: string;
+    },
+  ) {
+    const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+
+    return this.prisma.$transaction(async (tx) => {
+      const branch = await tx.branch.create({
+        data: {
+          restaurantId,
+          name: dto.name,
+          address: dto.address,
+          phone: dto.phone,
+          gstNumber: dto.gstNumber,
+          country: restaurant.currency === 'INR' ? 'IN' : 'US',
+        },
+      });
+
+      // Create default floor and tables
+      const floor = await tx.floor.create({
+        data: {
+          branchId: branch.id,
+          name: 'Ground Floor',
+        },
+      });
+
+      for (let i = 1; i <= 6; i++) {
+        await tx.table.create({
+          data: {
+            floorId: floor.id,
+            number: String(i),
+            name: `Table ${i}`,
+            capacity: 4,
+            shape: 'SQUARE',
+            posX: 30 + (i - 1) * 70,
+            posY: 40,
+          },
+        });
+      }
+
+      await tx.kitchenStation.create({
+        data: {
+          branchId: branch.id,
+          name: 'Main Kitchen',
+        },
+      });
+
+      return branch;
+    });
+  }
+
+  async updateBranch(
+    branchId: string,
+    dto: {
+      name?: string;
+      address?: string;
+      phone?: string;
+      gstNumber?: string;
+      isActive?: boolean;
+    },
+  ) {
+    const branch = await this.prisma.branch.findUnique({ where: { id: branchId } });
+    if (!branch) throw new NotFoundException('Branch not found');
+
+    const updated = await this.prisma.branch.update({
+      where: { id: branchId },
+      data: {
+        ...(dto.name ? { name: dto.name } : {}),
+        ...(dto.address !== undefined ? { address: dto.address } : {}),
+        ...(dto.phone !== undefined ? { phone: dto.phone } : {}),
+        ...(dto.gstNumber !== undefined ? { gstNumber: dto.gstNumber } : {}),
+        ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+      },
+    });
+
+    return updated;
+  }
+
+  async updateOwner(
+    restaurantId: string,
+    dto: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      password?: string;
+    },
+  ) {
+    const owner = await this.prisma.user.findFirst({
+      where: { restaurantId, role: { name: 'OWNER' } },
+    });
+    if (!owner) throw new NotFoundException('Owner user not found for this restaurant');
+
+    const data: any = {};
+    if (dto.name) data.name = dto.name;
+    if (dto.email) data.email = dto.email;
+    if (dto.phone !== undefined) data.phone = dto.phone;
+    if (dto.password) {
+      data.passwordHash = await bcrypt.hash(dto.password, 12);
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: owner.id },
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        isActive: true,
+      },
+    });
+
+    return updated;
+  }
 }

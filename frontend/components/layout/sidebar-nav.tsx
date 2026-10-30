@@ -25,20 +25,20 @@ export function SidebarNav({
   const badges = useNavBadges();
 
   return (
-    <nav className={cn("flex flex-col gap-1", collapsed ? "px-2 items-center" : "px-3")}>
+    <nav aria-label="Main navigation" className={cn("flex flex-col gap-1.5", collapsed ? "items-center px-2" : "px-3")}>
       {(user?.isSuperAdmin || user?.roleName === "SUPERADMIN") && (
         <Link
           href="/superadmin"
           onClick={onNavigate}
           title={collapsed ? "SuperAdmin Hub (SaaS Platform Control)" : undefined}
           className={cn(
-            "mb-2.5 flex items-center transition-all shadow-xs border",
+            "mb-2 flex items-center border transition-all",
             collapsed
               ? "h-10 w-10 justify-center rounded-xl mx-auto"
               : "justify-between rounded-xl px-3 py-2.5 text-xs font-bold w-full",
             pathname === "/superadmin"
-              ? "bg-amber-600 text-white border-amber-600 shadow-amber-600/25"
-              : "bg-amber-50 text-amber-950 border-amber-200/90 hover:bg-amber-100/80 hover:border-amber-300",
+              ? "border-amber-700 bg-amber-700 text-white shadow-sm shadow-amber-900/10"
+              : "border-amber-200/80 bg-amber-50/80 text-amber-950 hover:border-amber-300 hover:bg-amber-50",
           )}
         >
           {collapsed ? (
@@ -75,21 +75,21 @@ export function SidebarNav({
                 onClick={onNavigate}
                 title={label}
                 className={cn(
-                  "group relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150",
+                  "group relative flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-150",
                   isActive
-                    ? "bg-indigo-50 font-semibold text-indigo-700 shadow-xs"
+                    ? "bg-accent font-semibold text-accent-foreground shadow-sm ring-1 ring-primary/15"
                     : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900",
                 )}
               >
                 <Icon
                   className={cn(
                     "h-5 w-5 shrink-0 transition-colors",
-                    isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600",
+                    isActive ? "text-primary" : "text-slate-400 group-hover:text-slate-600",
                   )}
                   strokeWidth={isActive ? 2.3 : 2}
                 />
                 {badges.nav[item.href] && (
-                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-indigo-600 ring-2 ring-white" />
+                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" />
                 )}
               </Link>
             );
@@ -101,9 +101,9 @@ export function SidebarNav({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "group relative flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                "group relative flex min-h-10 items-center justify-between rounded-xl px-3 py-2 text-[13px] font-medium transition-all duration-150",
                 isActive
-                  ? "bg-indigo-50 font-semibold text-indigo-700 shadow-xs"
+                  ? "bg-accent font-semibold text-accent-foreground shadow-sm ring-1 ring-primary/15"
                   : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900",
               )}
             >
@@ -111,7 +111,7 @@ export function SidebarNav({
                 <Icon
                   className={cn(
                     "h-4 w-4 shrink-0 transition-colors",
-                    isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600",
+                    isActive ? "text-primary" : "text-slate-400 group-hover:text-slate-600",
                   )}
                   strokeWidth={isActive ? 2.3 : 2}
                 />
@@ -119,7 +119,7 @@ export function SidebarNav({
               </div>
 
               {isActive && (
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 shrink-0" />
+                <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
               )}
 
               {badges.nav[item.href] && !isActive ? <NavDot /> : null}

@@ -12,7 +12,7 @@ export function PerformanceWidget({ branchId }: { branchId: string | null }) {
   return (
     <div className="inline-flex items-center gap-3 overflow-x-auto rounded-xl border border-slate-200/90 bg-white px-3 py-1.5 text-xs shadow-2xs">
       <div className="flex shrink-0 items-center gap-1.5 font-bold uppercase tracking-wider text-slate-500 text-[11px]">
-        <Gauge className="h-3.5 w-3.5 text-indigo-600" />
+        <Gauge className="h-3.5 w-3.5 text-teal-600" />
         <span>Avg Cook Time</span>
       </div>
       <div className="h-3 w-px bg-slate-200" />

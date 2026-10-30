@@ -47,51 +47,51 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col lg:flex-row bg-slate-50 text-slate-900">
+    <main className="relative flex min-h-screen w-full flex-col bg-background text-foreground lg:flex-row">
       {/* Left Feature Showcase */}
-      <div className="relative hidden w-full lg:flex lg:w-5/12 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 p-12 text-white">
-        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
+      <div className="relative hidden w-full flex-col justify-between overflow-hidden border-r border-teal-100/80 bg-gradient-to-br from-teal-50 via-white to-amber-50 p-10 text-slate-900 lg:flex lg:w-5/12 xl:p-14">
+        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-teal-200/50 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-amber-200/40 blur-3xl" />
 
         <div className="relative z-10 flex items-center gap-3">
           <Logo size={42} />
           <div>
-            <span className="text-xl font-bold tracking-tight">RestroCore</span>
-            <span className="ml-2 rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-xs font-semibold text-indigo-300 ring-1 ring-indigo-400/30">
+            <span className="text-xl font-semibold tracking-tight">RestroCore</span>
+            <span className="ml-2 rounded-full bg-white/80 px-2.5 py-0.5 text-xs font-semibold text-teal-800 ring-1 ring-teal-200/80">
               Quick Setup
             </span>
           </div>
         </div>
 
         <div className="relative z-10 my-auto flex max-w-sm flex-col gap-6 py-10">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-indigo-200 backdrop-blur w-fit border border-white/10">
-            <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-teal-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-teal-800 shadow-xs">
+            <Sparkles className="h-3.5 w-3.5 text-amber-600" />
             Launch in under 60 seconds
           </div>
-          <h2 className="text-3xl font-extrabold tracking-tight leading-snug">
+          <h2 className="text-3xl font-semibold leading-snug tracking-tight">
             Equip your staff with the fastest POS on the market.
           </h2>
-          <p className="text-sm text-slate-300 leading-relaxed">
+          <p className="text-sm leading-relaxed text-slate-600">
             Create your restaurant account to unlock visual table floor plans, kitchen displays, automated taxes & instant reporting.
           </p>
 
           <div className="flex flex-col gap-3 pt-2">
-            <div className="flex items-center gap-2.5 text-sm text-slate-200">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2.5 text-sm text-slate-700">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
               <span>Full multi-role permissions (Owner, Manager, Cashier, Waiter, Kitchen)</span>
             </div>
-            <div className="flex items-center gap-2.5 text-sm text-slate-200">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2.5 text-sm text-slate-700">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
               <span>Real-time Socket.io kitchen order ticket (KOT) sync</span>
             </div>
-            <div className="flex items-center gap-2.5 text-sm text-slate-200">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2.5 text-sm text-slate-700">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
               <span>Table QR menu ordering & self-service kiosk support</span>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 text-xs text-slate-400 border-t border-white/10 pt-4">
+        <div className="relative z-10 border-t border-teal-200/70 pt-4 text-xs text-slate-500">
           RestroCore Enterprise • 100% Light Theme Only
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function SignupPage() {
             <div className="flex items-center gap-3 lg:hidden">
               <Logo size={40} />
               <span className="text-2xl font-bold tracking-tight text-slate-900">
-                Restro<span className="text-indigo-600">Core</span>
+              Restro<span className="text-teal-700">Core</span>
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
@@ -129,7 +129,7 @@ export default function SignupPage() {
                   <Input
                     id="restaurantName"
                     autoFocus
-                    className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                    className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                     placeholder="e.g. Olive Bistro"
                     {...field("restaurantName")}
                   />
@@ -147,7 +147,7 @@ export default function SignupPage() {
                 <div className="relative">
                   <Input
                     id="branchName"
-                    className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                    className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                     placeholder="e.g. Main Outlet"
                     {...field("branchName")}
                   />
@@ -166,7 +166,7 @@ export default function SignupPage() {
               <div className="relative">
                 <Input
                   id="ownerName"
-                  className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                   placeholder="e.g. Rahul Sharma"
                   {...field("ownerName")}
                 />
@@ -186,7 +186,7 @@ export default function SignupPage() {
                   id="email"
                   type="email"
                   autoComplete="username"
-                  className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                   placeholder="owner@restaurant.com"
                   {...field("email")}
                 />
@@ -205,7 +205,7 @@ export default function SignupPage() {
                 <PasswordInput
                   id="password"
                   autoComplete="new-password"
-                  className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-9 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
                   placeholder="At least 8 characters"
                   {...field("password")}
                 />
@@ -218,7 +218,7 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-base font-semibold text-white shadow-md shadow-indigo-600/25 transition-all hover:from-indigo-500 hover:to-indigo-600 hover:shadow-lg hover:shadow-indigo-600/35 active:scale-[0.99] disabled:opacity-60"
+              className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-teal-700 to-teal-900 text-base font-semibold text-white shadow-md shadow-teal-900/20 transition-all hover:-translate-y-0.5 hover:from-teal-600 hover:to-teal-800 hover:shadow-lg active:scale-[0.99] disabled:opacity-60"
               disabled={register.isPending}
             >
               {register.isPending ? (
@@ -237,7 +237,7 @@ export default function SignupPage() {
 
           <p className="mt-6 text-center text-xs text-slate-600">
             Already have an active account?{" "}
-            <Link href="/login" className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
+            <Link href="/login" className="font-semibold text-teal-800 hover:text-teal-950 hover:underline">
               Sign in here
             </Link>
           </p>
