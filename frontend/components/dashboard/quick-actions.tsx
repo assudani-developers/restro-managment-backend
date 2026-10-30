@@ -1,26 +1,30 @@
 import { CalendarPlus, ChefHat, LayoutGrid, ShoppingCart, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const ACTIONS = [
-  { href: "/pos", label: "New order", icon: ShoppingCart },
-  { href: "/tables", label: "Tables", icon: LayoutGrid },
-  { href: "/reservations", label: "New reservation", icon: CalendarPlus },
-  { href: "/kds", label: "Kitchen display", icon: ChefHat },
-  { href: "/menu", label: "Menu", icon: UtensilsCrossed },
+  { href: "/pos", label: "New POS Order", icon: ShoppingCart, bg: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100/80 border-indigo-200/80" },
+  { href: "/tables", label: "Floor & Tables", icon: LayoutGrid, bg: "bg-blue-50 text-blue-700 hover:bg-blue-100/80 border-blue-200/80" },
+  { href: "/reservations", label: "Reservations", icon: CalendarPlus, bg: "bg-amber-50 text-amber-700 hover:bg-amber-100/80 border-amber-200/80" },
+  { href: "/kds", label: "Kitchen Display (KDS)", icon: ChefHat, bg: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200/80" },
+  { href: "/menu", label: "Menu Items", icon: UtensilsCrossed, bg: "bg-purple-50 text-purple-700 hover:bg-purple-100/80 border-purple-200/80" },
 ];
 
-// One-tap jumps into the flows staff reach for most during service — sits
-// right under the header so it's the first thing visible, not buried below
-// the stat cards.
 export function QuickActions() {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2.5">
       {ACTIONS.map((action) => (
-        <Button key={action.href} variant="outline" size="sm" render={<Link href={action.href} />}>
-          <action.icon className="h-4 w-4" />
-          {action.label}
-        </Button>
+        <Link
+          key={action.href}
+          href={action.href}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-semibold shadow-2xs transition-all hover:-translate-y-0.5 active:translate-y-0",
+            action.bg,
+          )}
+        >
+          <action.icon className="h-4 w-4 shrink-0" />
+          <span>{action.label}</span>
+        </Link>
       ))}
     </div>
   );

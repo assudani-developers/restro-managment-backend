@@ -13,7 +13,7 @@ WORKDIR /repo
 # linux-x64 musl binary, but empirically its install script doesn't reliably
 # skip straight to that prebuild on Alpine — with no compiler present it
 # falls through to `node-gyp rebuild` and fails outright (verified building
-# this exact package in nodedr-pos, ported here unchanged). None of this is
+# this exact package in retail-pos, ported here unchanged). None of this is
 # needed at runtime — see the small eudev-libs/libstdc++ runtime deps below
 # instead of this whole toolchain.
 FROM base AS deps
@@ -29,8 +29,8 @@ FROM deps AS builder
 COPY packages/types packages/types
 COPY apps/backend apps/backend
 RUN pnpm --filter @restrocore/types build
-RUN pnpm --filter @nodedr-restaurant/backend exec prisma generate
-RUN pnpm --filter @nodedr-restaurant/backend build
+RUN pnpm --filter @restrocore/backend exec prisma generate
+RUN pnpm --filter @restrocore/backend build
 
 # Docker CLI (optional in-container "update & restart" against mounted
 # docker.sock — see src/system/update.service.ts). Pulled from the official
@@ -73,7 +73,7 @@ FROM node:22-alpine AS runtime
 # enumeration) and libstdc++ (the addon is a C++ build) are the only
 # runtime-side additions for direct-USB printing — libusb itself is
 # statically linked into the addon, so no separate libusb runtime package
-# is needed (same verification nodedr-pos already did for this exact
+# is needed (same verification retail-pos already did for this exact
 # package). postgresql16-client (pg_dump/pg_restore) backs the Backup
 # module (apps/backend/src/backup/) — version-pinned to match the
 # postgres:16-alpine server in docker-compose.yml, since pg_dump's custom

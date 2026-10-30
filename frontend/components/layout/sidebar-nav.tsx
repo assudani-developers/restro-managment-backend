@@ -33,14 +33,27 @@ export function SidebarNav({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "group relative flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                  ? "bg-indigo-50 font-semibold text-indigo-700 shadow-xs"
+                  : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900",
               )}
             >
-              <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
-              {t(item.labelKey)}
+              <div className="flex items-center gap-3">
+                <Icon
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-colors",
+                    isActive ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600",
+                  )}
+                  strokeWidth={isActive ? 2.3 : 2}
+                />
+                <span className="truncate">{t(item.labelKey)}</span>
+              </div>
+
+              {isActive && (
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 shrink-0" />
+              )}
+
               {badges.nav[item.href] && !isActive ? <NavDot /> : null}
             </Link>
           );

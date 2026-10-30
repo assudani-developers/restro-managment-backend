@@ -45,7 +45,7 @@ services:
       # container below to pull the latest published images. Unset these two
       # and the Update button simply says this install can't update itself.
       UPDATER_URL: "http://updater:8080"
-      UPDATER_TOKEN: "${UPDATER_TOKEN:-nodedr-restaurant-updater}"
+      UPDATER_TOKEN: "${UPDATER_TOKEN:-restrocore-updater}"
       # Optional: S3 backup config can also be set from Settings > Backup
       # (persisted to the `backup_config` DB row, which takes priority over
       # these). Uncomment for a headless/CasaOS-style deployment that
@@ -61,14 +61,14 @@ services:
       postgres:
         condition: service_healthy
     # Not published to the host — reachable only via the web service's
-    # server-side /api proxy, same reasoning as nodedr-pos (keeps the API
+    # server-side /api proxy, same reasoning as retail-pos (keeps the API
     # off the LAN, shrinks attack surface).
     expose:
       - "4000"
     volumes:
       - uploads_data:/data/uploads
       # Direct-USB thermal printing (see apps/backend/src/modules/orders/
-      # escpos-usb.ts, ported from nodedr-pos's real hardware-verified
+      # escpos-usb.ts, ported from retail-pos's real hardware-verified
       # transport) needs the backend to see the host's USB device nodes.
       # Bind-mounting the whole /dev/bus/usb tree (not `devices:` with a
       # literal path, which only handles nodes that exist at container

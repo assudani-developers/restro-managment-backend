@@ -22,12 +22,12 @@ subscriptions. Built specifically for dine-in, takeaway, delivery and busy kitch
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 [![Status](https://img.shields.io/badge/status-active%20development-orange.svg)](./ROADMAP.md)
 
-Developed by [NodeDR Infotech Private Limited](https://www.nodedr.com/)
+Developed by [RestroCore Systems](https://restrocore.local)
 
-**[Try OrderRestro](https://orderrestro.nodedr.com/)** · **[Case study](https://www.raktimranjit.com/projects/orderrestro)** · **[Maintainer: Raktim Ranjit](https://www.raktimranjit.com/)**
+**[Try OrderRestro](https://restrocore.local/)** · **[Case study](https://restrocore.com/projects/orderrestro)** · **[Maintainer: RestroCore Maintainers](https://restrocore.com/)**
 
 <p align="center">
-  <img src="docs/assets/hero-animated.svg" alt="Nodedr OrderRestro: animated overview with an illustrative sample screen" width="100%">
+  <img src="docs/assets/hero-animated.svg" alt="RestroCore: animated overview with an illustrative sample screen" width="100%">
 </p>
 
 
@@ -46,7 +46,7 @@ Developed by [NodeDR Infotech Private Limited](https://www.nodedr.com/)
 
 ## What this is
 
-**Nodedr OrderRestro** is a purpose-built, offline-first Restaurant
+**RestroCore** is a purpose-built, offline-first Restaurant
 Management System for restaurants, cafés, coffee shops, bakeries, fast
 food, fine dining, bars, food courts, cloud kitchens, and multi-branch
 chains. The whole stack — Postgres, API, and web app — runs on one local
@@ -54,7 +54,7 @@ server on the restaurant's own LAN: order-taking, billing, KDS, and
 printing all keep working with the WAN cable unplugged. No subscription,
 no forced cloud dependency, self-hosted by design.
 
-It's a sister project to [`nodedr-pos`](https://github.com/Raktim94/nodedr-pos)
+It's a sister project to [`retail-pos`](https://github.com/restrocore/retail-pos)
 (the retail-shop POS), reusing its proven patterns — auth/session model,
 receipt rendering, ESC/POS printing, currency-rounding discipline — but
 built as its own codebase, because restaurant floor/kitchen/reservation
@@ -172,7 +172,7 @@ costing, suppliers, purchase orders, goods receipts with batch/lot +
 expiry tracking, FIFO waste logging, and automatic ingredient deduction
 on checkout (combo-aware, never blocks a sale on a stock shortfall).
 Also shipped: printable receipts (opens the browser's print dialog, same
-"any printer, or Save as PDF" approach as [`nodedr-pos`](https://github.com/Raktim94/nodedr-pos)),
+"any printer, or Save as PDF" approach as [`retail-pos`](https://github.com/restrocore/retail-pos)),
 a Settings area (restaurant + branch details, per-branch tax regime — India
 GST/US Sales Tax/EU VAT/Spain IVA, tax-inclusive or -exclusive menu
 pricing) and staff account management (create/deactivate staff, assign
@@ -345,7 +345,7 @@ already bundled, which is all this project requires.
 ### One-click install
 
 ```bash
-git clone https://github.com/Raktim94/nodedr-restaurant-pos.git && cd nodedr-restaurant-pos && ./install.sh
+git clone https://github.com/restrocore/restrocore.git && cd restrocore && ./install.sh
 ```
 
 [`install.sh`](install.sh) generates a `.env` with random secrets (only if
@@ -366,11 +366,11 @@ If you'd rather run each step yourself (e.g. to set your own secrets instead
 of generated ones):
 
 ```bash
-git clone https://github.com/Raktim94/nodedr-restaurant-pos.git
-cd nodedr-restaurant-pos
+git clone https://github.com/restrocore/restrocore.git
+cd restrocore
 cp .env.example .env        # edit JWT_SECRET / POSTGRES_PASSWORD for anything beyond local dev
 docker compose up -d --build
-docker exec nodedr-restaurant-backend npx ts-node prisma/seed.ts   # optional: demo data + login; upsert-based, safe to re-run
+docker exec restrocore-backend npx ts-node prisma/seed.ts   # optional: demo data + login; upsert-based, safe to re-run
 ```
 
 ### Local dev (no Docker for the apps)
@@ -494,8 +494,8 @@ This project follows the [Contributor Covenant](./CODE_OF_CONDUCT.md).
 
 ## License
 
-Copyright © 2026 [Nodedr Infotech Private Limited](https://www.nodedr.com/)
-and Raktim Ranjit. Licensed under the
+Copyright © 2026 [RestroCore Systems](https://restrocore.local)
+and RestroCore Maintainers. Licensed under the
 [GNU Affero General Public License v3.0](./LICENSE) (AGPL-3.0). In short:
 you're free to self-host, use, and modify this software for your
 restaurant or business. If you modify it and run that modified version
@@ -509,15 +509,15 @@ See [`MAINTAINERS.md`](./MAINTAINERS.md) for project maintainers.
 ---
 
 <div align="center">
-<img src="apps/web/public/logo.png" alt="Nodedr OrderRestro" width="72">
+<img src="apps/web/public/logo.png" alt="RestroCore" width="72">
 </div>
 
 
 ## Case study
 
-Read the [OrderRestro case study](https://www.raktimranjit.com/projects/orderrestro) for the product background and design decisions.
+Read the [OrderRestro case study](https://restrocore.com/projects/orderrestro) for the product background and design decisions.
 
-Maintainer: [Raktim Ranjit](https://www.raktimranjit.com/)
+Maintainer: [RestroCore Maintainers](https://restrocore.com/)
 
 ---
 

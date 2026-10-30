@@ -1,8 +1,9 @@
 "use client";
 
 import type { SessionUser } from "@restrocore/types";
-import { Menu } from "lucide-react";
-import { useState } from "react";
+import { ChefHat, Clock, LayoutGrid, Menu, ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { EntityDialogHost } from "@/components/layout/entity-dialog-host";
 import { NotificationBell } from "@/components/notifications/notification-bell";
@@ -16,12 +17,6 @@ import { MobileBottomNav } from "./mobile-bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
 import { UserMenu } from "./user-menu";
 
-// The restaurant's own logo + name lead the sidebar header — this is
-// white-label self-hosted software, so the operator's branding takes the
-// prime spot an operator actually looks at. The Nodedr OrderRestro product
-// mark moves to a small credit line at the bottom (BrandFooter) instead of
-// competing with it up here. Falls back to the product mark only until the
-// restaurant sets its own logo/name under Settings.
 function RestaurantBrand() {
   const { branchId } = useBranch();
   const { data } = useSettings(branchId);
@@ -29,27 +24,52 @@ function RestaurantBrand() {
 
   if (restaurant?.logoUrl) {
     return (
-      <>
-        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded asset served from the backend, not a Next-optimizable remote source */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={restaurant.logoUrl}
           alt={restaurant.name}
-          className="h-8 w-8 shrink-0 rounded-lg object-contain"
+          className="h-8 w-8 shrink-0 rounded-lg object-contain shadow-xs"
         />
-        <span className="truncate text-sm font-semibold tracking-tight text-sidebar-foreground">
+        <span className="truncate text-sm font-bold tracking-tight text-slate-900">
           {restaurant.name}
         </span>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <Logo />
-      <span className="truncate text-sm font-semibold tracking-tight text-sidebar-foreground">
+    <div className="flex items-center gap-2.5 min-w-0">
+      <Logo size={32} />
+      <span className="truncate text-base font-bold tracking-tight text-slate-900">
         {restaurant?.name ?? "RestroCore"}
       </span>
-    </>
+    </div>
+  );
+}
+
+function LiveClock() {
+  const [time, setTime] = useState("");
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!time) return null;
+
+  return (
+    <div className="hidden xl:flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700">
+      <Clock className="h-3.5 w-3.5 text-indigo-600" />
+      <span className="tabular-nums">{time}</span>
+    </div>
   );
 }
 
@@ -63,16 +83,16 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
-        <div className="flex h-16 items-center gap-2 px-5">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
+        <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100">
           <RestaurantBrand />
         </div>
-        <div className="px-3 pb-3">
+        <div className="px-3 py-3 border-b border-slate-100/60">
           <BranchSwitcher />
         </div>
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto py-3">
           <SidebarNav user={user} />
         </div>
         <BrandFooter />
@@ -80,15 +100,15 @@ export function AppShell({
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 bg-sidebar p-0">
+        <SheetContent side="left" className="w-72 bg-white p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <div className="flex h-16 items-center gap-2 px-5">
+          <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-100">
             <RestaurantBrand />
           </div>
-          <div className="px-3 pb-3">
+          <div className="px-3 py-3 border-b border-slate-100/60">
             <BranchSwitcher />
           </div>
-          <div className="flex-1 overflow-y-auto py-2">
+          <div className="flex-1 overflow-y-auto py-3">
             <SidebarNav user={user} onNavigate={() => setMobileOpen(false)} />
           </div>
           <BrandFooter />
@@ -96,23 +116,55 @@ export function AppShell({
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur sm:px-6">
-          <button
-            type="button"
-            onClick={() => setMobileOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary lg:hidden"
-            aria-label="Open navigation"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="hidden lg:block" />
-          <div className="flex items-center gap-1">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/95 px-4 backdrop-blur sm:px-6 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
+              aria-label="Open navigation"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
+            {/* Quick Terminal Actions */}
+            <div className="hidden lg:flex items-center gap-2">
+              <Link
+                href="/pos"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors"
+              >
+                <ShoppingCart className="h-3.5 w-3.5" />
+                POS Terminal
+              </Link>
+              <Link
+                href="/tables"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+              >
+                <LayoutGrid className="h-3.5 w-3.5 text-slate-500" />
+                Tables
+              </Link>
+              <Link
+                href="/kds"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition-colors"
+              >
+                <ChefHat className="h-3.5 w-3.5 text-slate-500" />
+                KDS Kitchen
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <LiveClock />
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <LanguageSwitcher compact />
             <NotificationBell />
             <UserMenu user={user} />
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">{children}</main>
+
+        <main className="flex-1 overflow-y-auto p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8">
+          {children}
+        </main>
         <EntityDialogHost />
       </div>
       <MobileBottomNav user={user} onMore={() => setMobileOpen(true)} />

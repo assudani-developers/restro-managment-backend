@@ -7,7 +7,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { AlertCircle } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  ChefHat,
+  CreditCard,
+  Layers,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,16 +31,22 @@ import { ApiError } from "@/lib/api";
 export default function LoginPage() {
   const router = useRouter();
   const login = useLogin();
-  // Set once the server says this account uses two-factor authentication.
   const [needsCode, setNeedsCode] = useState(false);
-  // Shown inline under the form (a toast vanishes before it can be read).
   const [error, setError] = useState<string | null>(null);
   const prefersReducedMotion = useReducedMotion();
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<LoginDto>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginDto>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "admin@restrocore.com",
+      password: "Password123!",
+    },
+  });
 
   const onSubmit = (dto: LoginDto) => {
     setError(null);
@@ -40,116 +58,282 @@ export default function LoginPage() {
           return;
         }
         if (err instanceof ApiError && err.status >= 500) {
-          setError("The server is having a problem right now. Please try again in a minute.");
+          setError("Server is processing. Please verify database connection and retry.");
         } else if (err instanceof ApiError) {
           setError(err.message);
         } else {
-          setError("Can't reach the server. Check your internet connection and try again.");
+          setError("Can't reach the server. Please check your backend connection.");
         }
       },
     });
   };
 
+  const fillCredentials = (email: string) => {
+    setValue("email", email, { shouldValidate: true });
+    setValue("password", "Password123!", { shouldValidate: true });
+    setError(null);
+  };
+
   return (
-    <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-background px-4">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(50%_50%_at_50%_0%,color-mix(in_oklch,var(--primary),transparent_90%),transparent)]"
-      />
-      <motion.div
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-sm"
-      >
-        <div className="mb-10 flex flex-col items-center gap-2 text-center">
-          <Link href="/">
-            <Logo size={48} />
-          </Link>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            RestroCore
-          </h1>
-          <p className="text-sm text-muted-foreground">Sign in to manage your restaurant</p>
+    <main className="relative flex min-h-screen w-full flex-col lg:flex-row bg-slate-50 text-slate-900">
+      {/* Left Feature Showcase (Desktop) */}
+      <div className="relative hidden w-full lg:flex lg:w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 p-12 text-white">
+        {/* Subtle background glow */}
+        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
+
+        {/* Brand header */}
+        <div className="relative z-10 flex items-center gap-3">
+          <Logo size={42} />
+          <div>
+            <span className="text-xl font-bold tracking-tight">RestroCore</span>
+            <span className="ml-2 rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-xs font-semibold text-indigo-300 ring-1 ring-indigo-400/30">
+              Cloud POS v2.0
+            </span>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="username"
-              inputMode="email"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              enterKeyHint="next"
-              autoFocus
-              className="h-11"
-              placeholder="you@restaurant.com"
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput
-              id="password"
-              
-              autoComplete="current-password"
-              enterKeyHint="go"
-              className="h-11"
-              placeholder="Your password"
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
-            )}
-          </div>
-
-          {needsCode && (
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="totp">Verification code</Label>
-              <Input
-                id="totp"
-                inputMode="text"
-                autoComplete="one-time-code"
-                autoFocus
-                placeholder="6-digit code or recovery code"
-                {...register("totp")}
-              />
-              <p className="text-xs text-muted-foreground">
-                Open your authenticator app, or use one of your recovery codes.
-              </p>
-              {errors.totp && <p className="text-xs text-destructive">{errors.totp.message}</p>}
+        {/* Center feature showcase */}
+        <div className="relative z-10 my-auto flex max-w-lg flex-col gap-8 py-10">
+          <div className="flex flex-col gap-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-indigo-200 backdrop-blur w-fit border border-white/10">
+              <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+              Next-Gen Restaurant & Kitchen OS
             </div>
-          )}
+            <h2 className="text-4xl font-extrabold tracking-tight leading-tight">
+              Speed, simplicity, and full control over your restaurant.
+            </h2>
+            <p className="text-base text-slate-300 leading-relaxed">
+              Designed for high-volume dining, quick service, cloud kitchens, and multi-branch operations.
+            </p>
+          </div>
 
-          {error && (
-            <div
-              role="alert"
-              className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
+          <div className="grid grid-cols-1 gap-3.5">
+            <div className="flex items-center gap-3.5 rounded-2xl bg-white/5 p-4 backdrop-blur border border-white/10 transition-colors hover:bg-white/10">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
+                <Zap className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Lightning-fast Billing & POS</p>
+                <p className="text-xs text-slate-400">Split bills, customized item modifiers & instant receipt print</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 rounded-2xl bg-white/5 p-4 backdrop-blur border border-white/10 transition-colors hover:bg-white/10">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300">
+                <ChefHat className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Live Kitchen Display (KDS)</p>
+                <p className="text-xs text-slate-400">Zero-lag ticket routing with real-time station timers</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3.5 rounded-2xl bg-white/5 p-4 backdrop-blur border border-white/10 transition-colors hover:bg-white/10">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
+                <Layers className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Tables & Floor Matrix</p>
+                <p className="text-xs text-slate-400">Live occupancy tracking, reservations & QR table ordering</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer status */}
+        <div className="relative z-10 flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-4">
+          <span className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            System Status: 100% Operational
+          </span>
+          <span>Light Edition • RestroCore POS</span>
+        </div>
+      </div>
+
+      {/* Right Login Form */}
+      <div className="relative flex flex-1 items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-md"
+        >
+          {/* Mobile brand header */}
+          <div className="mb-8 flex flex-col items-center gap-2.5 text-center lg:items-start lg:text-left">
+            <div className="flex items-center gap-3">
+              <Logo size={44} />
+              <div className="flex flex-col text-left">
+                <span className="text-2xl font-bold tracking-tight text-slate-900">
+                  Restro<span className="text-indigo-600">Core</span>
+                </span>
+                <span className="text-xs font-medium text-slate-500">Restaurant Management Platform</span>
+              </div>
+            </div>
+            <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
+              Sign in to your account
+            </h1>
+            <p className="text-sm text-slate-600">
+              Enter your credentials to access the POS terminal & dashboard.
+            </p>
+          </div>
+
+          {/* Quick Demo Pre-Fill Chips for User Convenience */}
+          <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50/70 p-3.5">
+            <div className="mb-2 flex items-center justify-between text-xs font-semibold text-indigo-900">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+                Quick Demo Accounts (1-Click Fill)
+              </span>
+              <span className="text-[10px] text-indigo-600 font-mono">Password123!</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => fillCredentials("admin@restrocore.com")}
+                className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                admin@restrocore.com
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials("admin@khaobhar.com")}
+                className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-2.5 py-1.5 text-xs font-medium text-indigo-700 shadow-sm transition-all hover:bg-indigo-600 hover:text-white hover:border-indigo-600"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                admin@khaobhar.com
+              </button>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                Email Address
+              </Label>
+              <div className="relative">
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="username"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  autoFocus
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  placeholder="admin@restrocore.com"
+                  {...register("email")}
+                />
+                <Mail className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-slate-400" />
+              </div>
+              {errors.email && (
+                <p className="text-xs font-medium text-rose-600">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                  Password
+                </Label>
+              </div>
+              <div className="relative">
+                <PasswordInput
+                  id="password"
+                  autoComplete="current-password"
+                  className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500/20"
+                  placeholder="Enter your password"
+                  {...register("password")}
+                />
+                <Lock className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-slate-400" />
+              </div>
+              {errors.password && (
+                <p className="text-xs font-medium text-rose-600">{errors.password.message}</p>
+              )}
+            </div>
+
+            {needsCode && (
+              <div className="flex flex-col gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+                <Label htmlFor="totp" className="text-xs font-semibold uppercase tracking-wider text-indigo-950">
+                  2-Factor Authentication Code
+                </Label>
+                <Input
+                  id="totp"
+                  inputMode="text"
+                  autoComplete="one-time-code"
+                  autoFocus
+                  className="h-11 rounded-xl border-indigo-300 bg-white text-slate-900 focus:border-indigo-600 focus:ring-indigo-500/20"
+                  placeholder="6-digit authenticator code"
+                  {...register("totp")}
+                />
+                <p className="text-xs text-indigo-800">
+                  Open your authenticator app or enter a backup code.
+                </p>
+                {errors.totp && <p className="text-xs font-medium text-rose-600">{errors.totp.message}</p>}
+              </div>
+            )}
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                role="alert"
+                className="flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-sm text-rose-800 shadow-xs"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
+                <div className="flex-1 text-xs leading-relaxed">
+                  <span className="font-semibold text-rose-900 block">{error}</span>
+                  <span>Tip: Click on one of the demo chips above to instantly auto-fill working credentials.</span>
+                </div>
+              </motion.div>
+            )}
+
+            <Button
+              type="submit"
+              className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-base font-semibold text-white shadow-md shadow-indigo-600/25 transition-all hover:from-indigo-500 hover:to-indigo-600 hover:shadow-lg hover:shadow-indigo-600/35 active:scale-[0.99] disabled:opacity-60"
+              disabled={login.isPending}
             >
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
+              {login.isPending ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Verifying Credentials…
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  Sign In to Dashboard
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-8 flex flex-col items-center gap-4 text-center">
+            <p className="text-xs text-slate-600">
+              Need to register a new restaurant branch?{" "}
+              <Link href="/signup" className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
+                Create an account
+              </Link>
+            </p>
+
+            <div className="flex items-center gap-4 text-[11px] text-slate-600">
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3 text-emerald-600" /> 100% Light Theme
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3 text-emerald-600" /> GST Ready
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Touchscreen Optimized
+              </span>
             </div>
-          )}
-
-          <Button type="submit" className="mt-2 h-12 text-base" disabled={login.isPending}>
-            {login.isPending ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
-
-        <p className="mt-8 text-center text-xs text-muted-foreground">
-          New restaurant?{" "}
-          <Link href="/signup" className="font-medium text-foreground hover:underline">
-            Create an account
-          </Link>
-        </p>
-      </motion.div>
+          </div>
+        </motion.div>
+      </div>
     </main>
   );
 }

@@ -24,14 +24,14 @@ export default function ComplianceIndiaPage() {
 
       <DocSection heading="Who is the &ldquo;data fiduciary&rdquo;?">
         <p>
-          RestroCore is self-hosted software, not a cloud service Nodedr
+          RestroCore is self-hosted software, not a cloud service RestroCore
           Infotech operates on your behalf. When a restaurant deploys
           RestroCore on its own server, <strong className="text-foreground">
           that restaurant is the Data Fiduciary</strong> under the Digital
           Personal Data Protection Act, 2023 (DPDP Act) for the customer and
           staff personal data it collects through the app — the same way a
           restaurant using a paper register or a locally-run spreadsheet
-          would be. Nodedr Infotech does not receive, store, or process that
+          would be. RestroCore does not receive, store, or process that
           data on its own infrastructure in a self-hosted deployment.
         </p>
         <p>This has a practical upside: because the entire stack (Postgres, API, and web app) runs on hardware the restaurant controls, data residency and cross-border transfer questions under the DPDP Act are largely avoided by construction — the data simply never leaves the deploying operator&rsquo;s own server unless they choose to move it.</p>
@@ -129,7 +129,7 @@ export default function ComplianceIndiaPage() {
           For questions about this software&rsquo;s architecture or
           security posture, open an issue on{" "}
           <a
-            href="https://github.com/Raktim94/nodedr-restaurant-pos/issues"
+            href="https://github.com/restrocore/restrocore/issues"
             className="text-primary underline underline-offset-4"
           >
             GitHub

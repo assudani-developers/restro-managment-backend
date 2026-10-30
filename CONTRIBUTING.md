@@ -1,4 +1,4 @@
-# Contributing to Nodedr OrderRestro
+# Contributing to RestroCore
 
 First off — thank you for considering a contribution. This is a young,
 fast-moving project (Phases 0-3 of a 20-module scope are done; see
@@ -31,13 +31,13 @@ anything here is out of date, trust [`PROJECT.md`](./PROJECT.md) and
 
 This project follows the [Contributor Covenant](./CODE_OF_CONDUCT.md). By
 participating, you agree to uphold it. Report unacceptable behavior to
-**mail@raktimranjit.com**.
+**support@restrocore.com**.
 
 ## Maintainers & copyright
 
-See [`MAINTAINERS.md`](./MAINTAINERS.md) — Raktim Ranjit is the lead
+See [`MAINTAINERS.md`](./MAINTAINERS.md) — RestroCore Maintainers is the lead
 maintainer; project copyright is held jointly by
-[Nodedr Infotech Private Limited](https://www.nodedr.com/) and Raktim
+[RestroCore Systems](https://restrocore.local) and RestroCore Team
 Ranjit. By submitting a PR, you agree your contribution is licensed under
 the same [AGPL-3.0](./LICENSE) as the rest of the project; you retain
 copyright on your own contribution.
@@ -71,17 +71,17 @@ Docker for it.
 ### Option A — full stack via Docker
 
 ```bash
-git clone https://github.com/Raktim94/nodedr-restaurant-pos.git
-cd nodedr-restaurant-pos
+git clone https://github.com/restrocore/restrocore.git
+cd restrocore
 cp .env.example .env                 # edit JWT_SECRET / POSTGRES_PASSWORD for anything beyond local dev
 docker compose up -d --build
-docker exec nodedr-restaurant-backend npx ts-node prisma/seed.ts   # first run only — demo data + login
+docker exec restrocore-backend npx ts-node prisma/seed.ts   # first run only — demo data + login
 ```
 
 Open <http://localhost:1995> and sign in with `owner@demo.local` /
 `Password123!` (seeded demo account — never use this in a real
 deployment). The backend API and Swagger docs (`/api/docs`) are reachable
-only through the web app's `/api` proxy, matching `nodedr-pos`'s pattern —
+only through the web app's `/api` proxy, matching `retail-pos`'s pattern —
 they are not published directly to the host.
 
 ### Option B — local dev (apps run on the host, Postgres in Docker)
@@ -127,7 +127,7 @@ a module, not threading new routes through a shared app — see
 ## Conventions that are not optional
 
 These are documented, previously-learned-the-hard-way rules (some
-inherited from this project's sister repo, `nodedr-pos`, which hit these
+inherited from this project's sister repo, `retail-pos`, which hit these
 bugs in production). PRs that violate them will be asked to change before
 merge, regardless of otherwise-good code:
 
@@ -194,7 +194,7 @@ Fix loyalty point drift on repeated redemptions
 Running balance was updated with a DB-side increment on a Float column,
 which compounds rounding error over many transactions. Switched to a
 rounded read-modify-write set, matching the rule this project inherited
-from nodedr-pos's original bug.
+from retail-pos's original bug.
 ```
 
 No fixed prefix convention (`feat:`/`fix:`) is enforced yet — clear prose
@@ -246,7 +246,7 @@ PR.
 
 ## Questions & discussion
 
-Use [GitHub Discussions](https://github.com/Raktim94/nodedr-restaurant-pos/discussions)
+Use [GitHub Discussions](https://github.com/restrocore/restrocore/discussions)
 for "how do I…" / "why does X work this way" / general chat. Use Issues
 for concrete bugs and feature requests. Keep architecture debates in
 Discussions or a tagged issue rather than scattered across PR comments,

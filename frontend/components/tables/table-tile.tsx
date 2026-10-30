@@ -20,11 +20,11 @@ import { TableQrDialog } from "./table-qr-dialog";
 import { TableShapeIcon } from "./table-shape-icon";
 
 const STATUS_STYLES: Record<TableStatusDto, string> = {
-  AVAILABLE: "bg-success/10 border-success/30 text-success",
-  OCCUPIED: "bg-primary/10 border-primary/30 text-primary",
-  RESERVED: "bg-warning/10 border-warning/30 text-warning",
-  CLEANING: "bg-muted border-border text-muted-foreground",
-  OUT_OF_SERVICE: "bg-muted border-border text-muted-foreground opacity-60",
+  AVAILABLE: "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-2xs hover:border-emerald-500",
+  OCCUPIED: "bg-indigo-50 border-indigo-300 text-indigo-900 shadow-2xs hover:border-indigo-500",
+  RESERVED: "bg-amber-50 border-amber-300 text-amber-900 shadow-2xs hover:border-amber-500",
+  CLEANING: "bg-slate-100 border-slate-300 text-slate-700 opacity-90",
+  OUT_OF_SERVICE: "bg-slate-100 border-slate-200 text-slate-400 opacity-60",
 };
 
 const STATUS_LABEL: Record<TableStatusDto, string> = {

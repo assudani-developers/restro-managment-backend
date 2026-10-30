@@ -59,11 +59,9 @@ export function CartPanel({
   isSubmitting: boolean;
   existingOrderNumber?: string;
   onViewExistingOrder?: () => void;
-  /** All unpaid bills on the selected table (more than one is possible). */
   openBills?: { id: string; orderNumber: string }[];
   selectedBillId?: string | null;
   onSelectBill?: (id: string) => void;
-  /** The table's open bills are still loading - sending now could start a duplicate bill. */
   checkingTable?: boolean;
   delivery: DeliveryDetails;
   onDeliveryChange: (d: DeliveryDetails) => void;
@@ -78,16 +76,16 @@ export function CartPanel({
     lines.length > 0 && (orderType !== "DINE_IN" || !!tableId) && deliveryReady && !isSubmitting && !checkingTable;
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
       <Tabs value={orderType} onValueChange={(v) => onOrderTypeChange(v as PosOrderType)}>
-        <TabsList className="w-full">
-          <TabsTrigger value="DINE_IN" className="flex-1">
+        <TabsList className="w-full bg-slate-100 p-1 rounded-xl">
+          <TabsTrigger value="DINE_IN" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-xs">
             Dine-in
           </TabsTrigger>
-          <TabsTrigger value="TAKEAWAY" className="flex-1">
+          <TabsTrigger value="TAKEAWAY" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-xs">
             Takeaway
           </TabsTrigger>
-          <TabsTrigger value="DELIVERY" className="flex-1">
+          <TabsTrigger value="DELIVERY" className="flex-1 rounded-lg font-semibold text-xs data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-xs">
             Delivery
           </TabsTrigger>
         </TabsList>
@@ -95,19 +93,19 @@ export function CartPanel({
 
       {orderType === "DINE_IN" && (
         <Select value={tableId} onValueChange={(v) => onTableChange(v ?? "")}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select table">
+          <SelectTrigger className="w-full h-11 rounded-xl border-slate-300 bg-white text-slate-800">
+            <SelectValue placeholder="Select Table">
               {(value: string | null) => {
                 const t = tables.find((table) => table.id === value);
-                if (!t) return "Select table";
-                return `${t.name ?? `Table ${t.number}`}${t.status === "OCCUPIED" ? " (occupied)" : ""}`;
+                if (!t) return "Select Table";
+                return `${t.name ?? `Table ${t.number}`}${t.status === "OCCUPIED" ? " (Occupied)" : ""}`;
               }}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-xl border-slate-200 bg-white shadow-lg">
             {tables.map((t) => (
-              <SelectItem key={t.id} value={t.id}>
-                {t.name ?? `Table ${t.number}`} {t.status === "OCCUPIED" ? "(occupied)" : ""}
+              <SelectItem key={t.id} value={t.id} className="cursor-pointer">
+                {t.name ?? `Table ${t.number}`} {t.status === "OCCUPIED" ? "(Occupied)" : ""}
               </SelectItem>
             ))}
           </SelectContent>
@@ -120,6 +118,7 @@ export function CartPanel({
             placeholder="Delivery address"
             value={delivery.address}
             onChange={(e) => onDeliveryChange({ ...delivery, address: e.target.value })}
+            className="rounded-xl border-slate-300 bg-white"
           />
           <div className="grid grid-cols-2 gap-2">
             <Input
@@ -127,43 +126,47 @@ export function CartPanel({
               inputMode="numeric"
               value={delivery.pincode}
               onChange={(e) => onDeliveryChange({ ...delivery, pincode: e.target.value })}
+              className="rounded-xl border-slate-300 bg-white"
             />
             <Input
-              placeholder="Phone"
+              placeholder="Phone number"
               inputMode="tel"
               value={delivery.phone}
               onChange={(e) => onDeliveryChange({ ...delivery, phone: e.target.value })}
+              className="rounded-xl border-slate-300 bg-white"
             />
           </div>
         </div>
       )}
 
       {orderType !== "DINE_IN" && (
-        <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
           Schedule for later (optional)
           <Input
             type="datetime-local"
             value={scheduledFor}
             onChange={(e) => onScheduledForChange(e.target.value)}
+            className="rounded-xl border-slate-300 bg-white"
           />
         </label>
       )}
 
       {checkingTable && (
-        <p role="status" className="rounded-lg bg-secondary/60 px-3 py-2 text-xs text-muted-foreground">
-          Checking this table&apos;s open bills…
+        <p role="status" className="rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
+          Checking open bills for this table…
         </p>
       )}
+
       {openBills && openBills.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" role="group" aria-label="Open bills on this table">
-          <span>{openBills.length} open bills here — add to:</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 rounded-xl bg-slate-50 p-2 border border-slate-200" role="group" aria-label="Open bills on this table">
+          <span className="font-semibold text-slate-700">{openBills.length} open bills:</span>
           {openBills.map((b) => (
             <Button
               key={b.id}
               type="button"
               size="sm"
               variant={b.id === selectedBillId ? "default" : "outline"}
-              className="h-7 px-2 text-xs"
+              className="h-7 px-2.5 text-xs rounded-lg font-semibold"
               aria-pressed={b.id === selectedBillId}
               onClick={() => onSelectBill?.(b.id)}
             >
@@ -172,60 +175,63 @@ export function CartPanel({
           ))}
         </div>
       )}
+
       {existingOrderNumber && (
-        <div className="flex items-center justify-between gap-3 rounded-lg bg-secondary/60 px-3 py-2 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-900">
           <span>
-            This table already has open order{" "}
-            <span className="font-medium text-foreground">#{existingOrderNumber}</span>
-            {lines.length > 0 && " — these items will be added to it as a new round."}
+            Open round exists on this table:{" "}
+            <span className="font-bold">#{existingOrderNumber}</span>
           </span>
           {onViewExistingOrder && (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="h-7 shrink-0 px-2 text-xs"
+              className="h-7 shrink-0 px-2.5 text-xs rounded-lg border-amber-300 bg-white font-semibold text-amber-800 hover:bg-amber-100"
               onClick={onViewExistingOrder}
             >
-              View & pay
+              View & Pay
             </Button>
           )}
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pr-1">
         {lines.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-            <ShoppingCart className="h-8 w-8 opacity-40" />
-            <p className="text-sm">Cart is empty</p>
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-slate-400 py-10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+              <ShoppingCart className="h-6 w-6" />
+            </div>
+            <p className="text-sm font-medium">Cart is currently empty</p>
+            <p className="text-xs text-slate-400">Tap items on the left to add them to this ticket</p>
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-border">
+          <div className="flex flex-col divide-y divide-slate-100">
             {lines.map((line) => (
               <div key={line.key} className="flex items-start justify-between gap-3 py-3">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">{line.name}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">{line.name}</p>
                   {line.modifierLabel && (
-                    <p className="text-xs text-muted-foreground">{line.modifierLabel}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{line.modifierLabel}</p>
                   )}
-                  <p className="mt-1 text-sm font-medium tabular-nums text-foreground">
+                  <p className="mt-1 text-sm font-bold tabular-nums text-indigo-700">
                     {formatCurrency(line.unitPrice * line.quantity)}
                   </p>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-7 w-7 rounded-lg border-slate-200 hover:bg-slate-100"
                     onClick={() => onDecrement(line.key)}
                   >
                     <Minus className="h-3 w-3" />
                   </Button>
-                  <span className="w-5 text-center text-sm tabular-nums">{line.quantity}</span>
+                  <span className="w-6 text-center text-sm font-bold tabular-nums text-slate-900">{line.quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-7 w-7"
+                    className="h-7 w-7 rounded-lg border-slate-200 hover:bg-slate-100"
                     onClick={() => onIncrement(line.key)}
                   >
                     <Plus className="h-3 w-3" />
@@ -233,7 +239,7 @@ export function CartPanel({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    className="h-7 w-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                     onClick={() => onRemove(line.key)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -245,19 +251,23 @@ export function CartPanel({
         )}
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-border pt-4">
+      <div className="flex flex-col gap-3 border-t border-slate-200/80 pt-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Subtotal (incl. tax)</span>
-          <span className="font-semibold tabular-nums text-foreground">
+          <span className="text-slate-500 font-medium">Subtotal (incl. taxes)</span>
+          <span className="text-lg font-extrabold tabular-nums text-slate-900">
             {formatCurrency(subtotal)}
           </span>
         </div>
-        <Button className="h-11" disabled={!canSubmit} onClick={onSubmit}>
+        <Button
+          className="h-12 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-sm font-bold text-white shadow-md shadow-indigo-600/25 transition-all hover:from-indigo-500 hover:to-indigo-600 disabled:opacity-50"
+          disabled={!canSubmit}
+          onClick={onSubmit}
+        >
           {isSubmitting
             ? "Sending to kitchen…"
             : existingOrderNumber
-              ? "Add to order & send to kitchen"
-              : "Send to kitchen"}
+              ? "Add Items & Send to Kitchen"
+              : "Send Ticket to Kitchen"}
         </Button>
       </div>
     </div>

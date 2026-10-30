@@ -2,7 +2,7 @@
   "name": "@restrocore/backend",
   "version": "0.1.0",
   "description": "RestroCore Restaurant Management & POS API",
-  "author": "Raktim Ranjit <mail@raktimranjit.com> (https://github.com/Raktim94)",
+  "author": "RestroCore Team",
   "private": true,
   "license": "AGPL-3.0-only",
   "scripts": {
