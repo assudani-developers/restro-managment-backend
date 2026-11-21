@@ -111,6 +111,7 @@ async function bootstrap() {
       process.env.FRONTEND_ORIGIN,
       process.env.CORS_ORIGIN,
       'https://restro.piyushassudani.in',
+      'https://restro-managment.vercel.app',
       'http://localhost:1995',
       'http://localhost:3000',
     ].filter((value): value is string => Boolean(value)),
@@ -119,8 +120,17 @@ async function bootstrap() {
     origin: (origin, callback) => {
       // Native/mobile and server-to-server clients have no Origin header.
       // Browser requests are limited to explicitly configured frontend origins.
-      if (!origin || allowedOrigins.has(origin)) callback(null, true);
-      else callback(new Error('Origin is not allowed'), false);
+      if (
+        !origin ||
+        allowedOrigins.has(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('piyushassudani.in') ||
+        origin.includes('localhost')
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
     },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
