@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
+  DEFAULT_MODULES_BY_BUSINESS,
   DEFAULT_ROLE_PERMISSIONS,
   PERMISSIONS,
   STAFF_ROLES,
@@ -87,6 +88,7 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
+    const businessType = dto.businessType ?? 'RESTAURANT';
     const existing = await this.prisma.user.findFirst({
       where: { email: dto.email },
     });
@@ -112,7 +114,11 @@ export class AuthService {
 
     const owner = await this.prisma.$transaction(async (tx) => {
       const restaurant = await tx.restaurant.create({
-        data: { name: dto.restaurantName },
+        data: {
+          name: dto.restaurantName,
+          businessType,
+          enabledModules: [...DEFAULT_MODULES_BY_BUSINESS[businessType]],
+        },
       });
       const branch = await tx.branch.create({
         data: { restaurantId: restaurant.id, name: dto.branchName },

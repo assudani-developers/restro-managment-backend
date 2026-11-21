@@ -172,20 +172,19 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-                Email Address
+                Email or username
               </Label>
               <div className="relative">
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
                   autoComplete="username"
-                  inputMode="email"
                   autoCapitalize="none"
                   autoCorrect="off"
                   spellCheck={false}
                   autoFocus
                   className="h-11 rounded-xl border-slate-300 bg-white pl-10 text-slate-900 shadow-xs focus:border-teal-700 focus:ring-2 focus:ring-teal-700/15"
-                  placeholder="Work email"
+                  placeholder="Email or username"
                   {...register("email")}
                 />
                 <Mail className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-slate-400" />

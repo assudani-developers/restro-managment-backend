@@ -38,6 +38,12 @@ export const PERMISSIONS = [
   { key: "marketing.manage", label: "Manage Coupons, Promotions & Campaigns", category: "Marketing" },
   { key: "operations.manage", label: "Manage Equipment & Documents", category: "Operations" },
   { key: "system.update", label: "Manage App Updates", category: "Admin" },
+  { key: "hotel.frontdesk", label: "Front Desk: Bookings, Check-in/out & Folio", category: "Hotel" },
+  { key: "hotel.housekeeping", label: "Housekeeping & Room Status", category: "Hotel" },
+  { key: "hotel.payments", label: "Record Folio Payments & Refunds", category: "Hotel" },
+  { key: "hotel.events", label: "Events, Banquet & Marriage Garden", category: "Hotel" },
+  { key: "hotel.pool", label: "Swimming Pool Passes", category: "Hotel" },
+  { key: "hotel.setup", label: "Hotel Setup: Rooms, Rates, Branding, Geo-fence", category: "Hotel" },
 ] as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[number]["key"];
@@ -75,6 +81,8 @@ export const STAFF_ROLES = [
   "DELIVERY_STAFF",
   "ACCOUNTANT",
   "INVENTORY_MANAGER",
+  "FRONT_DESK",
+  "HOUSEKEEPING",
 ] as const;
 
 export type StaffRole = (typeof STAFF_ROLES)[number];
@@ -91,6 +99,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<StaffRole, PermissionKey[]> = {
     "inventory.manage", "reports.access", "kds.manage",
     "reservations.manage", "customers.manage", "refunds.process",
     "attendance.manage", "delivery.manage", "staff.manage", "accounting.manage", "marketing.manage", "operations.manage",
+    "hotel.frontdesk", "hotel.housekeeping", "hotel.payments", "hotel.events", "hotel.pool",
   ],
   CASHIER: [
     "orders.create", "orders.edit", "orders.accept", "bills.print", "discounts.apply",
@@ -106,4 +115,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<StaffRole, PermissionKey[]> = {
   DELIVERY_STAFF: ["orders.edit", "delivery.manage"],
   ACCOUNTANT: ["sales.view", "dashboard.sales.view", "reports.access", "reports.financial.view", "data.export", "accounting.manage"],
   INVENTORY_MANAGER: ["inventory.manage", "reports.access"],
+  FRONT_DESK: [
+    "hotel.frontdesk", "hotel.housekeeping", "hotel.payments", "hotel.pool",
+    "orders.create", "orders.edit", "menu.view", "tables.view", "customers.manage",
+  ],
+  HOUSEKEEPING: ["hotel.housekeeping"],
 };

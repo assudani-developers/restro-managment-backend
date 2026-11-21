@@ -21,6 +21,10 @@ export function realtimeInvalidations(event: string, branchId: string): string[]
     case "reservation.created":
     case "reservation.updated":
       return [["reservations", branchId], ["dashboard"]];
+    case "hotel.rooms":
+    case "hotel.bookings":
+    case "hotel.folio":
+      return [["hotel"], ["orders"]];
     default:
       return [];
   }
@@ -37,4 +41,7 @@ export const REALTIME_EVENTS = [
   "order.deleted",
   "reservation.created",
   "reservation.updated",
+  "hotel.rooms",
+  "hotel.bookings",
+  "hotel.folio",
 ] as const;

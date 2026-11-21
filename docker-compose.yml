@@ -20,7 +20,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: apps/backend/Dockerfile
+      dockerfile: backend/Dockerfile
       args:
         APP_VERSION: "${APP_VERSION:-dev}"
     image: restrocore-backend:${APP_VERSION:-dev}
@@ -32,6 +32,8 @@ services:
       JWT_EXPIRES_IN: "12h"
       PORT: "4000"
       CORS_ORIGIN: "${FRONTEND_ORIGIN:-http://localhost:1995}"
+      # Public URL guests open from booking messages and QR codes.
+      FRONTEND_ORIGIN: "${FRONTEND_ORIGIN:-http://localhost:1995}"
       COOKIE_SECURE: "${COOKIE_SECURE:-false}"
       UPLOADS_DIR: "/data/uploads"
       # Spain VERI*FACTU (Settings > VERI*FACTU). The producer identifier is a legal fact only the software
@@ -67,7 +69,7 @@ services:
       - "4000"
     volumes:
       - uploads_data:/data/uploads
-      # Direct-USB thermal printing (see apps/backend/src/modules/orders/
+      # Direct-USB thermal printing (see backend/src/modules/orders/
       # escpos-usb.ts, ported from retail-pos's real hardware-verified
       # transport) needs the backend to see the host's USB device nodes.
       # Bind-mounting the whole /dev/bus/usb tree (not `devices:` with a
@@ -95,10 +97,10 @@ services:
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: frontend/Dockerfile
       args:
         # Next bakes rewrite destinations at BUILD time — this must be a
-        # build ARG, not a runtime env (see apps/web/Dockerfile comment).
+        # build ARG, not a runtime env (see frontend/Dockerfile comment).
         BACKEND_URL: "http://backend:4000"
     image: restrocore-web:${APP_VERSION:-dev}
     container_name: restrocore-web

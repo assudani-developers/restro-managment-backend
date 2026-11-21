@@ -12,6 +12,8 @@ import { api } from "@/lib/api";
 export interface RestaurantSettings {
   id: string;
   name: string;
+  businessType: "CAFE_QSR" | "RESTAURANT" | "CLOUD_KITCHEN" | "HOTEL" | "RESORT" | "CHAIN";
+  enabledModules: string[];
   legalName: string | null;
   logoUrl: string | null;
   currency: string;

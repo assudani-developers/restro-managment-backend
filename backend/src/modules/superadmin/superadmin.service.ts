@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { PERMISSIONS, registerSchema } from '@restrocore/types';
+import { DEFAULT_MODULES_BY_BUSINESS, PERMISSIONS, registerSchema, type BusinessType } from '@restrocore/types';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RealtimeGateway } from '../../realtime/realtime.gateway';
 
@@ -114,6 +114,8 @@ export class SuperAdminService {
     ownerPassword: string;
     ownerPhone?: string;
     plan?: string;
+    businessType?: BusinessType;
+    enabledModules?: string[];
   }) {
     const restaurantName = typeof dto.restaurantName === 'string' ? dto.restaurantName.trim() : '';
     const branchName = typeof dto.branchName === 'string' ? dto.branchName.trim() : '';
@@ -125,6 +127,7 @@ export class SuperAdminService {
       ownerName,
       email: ownerEmail,
       password: dto.ownerPassword,
+      businessType: dto.businessType ?? 'RESTAURANT',
     });
 
     if (!registration.success) {
@@ -167,6 +170,8 @@ export class SuperAdminService {
           currency: dto.currency || 'INR',
           timezone: dto.timezone || 'Asia/Kolkata',
           plan: dto.plan ?? 'ENTERPRISE',
+          businessType: dto.businessType ?? 'RESTAURANT',
+          enabledModules: dto.enabledModules ?? [...DEFAULT_MODULES_BY_BUSINESS[dto.businessType ?? 'RESTAURANT']],
           isActive: true,
         },
       });
@@ -509,6 +514,8 @@ export class SuperAdminService {
       upiVpa?: string;
       upiPayeeName?: string;
       isActive?: boolean;
+      businessType?: BusinessType;
+      enabledModules?: string[];
     },
   ) {
     const restaurant = await this.prisma.restaurant.findUnique({ where: { id } });
@@ -525,6 +532,8 @@ export class SuperAdminService {
         ...(dto.upiVpa !== undefined ? { upiVpa: dto.upiVpa } : {}),
         ...(dto.upiPayeeName !== undefined ? { upiPayeeName: dto.upiPayeeName } : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+        ...(dto.businessType ? { businessType: dto.businessType } : {}),
+        ...(dto.enabledModules ? { enabledModules: dto.enabledModules } : {}),
       },
     });
 

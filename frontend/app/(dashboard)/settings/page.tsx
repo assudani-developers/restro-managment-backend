@@ -4,6 +4,9 @@ import { ImagePlus, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
+  BUSINESS_MODULES,
+  DEFAULT_MODULES_BY_BUSINESS,
+  type BusinessType,
   RESTAURANT_NAME_MAX_LENGTH,
   TAX_REGIME_PRESETS,
   TAX_REGIMES,
@@ -182,6 +185,8 @@ function GeneralSettingsForm({
   const [loyaltyEarnPerCurrency, setLoyaltyEarnPerCurrency] = useState(
     String(restaurant.loyaltyEarnPerCurrency),
   );
+  const [businessType, setBusinessType] = useState<BusinessType>(restaurant.businessType);
+  const [enabledModules, setEnabledModules] = useState<string[]>(restaurant.enabledModules ?? []);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const uploadLogo = useUploadRestaurantLogo();
 
@@ -213,6 +218,8 @@ function GeneralSettingsForm({
         upiPayeeName: upiPayeeName.trim() || null,
         loyaltyPointValue: Number(loyaltyPointValue) || 0,
         loyaltyEarnPerCurrency: Number(loyaltyEarnPerCurrency) || 1,
+        businessType,
+        enabledModules,
       },
       {
         onSuccess: () => toast.success("Restaurant details saved"),
@@ -326,6 +333,45 @@ function GeneralSettingsForm({
           <div className="flex flex-col gap-2">
             <Label htmlFor="r-legal">Legal name</Label>
             <Input id="r-legal" value={legalName} onChange={(e) => setLegalName(e.target.value)} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="r-business-type">Business type</Label>
+              <select
+                id="r-business-type"
+                value={businessType}
+                onChange={(e) => {
+                  const next = e.target.value as BusinessType;
+                  setBusinessType(next);
+                  setEnabledModules([...DEFAULT_MODULES_BY_BUSINESS[next]]);
+                }}
+                className="h-10 rounded-lg border border-border bg-background px-3 text-sm"
+              >
+                <option value="CAFE_QSR">Café / QSR</option>
+                <option value="RESTAURANT">Restaurant</option>
+                <option value="CLOUD_KITCHEN">Cloud kitchen</option>
+                <option value="HOTEL">Hotel</option>
+                <option value="RESORT">Resort</option>
+                <option value="CHAIN">Chain</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 border-t border-border pt-4">
+            <h3 className="text-sm font-medium text-foreground">Enabled modules</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {BUSINESS_MODULES.map((module) => (
+                <label key={module} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={enabledModules.includes(module)}
+                    onChange={(e) => setEnabledModules((current) =>
+                      e.target.checked ? [...current, module] : current.filter((item) => item !== module),
+                    )}
+                  />
+                  {module}
+                </label>
+              ))}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">

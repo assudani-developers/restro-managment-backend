@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import type { CartItemDto } from '@restrocore/types';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -17,7 +17,7 @@ export class PublicMenuService {
   private async resolveTable(qrToken: string) {
     const table = await this.prisma.table.findUnique({
       where: { qrToken },
-      include: { floor: { include: { branch: true } } },
+      include: { floor: { include: { branch: { include: { restaurant: true } } } } },
     });
     if (!table) throw new NotFoundException('This QR code is not recognized');
     return table;
@@ -27,10 +27,31 @@ export class PublicMenuService {
     const table = await this.resolveTable(qrToken);
     const branch = table.floor.branch;
     const categories = await this.menuCategoriesForBranch(branch.id);
+    const r = branch.restaurant;
+    const soldOut = new Set(
+      (
+        await this.prisma.menuItem.findMany({
+          where: { branchId: branch.id, isSoldOut: true },
+          select: { id: true },
+        })
+      ).map((m) => m.id),
+    );
     return {
       branchName: branch.name,
       tableName: table.name ?? `Table ${table.number}`,
-      categories,
+      brand: {
+        hotelName: r.name,
+        tagline: r.tagline,
+        logoUrl: r.logoUrl,
+        coverImageUrl: r.coverImageUrl,
+        brandColor: r.brandColor ?? '#7A2E1F',
+        accentColor: r.accentColor ?? '#C9973F',
+        currency: r.currency,
+      },
+      categories: categories.map((c) => ({
+        ...c,
+        items: c.items.map((i) => ({ ...i, isSoldOut: soldOut.has(i.id) })),
+      })),
     };
   }
 
@@ -201,6 +222,13 @@ export class PublicMenuService {
   async createOrder(qrToken: string, items: CartItemDto[], guestName: string) {
     const table = await this.resolveTable(qrToken);
     const branchId = table.floor.branchId;
+    const soldOut = await this.prisma.menuItem.findMany({
+      where: { branchId, isSoldOut: true, id: { in: items.map((i) => i.menuItemId) } },
+      select: { name: true },
+    });
+    if (soldOut.length) {
+      throw new BadRequestException(`${soldOut.map((s) => s.name).join(', ')} is sold out right now`);
+    }
 
     // A guest who already ordered once this visit and scans again to add
     // more (e.g. drinks now, food later) should land on the same tab, not

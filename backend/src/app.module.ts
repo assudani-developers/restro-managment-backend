@@ -44,6 +44,7 @@ import { McpModule } from './mcp/mcp.module';
 import { SystemModule } from './system/system.module';
 import { VerifactuModule } from './modules/verifactu/verifactu.module';
 import { SuperAdminModule } from './modules/superadmin/superadmin.module';
+import { HotelModule } from './modules/hotel/hotel.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { SuperAdminModule } from './modules/superadmin/superadmin.module';
     AuthModule,
     MenuModule,
     TablesModule,
+    HotelModule,
     AttendanceModule,
     DeliveryModule,
     HrModule,

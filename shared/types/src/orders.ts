@@ -8,6 +8,7 @@ export const orderTypeSchema = z.enum([
   "QR_ORDER",
   "KIOSK",
   "PHONE",
+  "ROOM_SERVICE",
 ]);
 export type OrderTypeDto = z.infer<typeof orderTypeSchema>;
 

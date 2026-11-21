@@ -165,6 +165,11 @@ export class OrdersService {
       channel?: 'STAFF' | 'ONLINE';
       requireAcceptance?: boolean;
       clientRequestId?: string;
+      // Hotel room service: link the order to a room/stay and, when the
+      // branch runs a separate room menu, bill at room-service prices.
+      roomId?: string;
+      bookingId?: string;
+      priceOverrides?: Map<string, number>;
     } = {},
   ) {
     const channel = options.channel ?? 'STAFF';
@@ -188,6 +193,12 @@ export class OrdersService {
       throw new BadRequestException(
         'One or more menu items are invalid for this branch',
       );
+    }
+    if (options.priceOverrides) {
+      for (const m of menuItems) {
+        const override = options.priceOverrides.get(m.id);
+        if (override != null) m.price = new Prisma.Decimal(override);
+      }
     }
     const menuItemById = new Map(menuItems.map((m) => [m.id, m]));
     const taxMode = await this.getBranchTaxMode(branchId);
@@ -320,6 +331,8 @@ export class OrdersService {
           channel,
           acceptance,
           tableId: dto.tableId,
+          roomId: options.roomId,
+          bookingId: options.bookingId,
           guestCount: dto.guestCount,
           customerId: dto.customerId,
           guestName: dto.guestName,

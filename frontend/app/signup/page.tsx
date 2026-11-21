@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema, type RegisterDto } from "@restrocore/types";
+import { registerSchema, type BusinessType, type RegisterDto } from "@restrocore/types";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -34,8 +34,23 @@ export default function SignupPage() {
   const {
     register: field,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm<RegisterDto>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterDto>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { businessType: "RESTAURANT", branchName: "Main Branch" },
+  });
+  const businessType = watch("businessType");
+
+  const BUSINESS_TYPE_OPTIONS: { value: BusinessType; label: string; description: string }[] = [
+    { value: "CAFE_QSR", label: "Café / QSR", description: "POS, QR menu, kiosk and inventory" },
+    { value: "RESTAURANT", label: "Restaurant", description: "Tables, kitchen, reservations and delivery" },
+    { value: "CLOUD_KITCHEN", label: "Cloud kitchen", description: "POS, kitchen and delivery" },
+    { value: "HOTEL", label: "Hotel", description: "Rooms, bookings, housekeeping and room service" },
+    { value: "RESORT", label: "Resort", description: "Hotel operations plus events and activities" },
+    { value: "CHAIN", label: "Chain", description: "Central dashboard and multi-property controls" },
+  ];
 
   const onSubmit = (dto: RegisterDto) => {
     register.mutate(dto, {
@@ -120,6 +135,27 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <fieldset className="flex flex-col gap-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-slate-700">Business type</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {BUSINESS_TYPE_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setValue("businessType", option.value, { shouldValidate: true })}
+                    className={`rounded-xl border p-3 text-left transition ${
+                      businessType === option.value
+                        ? "border-teal-700 bg-teal-50 ring-2 ring-teal-700/10"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold text-slate-900">{option.label}</span>
+                    <span className="mt-1 block text-[11px] leading-snug text-slate-500">{option.description}</span>
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" {...field("businessType")} value={businessType ?? "RESTAURANT"} />
+            </fieldset>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="restaurantName" className="text-xs font-semibold uppercase tracking-wider text-slate-700">

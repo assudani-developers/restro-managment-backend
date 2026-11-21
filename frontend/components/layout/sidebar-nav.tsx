@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "motion/react";
 import { ShieldCheck } from "lucide-react";
-import type { SessionUser } from "@restrocore/types";
+import { DEFAULT_MODULES_BY_BUSINESS, type BusinessType, type SessionUser } from "@restrocore/types";
 import { hasPermission } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/context";
 import { useNavBadges } from "@/hooks/use-nav-badges";
-import { NavDot } from "./nav-dot";
-import { NAV_ITEMS } from "./nav-items";
+import { useBranch } from "@/hooks/use-branch";
+import { useHotelSettings } from "@/hooks/use-hotel";
+import { NAV_GROUPS, NAV_ITEMS } from "./nav-items";
 
 export function SidebarNav({
   user,
@@ -23,110 +25,93 @@ export function SidebarNav({
   const pathname = usePathname();
   const { t } = useI18n();
   const badges = useNavBadges();
+  const isSuper = user?.isSuperAdmin || user?.roleName === "SUPERADMIN";
+  const { branchId } = useBranch();
+  const { data: hotel } = useHotelSettings(branchId);
+  const modules: readonly string[] = hotel?.enabledModules?.length
+    ? hotel.enabledModules
+    : DEFAULT_MODULES_BY_BUSINESS[(hotel?.businessType as BusinessType | undefined) ?? "RESTAURANT"];
+  const allowed = NAV_ITEMS.filter((item) =>
+    (!item.permission || isSuper || hasPermission(user, item.permission))
+    && (!item.module || modules.includes(item.module))
+  );
+
+  const activeHref = allowed
+    .filter((i) => pathname === i.href || pathname?.startsWith(`${i.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
-    <nav aria-label="Main navigation" className={cn("flex flex-col gap-1.5", collapsed ? "items-center px-2" : "px-3")}>
-      {(user?.isSuperAdmin || user?.roleName === "SUPERADMIN") && (
+    <nav aria-label="Main navigation" className={cn("flex flex-col", collapsed ? "items-center gap-1 px-2" : "gap-5 px-3")}>
+      {isSuper && (
         <Link
           href="/superadmin"
           onClick={onNavigate}
-          title={collapsed ? "SuperAdmin Hub (SaaS Platform Control)" : undefined}
+          title="SaaS Platform Control"
           className={cn(
-            "mb-2 flex items-center border transition-all",
-            collapsed
-              ? "h-10 w-10 justify-center rounded-xl mx-auto"
-              : "justify-between rounded-xl px-3 py-2.5 text-xs font-bold w-full",
+            "flex items-center gap-2.5 rounded-xl border text-xs font-semibold transition-colors",
+            collapsed ? "h-10 w-10 justify-center" : "px-3 py-2.5",
             pathname === "/superadmin"
-              ? "border-amber-700 bg-amber-700 text-white shadow-sm shadow-amber-900/10"
-              : "border-amber-200/80 bg-amber-50/80 text-amber-950 hover:border-amber-300 hover:bg-amber-50",
+              ? "border-brand-accent/60 bg-brand-accent/20 text-[#FBE9C9]"
+              : "border-white/10 bg-white/[0.04] text-[#E9DCC8] hover:bg-white/[0.08]",
           )}
         >
-          {collapsed ? (
-            <ShieldCheck className={cn("h-5 w-5 shrink-0", pathname === "/superadmin" ? "text-white" : "text-amber-700")} />
-          ) : (
+          <ShieldCheck className="h-4 w-4 shrink-0 text-brand-accent" />
+          {!collapsed && (
             <>
-              <span className="flex items-center gap-2">
-                <ShieldCheck className={cn("h-4 w-4 shrink-0", pathname === "/superadmin" ? "text-white" : "text-amber-700")} />
-                SuperAdmin Hub
-              </span>
-              <span
-                className={cn(
-                  "text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider",
-                  pathname === "/superadmin" ? "bg-white/20 text-white" : "bg-amber-200/70 text-amber-900",
-                )}
-              >
-                SaaS
-              </span>
+              <span className="flex-1">Platform admin</span>
+              <span className="rounded bg-brand-accent/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#FBE9C9]">SaaS</span>
             </>
           )}
         </Link>
       )}
-      {NAV_ITEMS.filter((item) => !item.permission || hasPermission(user, item.permission)).map(
-        (item) => {
-          const isActive = pathname?.startsWith(item.href);
-          const Icon = item.icon;
-          const label = t(item.labelKey);
 
-          if (collapsed) {
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onNavigate}
-                title={label}
-                className={cn(
-                  "group relative flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-150",
-                  isActive
-                    ? "bg-accent font-semibold text-accent-foreground shadow-sm ring-1 ring-primary/15"
-                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900",
-                )}
-              >
-                <Icon
+      {NAV_GROUPS.map((group) => {
+        const items = allowed.filter((i) => i.group === group);
+        if (items.length === 0) return null;
+        return (
+          <div key={group} className={cn("flex flex-col", collapsed ? "items-center gap-1" : "gap-0.5")}>
+            {!collapsed && (
+              <p className="mb-1 px-3 text-[11px] font-medium text-[#E9DCC8]/40">{group}</p>
+            )}
+            {collapsed && <span className="my-1 h-px w-6 bg-white/10" />}
+            {items.map((item) => {
+              const isActive = item.href === activeHref;
+              const Icon = item.icon;
+              const label = item.label ?? t(item.labelKey);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  title={collapsed ? label : undefined}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "h-5 w-5 shrink-0 transition-colors",
-                    isActive ? "text-primary" : "text-slate-400 group-hover:text-slate-600",
+                    "group relative flex items-center text-[13px] font-medium transition-colors",
+                    collapsed ? "h-10 w-10 justify-center rounded-xl" : "min-h-9 gap-3 rounded-xl px-3 py-2",
+                    isActive ? "text-[#FFF8F0]" : "text-[#E9DCC8]/65 hover:bg-white/[0.05] hover:text-[#FFF8F0]",
                   )}
-                  strokeWidth={isActive ? 2.3 : 2}
-                />
-                {badges.nav[item.href] && (
-                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" />
-                )}
-              </Link>
-            );
-          }
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "group relative flex min-h-10 items-center justify-between rounded-xl px-3 py-2 text-[13px] font-medium transition-all duration-150",
-                isActive
-                  ? "bg-accent font-semibold text-accent-foreground shadow-sm ring-1 ring-primary/15"
-                  : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900",
-              )}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <Icon
-                  className={cn(
-                    "h-4 w-4 shrink-0 transition-colors",
-                    isActive ? "text-primary" : "text-slate-400 group-hover:text-slate-600",
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      transition={{ type: "spring", stiffness: 520, damping: 40 }}
+                      className="absolute inset-0 rounded-xl bg-[linear-gradient(100deg,color-mix(in_oklab,var(--primary)_75%,transparent),color-mix(in_oklab,var(--primary)_35%,transparent))] ring-1 ring-white/10"
+                    />
                   )}
-                  strokeWidth={isActive ? 2.3 : 2}
-                />
-                <span className="truncate">{label}</span>
-              </div>
-
-              {isActive && (
-                <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-              )}
-
-              {badges.nav[item.href] && !isActive ? <NavDot /> : null}
-            </Link>
-          );
-        },
-      )}
+                  {isActive && !collapsed && (
+                    <span className="absolute -left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-brand-accent" />
+                  )}
+                  <Icon className={cn("relative h-4 w-4 shrink-0", isActive ? "text-[#FBE9C9]" : "text-[#E9DCC8]/45 group-hover:text-[#E9DCC8]")} />
+                  {!collapsed && <span className="relative truncate">{label}</span>}
+                  {badges.nav[item.href] && !isActive && (
+                    <span className={cn("absolute h-2 w-2 rounded-full bg-brand-accent shadow-[0_0_10px_2px_color-mix(in_oklab,var(--brand-accent)_60%,transparent)]", collapsed ? "top-2 right-2" : "right-3")} />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        );
+      })}
     </nav>
   );
 }

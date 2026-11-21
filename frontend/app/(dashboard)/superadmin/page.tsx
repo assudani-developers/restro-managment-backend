@@ -1,5 +1,6 @@
 "use client";
 
+import { BUSINESS_MODULES, DEFAULT_MODULES_BY_BUSINESS, type BusinessType } from "@restrocore/types";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -72,6 +73,8 @@ interface PlatformStats {
 interface RestaurantItem {
   id: string;
   name: string;
+  businessType?: BusinessType;
+  enabledModules?: string[];
   legalName: string | null;
   logoUrl: string | null;
   currency: string;
@@ -305,6 +308,8 @@ export default function SuperAdminHubPage() {
   const [editHotelForm, setEditHotelForm] = useState({
     name: "",
     legalName: "",
+    businessType: "RESTAURANT" as BusinessType,
+    enabledModules: [] as string[],
     plan: "ENTERPRISE",
     currency: "INR",
     timezone: "Asia/Kolkata",
@@ -585,6 +590,10 @@ export default function SuperAdminHubPage() {
     setEditHotelForm({
       name: hotel.name,
       legalName: hotel.legalName || "",
+      businessType: hotel.businessType || "RESTAURANT",
+      enabledModules: hotel.enabledModules?.length
+        ? hotel.enabledModules
+        : [...DEFAULT_MODULES_BY_BUSINESS[hotel.businessType || "RESTAURANT"]],
       plan: hotel.plan || "ENTERPRISE",
       currency: hotel.currency || "INR",
       timezone: hotel.timezone || "Asia/Kolkata",
@@ -1544,6 +1553,29 @@ export default function SuperAdminHubPage() {
               </div>
 
               <div>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Business type</Label>
+                <select
+                  value={editHotelForm.businessType}
+                  onChange={(e) => {
+                    const next = e.target.value as BusinessType;
+                    setEditHotelForm({
+                      ...editHotelForm,
+                      businessType: next,
+                      enabledModules: [...DEFAULT_MODULES_BY_BUSINESS[next]],
+                    });
+                  }}
+                  className="mt-1 w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-semibold"
+                >
+                  <option value="CAFE_QSR">Café / QSR</option>
+                  <option value="RESTAURANT">Restaurant</option>
+                  <option value="CLOUD_KITCHEN">Cloud kitchen</option>
+                  <option value="HOTEL">Hotel</option>
+                  <option value="RESORT">Resort</option>
+                  <option value="CHAIN">Chain</option>
+                </select>
+              </div>
+
+              <div>
                 <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Currency</Label>
                 <select
                   value={editHotelForm.currency}
@@ -1571,6 +1603,27 @@ export default function SuperAdminHubPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-700">Enabled modules</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {BUSINESS_MODULES.map((module) => (
+                  <label key={module} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-2 text-[11px]">
+                    <input
+                      type="checkbox"
+                      checked={editHotelForm.enabledModules.includes(module)}
+                      onChange={(e) => setEditHotelForm({
+                        ...editHotelForm,
+                        enabledModules: e.target.checked
+                          ? [...editHotelForm.enabledModules, module]
+                          : editHotelForm.enabledModules.filter((item) => item !== module),
+                      })}
+                    />
+                    {module}
+                  </label>
+                ))}
               </div>
             </div>
 

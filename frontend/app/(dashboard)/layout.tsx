@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ShieldAlert } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
+import { GeofenceGate } from "@/components/hotel/geofence-gate";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { BranchProvider, useBranch } from "@/hooks/use-branch";
 import { useRealtime } from "@/hooks/use-realtime";
@@ -94,7 +95,9 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
   return (
     <BranchProvider>
       <RealtimeBridge />
-      <AppShell user={data.user}>{children}</AppShell>
+      <GeofenceGate bypass={isSuper}>
+        <AppShell user={data.user}>{children}</AppShell>
+      </GeofenceGate>
     </BranchProvider>
   );
 }

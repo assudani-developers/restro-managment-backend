@@ -83,6 +83,8 @@ export class SuperAdminController {
       ownerPassword: string;
       ownerPhone?: string;
       plan?: string;
+      businessType?: 'CAFE_QSR' | 'RESTAURANT' | 'CLOUD_KITCHEN' | 'HOTEL' | 'RESORT' | 'CHAIN';
+      enabledModules?: string[];
     },
   ) {
     this.assertSuperAdmin(user);
@@ -142,6 +144,8 @@ export class SuperAdminController {
       upiVpa?: string;
       upiPayeeName?: string;
       isActive?: boolean;
+      businessType?: 'CAFE_QSR' | 'RESTAURANT' | 'CLOUD_KITCHEN' | 'HOTEL' | 'RESORT' | 'CHAIN';
+      enabledModules?: string[];
     },
   ) {
     this.assertSuperAdmin(user);

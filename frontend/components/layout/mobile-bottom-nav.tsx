@@ -13,7 +13,7 @@ import { NAV_ITEMS } from "./nav-items";
 // The screens staff jump between all shift long, in priority order. Whatever
 // the signed-in role can't open is skipped, so a kitchen-only login still gets
 // a full bar. Everything else lives behind "More" (the existing drawer).
-const PRIMARY_HREFS = ["/pos", "/orders", "/tables", "/kds", "/dashboard"];
+const PRIMARY_HREFS = ["/front-desk", "/bookings", "/room-service", "/pos", "/orders", "/kds", "/dashboard"];
 const PRIMARY_COUNT = 4;
 
 // Thumb-reach navigation for phones. Hidden from lg up, where the sidebar takes over.
@@ -41,7 +41,7 @@ export function MobileBottomNav({
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      className="print-hidden fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
       {primary.map((item) => {
         const isActive = pathname?.startsWith(item.href);
@@ -61,7 +61,7 @@ export function MobileBottomNav({
             <span className={cn("flex h-8 w-9 items-center justify-center rounded-xl transition-colors", isActive && "bg-accent")}>
               <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
             </span>
-            <span className="max-w-full truncate px-1">{t(item.labelKey)}</span>
+            <span className="max-w-full truncate px-1">{(item.label ?? t(item.labelKey)).split(" ")[0]}</span>
             {badges.nav[item.href] && !isActive ? (
               <span className="absolute top-2 left-1/2 ml-2 h-2.5 w-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_2px_rgba(245,158,11,0.7)]" />
             ) : null}

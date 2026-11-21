@@ -27,6 +27,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ message: res.statusText }));
+    if (res.status === 403 && body.code === "GEOFENCE_REQUIRED" && typeof window !== "undefined") {
+      window.dispatchEvent(new Event("geofence-required"));
+    }
     throw new ApiError(body.message ?? "Request failed", res.status, body.issues, body.code);
   }
 
