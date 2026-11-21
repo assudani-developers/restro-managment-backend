@@ -35,7 +35,7 @@ export class ReservationsController {
     @Query('branchId') branchId: string,
     @Query('date') date?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.reservationsService.list(branchId, date);
   }
 
@@ -47,7 +47,7 @@ export class ReservationsController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.reservationsService.create(branchId, body as never);
   }
 
@@ -60,7 +60,7 @@ export class ReservationsController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { status } = body as { status: never };
     return this.reservationsService.updateStatus(branchId, id, status);
   }

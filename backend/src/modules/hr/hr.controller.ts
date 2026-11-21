@@ -39,7 +39,7 @@ export class HrController {
   ) {}
 
   private access(u: SessionUser, branchId: string) {
-    return this.branchAccess.assertAccess(u.restaurantId, branchId);
+    return this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
   }
 
   // --- Shifts ---

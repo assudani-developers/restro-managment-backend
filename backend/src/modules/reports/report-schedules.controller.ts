@@ -44,7 +44,7 @@ export class ReportSchedulesController {
     @CurrentUser() u: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return {
       emailConfigured: this.email.isConfigured(),
       schedules: await this.schedules.list(branchId),
@@ -61,7 +61,7 @@ export class ReportSchedulesController {
     @Body() body: z.infer<typeof createSchema>,
   ) {
     assertCanViewReport(u.permissions, body.reportKey);
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.schedules.create(branchId, body);
   }
 
@@ -74,7 +74,7 @@ export class ReportSchedulesController {
     @Param('id') id: string,
     @Body() body: z.infer<typeof activeSchema>,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.schedules.setActive(branchId, id, body.isActive);
   }
 
@@ -85,7 +85,7 @@ export class ReportSchedulesController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.schedules.sendNow(branchId, id);
   }
 
@@ -97,7 +97,7 @@ export class ReportSchedulesController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.schedules.remove(branchId, id);
   }
 }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -24,26 +25,31 @@ import { BackupService } from './backup.service';
 
 // Backups span the whole instance (every restaurant sharing this
 // database), so visibility is restricted well above the usual
-// `settings.manage` tier: any read leaks the existence/timing of a
-// full-instance dump. `backup.manage` is a dedicated permission (not
-// reused from settings.manage) specifically so it can be granted to a
-// custom role narrowly, without also granting general settings access.
-// Restore additionally re-checks the caller's role inside
-// `BackupService.restore()` itself — see that method's comment for why.
+// Full-instance backups expose every tenant in the shared database. These
+// routes remain behind `backup.manage` for defense in depth, and the
+// controller additionally requires `isSuperAdmin` for every endpoint.
 @ApiTags('backups')
 @Controller('v1/backups')
 export class BackupController {
   constructor(private readonly backupService: BackupService) {}
 
+  private assertPlatformAdmin(user: SessionUser) {
+    if (!user.isSuperAdmin) {
+      throw new ForbiddenException('Platform administrator privileges required');
+    }
+  }
+
   @Auth('backup.manage')
   @Get('status')
-  status() {
+  status(@CurrentUser() user: SessionUser) {
+    this.assertPlatformAdmin(user);
     return this.backupService.status();
   }
 
   @Auth('backup.manage')
   @Get()
-  list() {
+  list(@CurrentUser() user: SessionUser) {
+    this.assertPlatformAdmin(user);
     return this.backupService.list();
   }
 
@@ -51,18 +57,21 @@ export class BackupController {
   @Post('config')
   @UsePipes(new ZodValidationPipe(setBackupConfigSchema))
   setConfig(@CurrentUser() user: SessionUser, @Body() body: unknown) {
+    this.assertPlatformAdmin(user);
     return this.backupService.setConfig(user, body as never);
   }
 
   @Auth('backup.manage')
   @Delete('config')
   clearConfig(@CurrentUser() user: SessionUser) {
+    this.assertPlatformAdmin(user);
     return this.backupService.clearConfig(user);
   }
 
   @Auth('backup.manage')
   @Post()
   trigger(@CurrentUser() user: SessionUser) {
+    this.assertPlatformAdmin(user);
     return this.backupService.triggerManual(user);
   }
 
@@ -74,6 +83,7 @@ export class BackupController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
+    this.assertPlatformAdmin(user);
     return this.backupService.restore(user, id, body as never);
   }
 

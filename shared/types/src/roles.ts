@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 export const createRoleSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1).refine(
+    (name) => !["SUPERADMIN", "OWNER", "ADMINISTRATOR", "MANAGER", "STAFF"].includes(name.trim().toUpperCase()),
+    "This role name is reserved by the platform",
+  ),
   label: z.string().min(1),
   permissionKeys: z.array(z.string().min(1)).default([]),
 });

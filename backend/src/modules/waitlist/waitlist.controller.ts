@@ -34,7 +34,7 @@ export class WaitlistController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.waitlistService.listWaiting(branchId);
   }
 
@@ -46,7 +46,7 @@ export class WaitlistController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.waitlistService.create(branchId, body as never);
   }
 
@@ -59,7 +59,7 @@ export class WaitlistController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { tableId } = body as { tableId: string };
     return this.waitlistService.seat(branchId, id, tableId);
   }
@@ -71,7 +71,7 @@ export class WaitlistController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.waitlistService.cancel(branchId, id);
   }
 }

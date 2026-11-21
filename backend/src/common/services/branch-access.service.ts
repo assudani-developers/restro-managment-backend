@@ -4,20 +4,32 @@ import { PrismaService } from '../../prisma/prisma.service';
 // Phase 1 tenancy check: a branch belongs to exactly one restaurant, and a
 // user belongs to exactly one restaurant — this confirms the branchId a
 // request references actually belongs to the caller's restaurant. It does
-// NOT yet enforce per-branch staff assignment (UserBranch is populated but
-// not checked here); that's a deliberate Phase-later tightening once
-// multi-branch staff scoping is actually needed, tracked in ROADMAP.md.
 @Injectable()
 export class BranchAccessService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async assertAccess(restaurantId: string, branchId: string): Promise<void> {
+  async assertAccess(restaurantId: string, branchId: string, userId?: string): Promise<void> {
     const branch = await this.prisma.branch.findFirst({
       where: { id: branchId, restaurantId },
       select: { id: true },
     });
     if (!branch) {
       throw new ForbiddenException('Branch not found or not accessible');
+    }
+    if (!userId) return;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        isSuperAdmin: true,
+        role: { select: { name: true, isSystem: true } },
+        branches: { where: { branchId }, select: { branchId: true } },
+      },
+    });
+    if (!user) throw new ForbiddenException('User not found');
+    if (user.isSuperAdmin || (user.role.isSystem && user.role.name === 'OWNER')) return;
+    if (user.branches.length === 0) {
+      throw new ForbiddenException('You are not assigned to this branch');
     }
   }
 }

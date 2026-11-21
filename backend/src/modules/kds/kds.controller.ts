@@ -36,7 +36,7 @@ export class KdsController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.listStations(branchId);
   }
 
@@ -47,7 +47,7 @@ export class KdsController {
     @Query('branchId') branchId: string,
     @Query('stationId') stationId?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.listActiveTickets(branchId, stationId);
   }
 
@@ -59,7 +59,7 @@ export class KdsController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.listIncoming(branchId);
   }
 
@@ -70,7 +70,7 @@ export class KdsController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.acceptIncoming(branchId, id, user.id);
   }
 
@@ -83,7 +83,7 @@ export class KdsController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { reason } = body as { reason: string };
     return this.kdsService.declineIncoming(branchId, id, user.id, reason);
   }
@@ -96,7 +96,7 @@ export class KdsController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.progress(branchId);
   }
 
@@ -107,7 +107,7 @@ export class KdsController {
     @Query('branchId') branchId: string,
     @Query('date') date?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.getPerformanceReport(branchId, date);
   }
 
@@ -120,7 +120,7 @@ export class KdsController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { status } = body as { status: string };
     return this.kdsService.updateStatus(branchId, id, status, user.id);
   }
@@ -137,7 +137,7 @@ export class KdsController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { reason, confirmStarted } = body as {
       reason: string;
       confirmStarted?: boolean;
@@ -158,7 +158,7 @@ export class KdsController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { isPriority } = body as { isPriority: boolean };
     return this.kdsService.setPriority(branchId, id, isPriority);
   }
@@ -171,7 +171,7 @@ export class KdsController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.print(branchId, id, false);
   }
 
@@ -183,7 +183,7 @@ export class KdsController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kdsService.print(branchId, id, true);
   }
 }

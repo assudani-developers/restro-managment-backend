@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { Agent, fetch as undiciFetch } from 'undici';
+import { resolveWebhookTarget } from '../modules/webhooks/net-guard';
 
 export interface SyncChange {
   seq?: string;
@@ -306,26 +308,46 @@ export class SyncService implements OnModuleInit, OnModuleDestroy {
   private async call<T>(
     s: { serverUrl: string | null; apiKey: string | null },
     path: string,
-    init: RequestInit = {},
+    init: { method?: string; body?: string } = {},
   ): Promise<T> {
     if (!s.serverUrl || !s.apiKey)
       throw new Error('Server address and sync key are required');
-    const res = await fetch(
-      `${s.serverUrl.replace(/\/+$/, '')}/api/v1/sync-peer/${path}`,
-      {
-        ...init,
-        headers: {
-          'content-type': 'application/json',
-          'x-sync-key': s.apiKey,
-          ...init.headers,
-        },
-        signal: AbortSignal.timeout(60_000),
+    const target = await resolveWebhookTarget(s.serverUrl, {
+      allowPrivate: false,
+      allowInsecure: false,
+    });
+    const normalized = target.url.toString().replace(/\/+$/, '');
+    const agent = new Agent({
+      connect: {
+        lookup: (_hostname, _options, callback) =>
+          callback(null, target.address, target.family),
       },
-    );
-    if (res.status === 401 || res.status === 403)
-      throw new Error('Server rejected the sync key');
-    if (!res.ok) throw new Error(`Server answered HTTP ${res.status}`);
-    return (await res.json()) as T;
+    });
+    try {
+      const res = await undiciFetch(
+        `${normalized}/api/v1/sync-peer/${path}`,
+        {
+          method: init.method ?? 'GET',
+          body: init.body,
+          headers: {
+            host: target.url.host,
+            'content-type': 'application/json',
+            'x-sync-key': s.apiKey,
+          },
+          dispatcher: agent,
+          redirect: 'manual',
+          signal: AbortSignal.timeout(60_000),
+        },
+      );
+      if (res.status >= 300 && res.status < 400)
+        throw new Error('Server redirects are not allowed');
+      if (res.status === 401 || res.status === 403)
+        throw new Error('Server rejected the sync key');
+      if (!res.ok) throw new Error(`Server answered HTTP ${res.status}`);
+      return (await res.json()) as T;
+    } finally {
+      await agent.close();
+    }
   }
 
   async testConnection(serverUrl: string, apiKey: string) {

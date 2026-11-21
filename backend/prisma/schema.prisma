@@ -399,6 +399,8 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
   @@map("audit_logs")
 }
 
@@ -1427,6 +1429,7 @@ model Order {
   @@unique([branchId, clientRequestId])
   @@index([branchId, status])
   @@index([branchId, createdAt])
+  @@index([branchId, status, createdAt])
   @@index([branchId, tableId])
   @@index([customerId])
   @@index([branchId, deliveryStatus])

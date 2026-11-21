@@ -28,7 +28,7 @@ export class HotelController {
   ) {}
 
   private async ok(user: SessionUser, branchId: string) {
-    await this.access.assertAccess(user.restaurantId, branchId);
+    await this.access.assertAccess(user.restaurantId, branchId, user.id);
   }
 
   // ---------------------------------------------------------------- settings / branding / geofence

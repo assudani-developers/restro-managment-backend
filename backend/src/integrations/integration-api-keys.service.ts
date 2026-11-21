@@ -37,7 +37,7 @@ export class IntegrationApiKeysService {
 
   async create(actor: SessionUser, dto: CreateIntegrationApiKeyDto) {
     if (dto.branchId) {
-      await this.branchAccess.assertAccess(actor.restaurantId, dto.branchId);
+      await this.branchAccess.assertAccess(actor.restaurantId, dto.branchId, actor.id);
     }
 
     const activeCount = await this.prisma.integrationApiKey.count({

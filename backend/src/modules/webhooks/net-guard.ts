@@ -37,6 +37,10 @@ export function isPrivateAddress(ip: string): boolean {
     // IPv4-mapped (::ffff:a.b.c.d) takes the IPv4 rules.
     const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
     if (mapped) return isPrivateAddress(mapped[1]);
+    const expandedMapped = lower.match(
+      /^(?:0{1,4}:){5}ffff:(\d+\.\d+\.\d+\.\d+)$/,
+    );
+    if (expandedMapped) return isPrivateAddress(expandedMapped[1]);
     if (lower === '::' || lower === '::1') return true;
     if (/^f[cd]/.test(lower)) return true; // fc00::/7 unique-local
     if (/^fe[89ab]/.test(lower)) return true; // fe80::/10 link-local

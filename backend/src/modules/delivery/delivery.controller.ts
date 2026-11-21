@@ -39,7 +39,7 @@ export class DeliveryController {
     @CurrentUser() u: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.listZones(branchId);
   }
 
@@ -52,7 +52,7 @@ export class DeliveryController {
     @Query('branchId') branchId: string,
     @Body() body: never,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.createZone(branchId, body);
   }
 
@@ -66,7 +66,7 @@ export class DeliveryController {
     @Param('id') id: string,
     @Body() body: never,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.updateZone(branchId, id, body);
   }
 
@@ -78,7 +78,7 @@ export class DeliveryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.deleteZone(branchId, id);
   }
 
@@ -88,7 +88,7 @@ export class DeliveryController {
     @CurrentUser() u: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.listDrivers(branchId);
   }
 
@@ -99,7 +99,7 @@ export class DeliveryController {
     @Query('branchId') branchId: string,
     @Query('history') history?: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.list(branchId, history === 'true');
   }
 
@@ -113,7 +113,7 @@ export class DeliveryController {
     @Param('orderId') orderId: string,
     @Body() body: { driverId: string },
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.assignDriver(branchId, orderId, body.driverId);
   }
 
@@ -126,7 +126,7 @@ export class DeliveryController {
     @Param('orderId') orderId: string,
     @Body() body: { status: DeliveryStatusDto },
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.delivery.setStatus(branchId, orderId, body.status);
   }
 }

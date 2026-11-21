@@ -1494,7 +1494,7 @@ export class OrdersService {
       dto,
       effectiveCustomerId,
     );
-    const balance = round2(bill.totalDue - paid);
+    let balance = round2(bill.totalDue - paid);
     const entry = manualDiscountEntry(
       dto.discountPercent ?? 0,
       dto.discountFlat ?? 0,
@@ -1503,8 +1503,27 @@ export class OrdersService {
     let stockSkipped: { menuItemId: string; name: string; reason: string }[] =
       [];
     let settlement!: ReturnType<typeof settlePayments>;
+    let replayed = false;
     try {
       await this.prisma.$transaction(async (tx) => {
+        await tx.$queryRaw<Array<{ id: string }>>`
+          SELECT "id" FROM "orders" WHERE "id" = ${orderId} FOR UPDATE
+        `;
+        const current = await tx.order.findUnique({
+          where: { id: orderId },
+          include: { payments: true },
+        });
+        if (!current) throw new NotFoundException('Order not found');
+        if (dto.requestId && current.payments.some((p) => p.clientRequestId === dto.requestId)) {
+          replayed = true;
+          return;
+        }
+        if (current.status !== 'OPEN') throw new BadRequestException('Order is not open for checkout');
+
+        const currentPaid = round2(current.payments.reduce((sum, p) => sum + Number(p.amount), 0));
+        balance = round2(bill.totalDue - currentPaid);
+        if (balance < 0) throw new ConflictException('The order has already been paid');
+
         let actualPointsRedeemed = order.loyaltyPointsRedeemed;
         let loyaltyDiscountAmount = Number(order.loyaltyDiscountAmount);
 
@@ -1696,6 +1715,10 @@ export class OrdersService {
         }
       }
       throw err;
+    }
+
+    if (replayed) {
+      return this.checkoutResult(branchId, orderId);
     }
 
     const updated = await this.prisma.order.findUniqueOrThrow({

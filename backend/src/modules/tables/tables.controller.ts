@@ -41,7 +41,7 @@ export class TablesController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.listOpenRequests(branchId);
   }
 
@@ -52,7 +52,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.resolveRequest(branchId, id);
   }
 
@@ -62,7 +62,7 @@ export class TablesController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.listFloors(branchId);
   }
 
@@ -74,7 +74,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.createFloor(branchId, body as never);
   }
 
@@ -86,7 +86,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.createTable(branchId, body as never);
   }
 
@@ -98,7 +98,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.createTables(branchId, body as never);
   }
 
@@ -111,7 +111,7 @@ export class TablesController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.updateFloor(branchId, id, body as never);
   }
 
@@ -123,7 +123,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Body() body: TableLayoutUpdateDto[],
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.updateTableLayout(branchId, body);
   }
 
@@ -136,7 +136,7 @@ export class TablesController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.updateTable(branchId, id, body as never);
   }
 
@@ -148,7 +148,7 @@ export class TablesController {
     @Param('id') id: string,
     @Body() body: { status: never; assignedWaiterId?: string },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.updateTableStatus(
       branchId,
       id,
@@ -164,7 +164,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.rotateQrToken(branchId, id);
   }
 
@@ -175,7 +175,7 @@ export class TablesController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.tablesService.deleteTable(branchId, id);
   }
 }
