@@ -1,0 +1,14 @@
+{
+  "name": "restrocore-backend",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "corepack pnpm --filter @restrocore/backend dev",
+    "build": "corepack pnpm --filter @restrocore/types build && corepack pnpm --filter @restrocore/backend build",
+    "typecheck": "corepack pnpm --filter @restrocore/types typecheck && corepack pnpm --filter @restrocore/backend typecheck",
+    "test": "corepack pnpm --filter @restrocore/backend test",
+    "prisma:generate": "corepack pnpm --filter @restrocore/backend prisma:generate",
+    "prisma:migrate": "corepack pnpm --filter @restrocore/backend prisma:migrate",
+    "prisma:deploy": "corepack pnpm --filter @restrocore/backend prisma:deploy"
+  }
+}
