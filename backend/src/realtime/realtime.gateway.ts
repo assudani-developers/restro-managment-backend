@@ -25,13 +25,18 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 @WebSocketGateway({
   cors: {
-    origin: [
-      process.env.FRONTEND_ORIGIN,
-      process.env.CORS_ORIGIN,
-      'https://restro.piyushassudani.in',
-      'http://localhost:1995',
-      'http://localhost:3000',
-    ].filter((value): value is string => Boolean(value)),
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (
+        !origin ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('piyushassudani.in') ||
+        origin.includes('localhost')
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
   },
 })
