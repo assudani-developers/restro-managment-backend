@@ -41,5 +41,5 @@ COPY --from=builder /repo/shared/types/dist ./shared/types/dist
 COPY --from=builder /repo/shared/types/package.json ./shared/types/package.json
 COPY --from=builder /repo/shared/types/node_modules ./shared/types/node_modules
 WORKDIR /repo/backend
-EXPOSE 4000
+EXPOSE 5006
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]

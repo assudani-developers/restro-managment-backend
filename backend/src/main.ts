@@ -139,7 +139,7 @@ async function bootstrap() {
     SwaggerModule.setup('api/docs', app, document);
   }
 
-  const port = process.env.PORT ?? 4000;
+  const port = process.env.PORT ?? 5006;
   await app.listen(port);
   console.log(
     `RestroCore API listening on :${port} (docs at /api/docs)`,
