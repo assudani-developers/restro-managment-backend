@@ -25,7 +25,7 @@ RUN pnpm install --frozen-lockfile
 # and ARCHITECTURE.md's "reused from retail-pos" section for why a runtime
 # env silently falls back to the default instead).
 FROM deps AS builder
-ARG BACKEND_URL=http://backend:4000
+ARG BACKEND_URL=https://restro.piyushassudani.in
 ENV BACKEND_URL=${BACKEND_URL}
 COPY shared/types shared/types
 COPY frontend frontend
