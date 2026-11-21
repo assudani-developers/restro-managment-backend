@@ -24,6 +24,40 @@ export class CustomersService {
     });
   }
 
+  async getMetrics(branchId: string) {
+    const customers = await this.prisma.customer.findMany({
+      where: { branchId },
+      select: {
+        loyaltyPoints: true,
+        walletBalance: true,
+        birthday: true,
+        anniversary: true,
+      },
+    });
+
+    const total = customers.length;
+    let vipCount = 0;
+    let totalPoints = 0;
+    let totalWallet = 0;
+
+    for (const c of customers) {
+      const pts = c.loyaltyPoints ?? 0;
+      const wb = Number(c.walletBalance || 0);
+      totalPoints += pts;
+      totalWallet += wb;
+      if (pts >= 200 || wb >= 500) {
+        vipCount++;
+      }
+    }
+
+    return {
+      totalGuests: total,
+      vipGuests: vipCount,
+      totalLoyaltyPoints: totalPoints,
+      totalWalletBalance: totalWallet,
+    };
+  }
+
   async getById(branchId: string, id: string) {
     const customer = await this.prisma.customer.findFirst({
       where: { id, branchId },
