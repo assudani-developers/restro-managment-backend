@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { subscribeDisplay, type DisplayState } from "@/lib/customer-display";
 import { formatCurrency } from "@/lib/format";
 import { playPaymentReceived } from "@/lib/celebrate";
+import { CreditFooter } from "@/components/layout/credit-footer";
 import { QRCodeSVG } from "qrcode.react";
 
 /**
@@ -86,6 +87,8 @@ export default function CustomerDisplayPage() {
           <p className="mt-4 text-3xl text-muted-foreground tabular-nums">{formatCurrency(state.total)} paid</p>
         </div>
       )}
+
+      <CreditFooter className="mt-auto border-t-0 pt-2 pb-2" />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/logo";
+import { CreditFooter } from "@/components/layout/credit-footer";
 
 export function DocPage({
   title,
@@ -30,6 +31,8 @@ export function DocPage({
         <p className="mt-2 text-sm text-muted-foreground">Last updated {updated}</p>
         <div className="mt-10 flex flex-col gap-10">{children}</div>
       </main>
+
+      <CreditFooter className="max-w-3xl mx-auto w-full" />
     </div>
   );
 }

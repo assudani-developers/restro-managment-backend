@@ -10,6 +10,7 @@ import { Splash, type GuestBrand } from "@/components/guest/guest-menu";
 import { applyBrand } from "@/components/hotel/brand-theme";
 import { api, ApiError } from "@/lib/api";
 import { buildUpiUri } from "@/lib/upi";
+import { CreditFooter } from "@/components/layout/credit-footer";
 import { cn } from "@/lib/utils";
 
 interface StayResponse {
@@ -167,6 +168,8 @@ export default function StayPortal({ params }: { params: Promise<{ guestToken: s
           )}
           <p className="flex items-center gap-3 text-xs text-[#7A6A59]"><BedDouble className="h-4 w-4" /> Check-in {data.hotel.checkInTime} · Check-out {data.hotel.checkOutTime}{data.hotel.gstNumber ? ` · GSTIN ${data.hotel.gstNumber}` : ""}</p>
         </motion.div>
+
+        <CreditFooter variant="dark" className="mt-8 mb-6 border-t border-black/10" />
       </div>
     </div>
   );

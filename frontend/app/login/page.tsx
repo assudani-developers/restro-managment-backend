@@ -291,6 +291,35 @@ export default function LoginPage() {
                 <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Touchscreen Optimized
               </span>
             </div>
+
+            <div className="mt-2 border-t border-slate-200/60 pt-4 text-center text-xs text-slate-500">
+              <p>
+                Designed &amp; Developed by{" "}
+                <a
+                  href="https://piyushassudani.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-teal-900 hover:underline"
+                >
+                  Piyush Assudani
+                </a>{" "}
+                (Founder of Assudani Developers)
+              </p>
+              <p className="mt-1 flex items-center justify-center gap-2 text-[11px] text-slate-500">
+                <a
+                  href="https://piyushassudani.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal-700 hover:underline font-medium"
+                >
+                  piyushassudani.in
+                </a>
+                <span>•</span>
+                <a href="tel:9413879444" className="hover:underline">
+                  9413879444
+                </a>
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>

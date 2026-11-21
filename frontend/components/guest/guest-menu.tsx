@@ -34,6 +34,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ModifierPickerDialog } from "@/components/pos/modifier-picker-dialog";
 import { applyBrand } from "@/components/hotel/brand-theme";
 import { playSuccessChime, vibrateSuccess } from "@/lib/celebrate";
+import { CreditFooter } from "@/components/layout/credit-footer";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------- types
@@ -369,9 +370,10 @@ export function GuestMenu(props: GuestMenuProps) {
                 </div>
               </section>
             ))}
-            <p className="py-10 text-center text-[11px] text-[#A8957D]">
+            <p className="py-6 text-center text-[11px] text-[#A8957D]">
               Prices include applicable taxes{props.serviceCharge ? ` · room service ${inr(props.serviceCharge)}` : ""}. Please tell us about allergies.
             </p>
+            <CreditFooter variant="dark" className="border-t border-black/10 mt-4 mb-20" />
           </div>
         </div>
       </div>

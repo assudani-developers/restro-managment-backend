@@ -37,6 +37,16 @@ export class CustomersController {
   }
 
   @Auth('customers.manage')
+  @Get('metrics/summary')
+  async getMetrics(
+    @CurrentUser() user: SessionUser,
+    @Query('branchId') branchId: string,
+  ) {
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
+    return this.customersService.getMetrics(branchId);
+  }
+
+  @Auth('customers.manage')
   @Get(':id')
   async getById(
     @CurrentUser() user: SessionUser,

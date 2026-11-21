@@ -17,6 +17,7 @@ import { SuperAdminRestaurantSwitcher } from "./superadmin-restaurant-switcher";
 import { MobileBottomNav } from "./mobile-bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
 import { UserMenu } from "./user-menu";
+import { CreditFooter } from "./credit-footer";
 
 /** Tenant brand mark: the hotel's logo, else a monogram in its brand colours. */
 export function HotelMark({ size = 40, className }: { size?: number; className?: string }) {
@@ -115,6 +116,33 @@ export function AppShell({ user, children }: { user?: SessionUser; children: Rea
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto py-3">
         <SidebarNav user={user} collapsed={isCollapsed} onNavigate={onNavigate} />
       </div>
+      {!isCollapsed && (
+        <div className="shrink-0 border-t border-white/10 p-3 text-[11px] leading-relaxed text-[#E9DCC8]/70">
+          <p className="font-medium text-[#FFF8F0]/90">Designed &amp; Developed by</p>
+          <a
+            href="https://piyushassudani.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[#FFF8F0] hover:underline block"
+          >
+            Piyush Assudani
+          </a>
+          <p className="text-[10px] text-[#E9DCC8]/50">Founder of Assudani Developers</p>
+          <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#E9DCC8]/70">
+            <a
+              href="https://piyushassudani.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-300 hover:underline"
+            >
+              piyushassudani.in
+            </a>
+            <a href="tel:9413879444" className="hover:text-white">
+              9413879444
+            </a>
+          </div>
+        </div>
+      )}
     </>
   );
 
@@ -189,6 +217,7 @@ export function AppShell({ user, children }: { user?: SessionUser; children: Rea
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto p-3 pb-[calc(6rem+env(safe-area-inset-bottom))] min-[360px]:p-4 sm:p-6 lg:p-8 lg:pb-10">
           {children}
+          <CreditFooter />
         </main>
         <EntityDialogHost />
       </div>

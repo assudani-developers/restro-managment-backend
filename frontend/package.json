@@ -7,7 +7,7 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "next dev --webpack",
-    "prebuild": "corepack pnpm --filter @restrocore/types build",
+    "prebuild": "pnpm --filter @restrocore/types build",
     "build": "next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",

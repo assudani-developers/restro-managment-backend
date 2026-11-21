@@ -67,9 +67,23 @@ export function MarketingFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} RestroCore Systems. Licensed AGPL-3.0.
+            &copy; {new Date().getFullYear()} RestroCore Systems. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">Made in India.</p>
+          <div className="text-center sm:text-right text-xs text-muted-foreground">
+            Designed &amp; Developed by{" "}
+            <a
+              href="https://piyushassudani.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground hover:underline"
+            >
+              Piyush Assudani
+            </a>{" "}
+            (Founder of Assudani Developers) ·{" "}
+            <a href="tel:9413879444" className="hover:underline">
+              9413879444
+            </a>
+          </div>
         </div>
       </div>
     </footer>
