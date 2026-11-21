@@ -1461,7 +1461,7 @@ export default function SuperAdminHubPage() {
                   <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <div>
                     <p className="font-bold text-slate-900">RestroCore API Gateway</p>
-                    <p className="text-slate-500 text-[11px]">Port 4001 &bull; NestJS Modular Engine</p>
+                    <p className="text-slate-500 text-[11px]">Port 5006 &bull; NestJS Modular Engine</p>
                   </div>
                 </div>
                 <span className="text-emerald-700 font-bold">v2.0-SaaS</span>

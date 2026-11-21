@@ -13,10 +13,10 @@ export function resolveWsUrl(): string {
   if (typeof window !== "undefined") {
     // Always this same origin, over HTTP or HTTPS: next.config.ts proxies
     // /socket.io to the backend, and in the shipped compose stack the
-    // backend's own port is NOT published, so the old http-> ":4001"
+    // backend's own port is NOT published, so a direct ":5006"
     // fallback could never connect from another device on the LAN (the
     // kitchen tablet's live ticket updates silently fell back to polling).
     return window.location.origin;
   }
-  return "http://localhost:4001";
+  return "http://localhost:5006";
 }

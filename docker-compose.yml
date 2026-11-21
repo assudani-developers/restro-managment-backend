@@ -30,7 +30,7 @@ services:
       DATABASE_URL: "postgresql://restrocore:${POSTGRES_PASSWORD:-restrocore_dev_pw}@postgres:5432/restrocore_restaurant"
       JWT_SECRET: ${JWT_SECRET:?set a real JWT_SECRET in .env for anything beyond local dev}
       JWT_EXPIRES_IN: "12h"
-      PORT: "4000"
+      PORT: "5006"
       CORS_ORIGIN: "${FRONTEND_ORIGIN:-http://localhost:1995}"
       # Public URL guests open from booking messages and QR codes.
       FRONTEND_ORIGIN: "${FRONTEND_ORIGIN:-http://localhost:1995}"
@@ -66,7 +66,7 @@ services:
     # server-side /api proxy, same reasoning as retail-pos (keeps the API
     # off the LAN, shrinks attack surface).
     expose:
-      - "4000"
+      - "5006"
     volumes:
       - uploads_data:/data/uploads
       # Direct-USB thermal printing (see backend/src/modules/orders/
@@ -101,7 +101,7 @@ services:
       args:
         # Next bakes rewrite destinations at BUILD time — this must be a
         # build ARG, not a runtime env (see frontend/Dockerfile comment).
-        BACKEND_URL: "http://backend:4000"
+        BACKEND_URL: "http://backend:5006"
     image: restrocore-web:${APP_VERSION:-dev}
     container_name: restrocore-web
     restart: unless-stopped
