@@ -32,7 +32,7 @@ export class GiftCardsController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.giftCardsService.list(branchId);
   }
 
@@ -43,7 +43,7 @@ export class GiftCardsController {
     @Query('branchId') branchId: string,
     @Param('code') code: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.giftCardsService.getByCode(branchId, code);
   }
 
@@ -55,7 +55,7 @@ export class GiftCardsController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.giftCardsService.issue(branchId, body as never);
   }
 }

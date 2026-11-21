@@ -27,7 +27,7 @@ export class AttendanceController {
     @CurrentUser() user: SessionUser,
     @Body() body: { branchId: string; note?: string },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, body.branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, body.branchId, user.id);
     return this.attendance.clockIn(user.id, body.branchId, body.note);
   }
 
@@ -45,7 +45,7 @@ export class AttendanceController {
     @Query('date') date?: string,
     @Query('userId') userId?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.attendance.list(branchId, date, userId);
   }
 }

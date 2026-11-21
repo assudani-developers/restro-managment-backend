@@ -20,7 +20,7 @@ export class DashboardController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.dashboardService.getSummary(branchId);
   }
 
@@ -30,7 +30,7 @@ export class DashboardController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.dashboardService.getTrends(branchId);
   }
 }

@@ -32,7 +32,7 @@ export class CustomersController {
     @Query('branchId') branchId: string,
     @Query('search') search?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.customersService.list(branchId, search);
   }
 
@@ -43,7 +43,7 @@ export class CustomersController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.customersService.getById(branchId, id);
   }
 
@@ -55,7 +55,7 @@ export class CustomersController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.customersService.create(branchId, body as never);
   }
 
@@ -68,7 +68,7 @@ export class CustomersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.customersService.update(branchId, id, body as never);
   }
 
@@ -79,7 +79,7 @@ export class CustomersController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.customersService.remove(branchId, id);
   }
 }

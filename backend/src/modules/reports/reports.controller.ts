@@ -41,7 +41,7 @@ export class ReportsController {
     @Query('to') to: string,
   ) {
     assertCanViewReport(u.permissions, key);
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.reports.run(key, branchId, from, to);
   }
 
@@ -57,7 +57,7 @@ export class ReportsController {
     @Query('to') to: string,
   ) {
     assertCanViewReport(u.permissions, key);
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     const r = await this.reports.run(key, branchId, from, to);
     return toCsv(r.columns, r.rows);
   }
@@ -77,7 +77,7 @@ export class ReportsController {
     if (!isExportFormat(format))
       throw new BadRequestException('format must be csv, xlsx or pdf');
     assertCanViewReport(u.permissions, key);
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     const r = await this.reports.run(key, branchId, from, to);
     const body = await renderReport(r, format, `${from} to ${to}`);
     const t = EXPORT_TYPES[format];

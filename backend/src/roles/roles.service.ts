@@ -43,6 +43,10 @@ export class RolesService {
   }
 
   async create(restaurantId: string, actorId: string, dto: CreateRoleDto) {
+    const reserved = ['SUPERADMIN', 'OWNER', 'ADMINISTRATOR', 'MANAGER', 'STAFF'];
+    if (reserved.includes(dto.name.trim().toUpperCase())) {
+      throw new BadRequestException('This role name is reserved by the platform');
+    }
     const permissions = await this.assertPermissionKeysValid(
       dto.permissionKeys,
     );

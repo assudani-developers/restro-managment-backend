@@ -27,7 +27,7 @@ services:
     container_name: restrocore-backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://restrocore:${POSTGRES_PASSWORD:-restrocore_dev_pw}@postgres:5432/restrocore_restaurant"
+      DATABASE_URL: "postgresql://restrocore:${POSTGRES_PASSWORD:-restrocore_dev_pw}@postgres:5432/restrocore_restaurant?connection_limit=10&pool_timeout=20"
       JWT_SECRET: ${JWT_SECRET:?set a real JWT_SECRET in .env for anything beyond local dev}
       JWT_EXPIRES_IN: "12h"
       PORT: "5006"

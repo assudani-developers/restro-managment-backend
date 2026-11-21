@@ -41,7 +41,12 @@ export class GeofenceGuard implements CanActivate {
     if (!user || user.isSuperAdmin) return true;
     const path = req.path ?? req.url;
     if (EXEMPT.some((r) => r.test(path))) return true;
-    const branchId = typeof req.query?.branchId === 'string' ? req.query.branchId : null;
+    const branchId =
+      typeof req.query?.branchId === 'string'
+        ? req.query.branchId
+        : typeof req.body?.branchId === 'string'
+          ? req.body.branchId
+          : null;
     if (!branchId || !(await this.enforced(branchId))) return true;
     const token = (req.cookies as Record<string, string> | undefined)?.[geofenceCookieName(branchId)];
     if (verifyGeofencePass(token, user.id, branchId)) return true;

@@ -165,9 +165,15 @@ export class BackupService {
   // matching both zulivio's own `requireMasterOwner()` precedent and this
   // codebase's own precedent for infra-level role checks
   // (`ALWAYS_FULL_ACCESS_ROLES` itself compares `role.name` directly).
-  private requireOwner(user: SessionUser) {
-    if (user.roleName !== 'OWNER') {
-      throw new ForbiddenException('Only the Owner can restore a backup');
+  private async requireOwner(user: SessionUser) {
+    if (!user.isSuperAdmin) {
+      throw new ForbiddenException('Only a platform administrator can restore a backup');
+    }
+  }
+
+  private requirePlatformAdmin(user: SessionUser) {
+    if (!user.isSuperAdmin) {
+      throw new ForbiddenException('Only a platform administrator can export or download instance-wide backups');
     }
   }
 
@@ -525,6 +531,7 @@ export class BackupService {
    * the destructive consequences a restore carries.
    */
   async prepareDownload(user: SessionUser, id: string) {
+    this.requirePlatformAdmin(user);
     const record = await this.prisma.backup.findFirst({ where: { id } });
     if (!record || record.status !== 'VERIFIED' || !record.s3KeyDb) {
       throw new BadRequestException(
@@ -552,6 +559,7 @@ export class BackupService {
    * Audited as `backup.exported`, same sensitivity as a bucket download.
    */
   async prepareLocalExport(user: SessionUser) {
+    this.requirePlatformAdmin(user);
     await this.audit.record({
       userId: user.id,
       action: 'backup.exported',
@@ -616,7 +624,7 @@ export class BackupService {
    * the plan's Phase 4 addition.
    */
   async restore(user: SessionUser, id: string, dto: RestoreBackupDto) {
-    this.requireOwner(user);
+    await this.requireOwner(user);
     if (dto.confirm !== 'RESTORE') {
       throw new BadRequestException(
         'This is destructive. Pass confirm: "RESTORE" to proceed.',

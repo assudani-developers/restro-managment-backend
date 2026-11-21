@@ -270,7 +270,7 @@ export class McpToolsBuilder {
   }
 
   private async assertBranch(actor: SessionUser, branchId: string) {
-    await this.branchAccess.assertAccess(actor.restaurantId, branchId);
+    await this.branchAccess.assertAccess(actor.restaurantId, branchId, actor.id);
   }
 
   private toolDefs(actor: SessionUser): ToolDef[] {

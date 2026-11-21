@@ -30,7 +30,7 @@ export class TransfersController {
     @CurrentUser() u: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     const [history, branches] = await Promise.all([
       this.transfers.list(u.restaurantId, branchId),
       this.transfers.otherBranches(u.restaurantId, branchId),
@@ -47,7 +47,7 @@ export class TransfersController {
     @Query('branchId') branchId: string,
     @Body() body: z.infer<typeof transferSchema>,
   ) {
-    await this.branchAccess.assertAccess(u.restaurantId, branchId);
+    await this.branchAccess.assertAccess(u.restaurantId, branchId, u.id);
     return this.transfers.transfer(u.restaurantId, u.id, branchId, body);
   }
 }

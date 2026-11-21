@@ -20,7 +20,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@restrocore/types": ["../shared/types/src/index.ts"]
     }
   },
   "include": [

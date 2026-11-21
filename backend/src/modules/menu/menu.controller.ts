@@ -47,7 +47,7 @@ export class MenuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.listCategories(branchId);
   }
 
@@ -59,7 +59,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.createCategory(branchId, body as never);
   }
 
@@ -71,7 +71,7 @@ export class MenuController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.updateCategory(branchId, id, body as never);
   }
 
@@ -82,7 +82,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.deleteCategory(branchId, id);
   }
 
@@ -94,7 +94,7 @@ export class MenuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.listStations(branchId);
   }
 
@@ -105,7 +105,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Body() body: { name: string; printerName?: string },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.createStation(
       branchId,
       body.name,
@@ -122,7 +122,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Query('categoryId') categoryId?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.listItems(branchId, categoryId);
   }
 
@@ -133,7 +133,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.getItem(branchId, id);
   }
 
@@ -145,7 +145,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.createItem(branchId, body as never);
   }
 
@@ -172,7 +172,7 @@ export class MenuController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.updateItem(branchId, id, user.id, body as never);
   }
 
@@ -183,7 +183,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.deleteItem(branchId, id);
   }
 
@@ -195,7 +195,7 @@ export class MenuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.listModifierGroups(branchId);
   }
 
@@ -207,7 +207,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.createModifierGroup(branchId, body as never);
   }
 
@@ -219,7 +219,7 @@ export class MenuController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.updateModifierGroup(branchId, id, body as never);
   }
 
@@ -230,7 +230,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.deleteModifierGroup(branchId, id);
   }
 
@@ -243,7 +243,7 @@ export class MenuController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.menuService.getComboComponents(branchId, id);
   }
 
@@ -256,7 +256,7 @@ export class MenuController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { components } = body as {
       components: { componentItemId: string; quantity: number }[];
     };

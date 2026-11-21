@@ -42,7 +42,7 @@ export class SettingsController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.settingsService.get(user.restaurantId, branchId);
   }
 
@@ -82,7 +82,7 @@ export class SettingsController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.settingsService.updateBranch(branchId, user.id, body as never);
   }
 
@@ -96,7 +96,7 @@ export class SettingsController {
     if (action !== 'enable' && action !== 'rotate' && action !== 'disable') {
       throw new BadRequestException('Unknown kiosk action');
     }
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.settingsService.setKioskToken(branchId, user.id, action);
   }
 }

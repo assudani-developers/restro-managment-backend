@@ -33,7 +33,7 @@ export class SuperAdminController {
   constructor(private readonly superAdminService: SuperAdminService) {}
 
   private assertSuperAdmin(user: SessionUser) {
-    if (!user.isSuperAdmin && user.roleName !== 'SUPERADMIN') {
+    if (!user.isSuperAdmin) {
       throw new ForbiddenException('Access denied: SuperAdmin platform privileges required');
     }
   }

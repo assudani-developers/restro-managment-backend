@@ -65,7 +65,7 @@ export class InventoryController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.listIngredients(branchId);
   }
 
@@ -75,7 +75,7 @@ export class InventoryController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.lowStockIngredients(branchId);
   }
 
@@ -86,7 +86,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.getIngredient(branchId, id);
   }
 
@@ -98,7 +98,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.createIngredient(branchId, body as never);
   }
 
@@ -110,7 +110,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.updateIngredient(branchId, id, body as never);
   }
 
@@ -121,7 +121,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.deleteIngredient(branchId, id);
   }
 
@@ -134,7 +134,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.stockService.adjustStock(branchId, user.id, id, body as never);
   }
 
@@ -145,7 +145,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.stockService.listMovements(branchId, id);
   }
 
@@ -156,7 +156,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.stockService.listBatches(branchId, id);
   }
 
@@ -169,7 +169,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.getRecipe(branchId, id);
   }
 
@@ -182,7 +182,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { lines } = body as {
       lines: { ingredientId: string; quantity: number }[];
     };
@@ -197,7 +197,7 @@ export class InventoryController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.trackingSetupStatus(branchId);
   }
 
@@ -208,7 +208,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.getTracking(branchId, id);
   }
 
@@ -221,7 +221,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.setTracking(
       branchId,
       id,
@@ -237,7 +237,7 @@ export class InventoryController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.listSuppliers(branchId);
   }
 
@@ -248,7 +248,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.getSupplier(branchId, id);
   }
 
@@ -260,7 +260,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.createSupplier(branchId, body as never);
   }
 
@@ -272,7 +272,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.updateSupplier(branchId, id, body as never);
   }
 
@@ -283,7 +283,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.inventoryService.deleteSupplier(branchId, id);
   }
 
@@ -296,7 +296,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Query('status') status?: PurchaseOrderStatus,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseOrdersService.listPurchaseOrders(branchId, status);
   }
 
@@ -307,7 +307,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseOrdersService.getPurchaseOrder(branchId, id);
   }
 
@@ -319,7 +319,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseOrdersService.createPurchaseOrder(
       branchId,
       user.id,
@@ -335,7 +335,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: { status: PurchaseOrderStatus },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseOrdersService.updateStatus(branchId, id, body.status);
   }
 
@@ -347,7 +347,7 @@ export class InventoryController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.goodsReceiptsService.listGoodsReceipts(branchId);
   }
 
@@ -358,7 +358,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.goodsReceiptsService.getGoodsReceipt(branchId, id);
   }
 
@@ -370,7 +370,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.goodsReceiptsService.createGoodsReceipt(
       branchId,
       user.id,
@@ -386,7 +386,7 @@ export class InventoryController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.wasteService.listWasteLogs(branchId);
   }
 
@@ -398,7 +398,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.wasteService.logWaste(branchId, user.id, body as never);
   }
 
@@ -411,7 +411,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Query('status') status?: PurchaseRequestStatus,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseRequestsService.listPurchaseRequests(branchId, status);
   }
 
@@ -422,7 +422,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseRequestsService.getPurchaseRequest(branchId, id);
   }
 
@@ -434,7 +434,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseRequestsService.createPurchaseRequest(
       branchId,
       user.id,
@@ -450,7 +450,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: { status: PurchaseRequestStatus },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.purchaseRequestsService.updateStatus(
       branchId,
       id,
@@ -468,7 +468,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Query('ingredientId') ingredientId?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierQuotationsService.listQuotations(
       branchId,
       ingredientId,
@@ -482,7 +482,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Query('ingredientId') ingredientId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierQuotationsService.compareForIngredient(
       branchId,
       ingredientId,
@@ -496,7 +496,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierQuotationsService.getQuotation(branchId, id);
   }
 
@@ -508,7 +508,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierQuotationsService.createQuotation(
       branchId,
       user.id,
@@ -524,7 +524,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: { status: QuotationStatus },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierQuotationsService.updateStatus(
       branchId,
       id,
@@ -541,7 +541,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Query('supplierId') supplierId?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierInvoicesService.listInvoices(branchId, supplierId);
   }
 
@@ -552,7 +552,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierInvoicesService.getInvoice(branchId, id);
   }
 
@@ -564,7 +564,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierInvoicesService.createInvoice(
       branchId,
       user.id,
@@ -581,7 +581,7 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierInvoicesService.recordPayment(
       branchId,
       id,
@@ -597,7 +597,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierInvoicesService.cancelInvoice(branchId, id);
   }
 
@@ -608,7 +608,7 @@ export class InventoryController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.supplierInvoicesService.getSupplierPerformance(branchId, id);
   }
 }

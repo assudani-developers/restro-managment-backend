@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @restrocore/types typecheck
+      - run: pnpm --filter @restrocore/backend prisma:generate
+      - run: pnpm --filter @restrocore/backend typecheck
+      - run: pnpm --filter @restrocore/web typecheck
+      - run: pnpm --filter @restrocore/backend test -- --runInBand
+      - run: pnpm --filter @restrocore/web test
+      - run: pnpm --filter @restrocore/web build
+      - name: Reject known secret files
+        run: |
+          test -z "$(git ls-files '.env' '.env.*' '*credentials*' '*secret*' | grep -vE '(\\.env\\.example$|\\.env\\.example\\.local$)')" || {
+            echo "Secret or environment file tracked";
+            exit 1;
+          }

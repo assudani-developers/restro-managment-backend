@@ -106,11 +106,21 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
-  // Permissive CORS: Never block QR menus, mobile devices, POS kiosks, or cross-network requests
+  const allowedOrigins = new Set(
+    [
+      process.env.FRONTEND_ORIGIN,
+      process.env.CORS_ORIGIN,
+      'https://restro.piyushassudani.in',
+      'http://localhost:1995',
+      'http://localhost:3000',
+    ].filter((value): value is string => Boolean(value)),
+  );
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow any requesting origin (including undefined for mobile apps, curl, kiosk webviews)
-      callback(null, true);
+      // Native/mobile and server-to-server clients have no Origin header.
+      // Browser requests are limited to explicitly configured frontend origins.
+      if (!origin || allowedOrigins.has(origin)) callback(null, true);
+      else callback(new Error('Origin is not allowed'), false);
     },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

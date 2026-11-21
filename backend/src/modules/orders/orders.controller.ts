@@ -185,7 +185,7 @@ export class OrdersController {
     @Query('branchId') branchId: string,
     @Query('tableId') tableId?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.listOpen(branchId, tableId);
   }
 
@@ -198,7 +198,7 @@ export class OrdersController {
     @Query('channel') channel?: 'STAFF' | 'ONLINE',
     @Query('type') type?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.listForManagement(branchId, {
       tab,
       channel,
@@ -213,7 +213,7 @@ export class OrdersController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.getOrder(branchId, id);
   }
 
@@ -225,7 +225,7 @@ export class OrdersController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.createOrder(branchId, user.id, body as never);
   }
 
@@ -238,7 +238,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { items } = body as { items: never };
     return this.ordersService.addItems(branchId, id, items);
   }
@@ -250,7 +250,7 @@ export class OrdersController {
     @Query('branchId') branchId: string,
     @Param('id') id: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.acceptOrder(branchId, id, user.id);
   }
 
@@ -263,7 +263,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { reason } = body as { reason: string };
     return this.ordersService.rejectOrder(branchId, id, user.id, reason);
   }
@@ -276,7 +276,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body?: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { reason, confirmStarted, source } = cancelOrderSchema
       .partial()
       .parse(body ?? {});
@@ -299,7 +299,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.updateOrder(
       branchId,
       id,
@@ -318,7 +318,7 @@ export class OrdersController {
     @Param('itemId') itemId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.updateOrderItem(
       branchId,
       id,
@@ -338,7 +338,7 @@ export class OrdersController {
     @Param('itemId') itemId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.removeOrderItem(
       branchId,
       id,
@@ -358,7 +358,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: { couponCode?: string },
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     if (body?.couponCode && !user.permissions.includes('discounts.apply')) {
       throw new ForbiddenException('Missing permission to apply a coupon');
     }
@@ -375,7 +375,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const adj = body as BillPreviewDto;
     assertMayAdjust(user, adj);
     return this.ordersService.previewBill(branchId, id, adj);
@@ -390,7 +390,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const dto = body as CheckoutDto;
     assertMayAdjust(user, dto);
     // `bills.print` (required above) only covers settling a bill at its
@@ -427,7 +427,7 @@ export class OrdersController {
     @Query() query: Record<string, string>,
     @Res() res: Response,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const adj = billPreviewSchema.parse(query);
     assertMayAdjust(user, adj);
     const { order, overrides } = await this.ordersService.getBillForPrint(
@@ -469,7 +469,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Res() res: Response,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const order = await this.ordersService.getReceiptData(branchId, id);
     const html = buildKotHtml({
       branchName: order.branch.name,
@@ -501,7 +501,7 @@ export class OrdersController {
     } | null = null;
     let connection = 'USB';
     if (branchId) {
-      await this.branchAccess.assertAccess(user.restaurantId, branchId);
+      await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
       const target = await this.ordersService.printerTarget(branchId);
       connection = target.printerConnection;
       if (connection === 'NETWORK' && target.printerHost) {
@@ -555,7 +555,7 @@ export class OrdersController {
       printerPort: 9100,
     };
     if (branchId) {
-      await this.branchAccess.assertAccess(user.restaurantId, branchId);
+      await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
       profile = await this.ordersService.printerProfile(branchId);
       target = await this.ordersService.printerTarget(branchId);
     }
@@ -580,7 +580,7 @@ export class OrdersController {
       printerPort: 9100,
     };
     if (branchId) {
-      await this.branchAccess.assertAccess(user.restaurantId, branchId);
+      await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
       target = await this.ordersService.printerTarget(branchId);
     }
     await this.deliver(target, buildOpenDrawer());
@@ -599,7 +599,7 @@ export class OrdersController {
     @Query('drawer') drawer?: string,
     @Query() query: Record<string, string> = {},
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const adj = billPreviewSchema.parse(query);
     assertMayAdjust(user, adj);
     const { order, overrides } = await this.ordersService.getBillForPrint(
@@ -656,7 +656,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Query('reprint') reprint?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.kotPrint.printOrder(branchId, id, reprint === 'true');
   }
 
@@ -702,7 +702,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.ordersService.refund(branchId, id, user.id, body as never);
   }
 
@@ -714,7 +714,7 @@ export class OrdersController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { orderIds, password } = body as {
       orderIds: string[];
       password: string;
@@ -736,7 +736,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const { sourceOrderId } = body as { sourceOrderId: string };
     return this.ordersService.mergeOrders(branchId, id, sourceOrderId);
   }

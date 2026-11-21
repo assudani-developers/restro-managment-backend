@@ -40,7 +40,7 @@ export class VerifactuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.service.getSettings(user.restaurantId, branchId);
   }
 
@@ -51,7 +51,7 @@ export class VerifactuController {
     @Query('branchId') branchId: string,
     @Body() body: unknown,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     const parsed = settingsSchema.safeParse(body);
     if (!parsed.success)
       throw new BadRequestException('Invalid VERI*FACTU settings');
@@ -77,7 +77,7 @@ export class VerifactuController {
     @UploadedFile() file: { buffer: Buffer } | undefined,
     @Body('password') password: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     if (!file)
       throw new BadRequestException(
         'Choose the .p12 or .pfx certificate file.',
@@ -99,7 +99,7 @@ export class VerifactuController {
     @Query('take') take?: string,
     @Query('skip') skip?: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.service.records(
       user.restaurantId,
       branchId,
@@ -114,7 +114,7 @@ export class VerifactuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.service.verifyChain(user.restaurantId, branchId);
   }
 
@@ -124,7 +124,7 @@ export class VerifactuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.service.sendNow(user.restaurantId, branchId);
   }
 
@@ -136,7 +136,7 @@ export class VerifactuController {
     @CurrentUser() user: SessionUser,
     @Query('branchId') branchId: string,
   ) {
-    await this.branchAccess.assertAccess(user.restaurantId, branchId);
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
     return this.service.exportXml(user.restaurantId, branchId);
   }
 }
