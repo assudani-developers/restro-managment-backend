@@ -41,6 +41,13 @@ export function isPrivateAddress(ip: string): boolean {
       /^(?:0{1,4}:){5}ffff:(\d+\.\d+\.\d+\.\d+)$/,
     );
     if (expandedMapped) return isPrivateAddress(expandedMapped[1]);
+    const hexMapped = lower.match(/(?:^|:)ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+    if (hexMapped) {
+      const high = Number.parseInt(hexMapped[1], 16);
+      const low = Number.parseInt(hexMapped[2], 16);
+      const dotted = `${(high >> 8) & 255}.${high & 255}.${(low >> 8) & 255}.${low & 255}`;
+      return isPrivateAddress(dotted);
+    }
     if (lower === '::' || lower === '::1') return true;
     if (/^f[cd]/.test(lower)) return true; // fc00::/7 unique-local
     if (/^fe[89ab]/.test(lower)) return true; // fe80::/10 link-local

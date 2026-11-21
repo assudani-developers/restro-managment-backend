@@ -22,6 +22,7 @@ describe('isPrivateAddress', () => {
     '::ffff:10.0.0.1',
     '::ffff:127.0.0.1',
     '0:0:0:0:0:ffff:127.0.0.1',
+    '::ffff:7f00:1',
   ])('blocks %s', (ip) => expect(isPrivateAddress(ip)).toBe(true));
 
   it.each([
