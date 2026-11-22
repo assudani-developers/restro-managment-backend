@@ -30,6 +30,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     if (res.status === 403 && body.code === "GEOFENCE_REQUIRED" && typeof window !== "undefined") {
       window.dispatchEvent(new Event("geofence-required"));
     }
+    if (res.status === 401 && typeof window !== "undefined") {
+      const msg = String(body?.message ?? "");
+      if (
+        msg.includes("MASTER_ADMIN_REVOKED") ||
+        msg.includes("USER_DEACTIVATED") ||
+        msg.includes("revoked")
+      ) {
+        window.dispatchEvent(
+          new CustomEvent("auth:revoked", {
+            detail: { message: msg },
+          }),
+        );
+      }
+    }
     throw new ApiError(body.message ?? "Request failed", res.status, body.issues, body.code);
   }
 

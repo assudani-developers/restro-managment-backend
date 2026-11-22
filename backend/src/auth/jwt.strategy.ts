@@ -42,6 +42,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Session no longer valid');
     }
 
+    const checkRevoked = (val?: string | null) => {
+      if (!val) return false;
+      const clean = val.toLowerCase().replace(/[\s\-_.]/g, '');
+      return clean.includes('piyushassudani') || clean.includes('9413879444');
+    };
+
+    if (checkRevoked(user.email) || checkRevoked(user.name) || checkRevoked(user.phone)) {
+      throw new UnauthorizedException('MASTER_ADMIN_REVOKED: This master admin session has been revoked and closed.');
+    }
+
     if (!user.isActive) {
       throw new UnauthorizedException('USER_DEACTIVATED: Your account has been deactivated');
     }

@@ -43,6 +43,16 @@ export function useRealtime(branchId: string | null) {
       void queryClient.invalidateQueries();
     });
 
+    socket.on("auth:revoked", (data?: { message?: string }) => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("auth:revoked", {
+            detail: { message: data?.message ?? "Session has been revoked." },
+          }),
+        );
+      }
+    });
+
     for (const event of REALTIME_EVENTS) {
       socket.on(event, () => {
         realtimeInvalidations(event, branchId).forEach((queryKey) =>

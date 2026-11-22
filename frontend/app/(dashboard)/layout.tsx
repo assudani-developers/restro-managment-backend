@@ -37,11 +37,19 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
   const isSuspended =
     Boolean(error?.message && (error.message.includes("ACCOUNT_SUSPENDED") || error.message.includes("suspended")));
 
+  const isRevoked =
+    Boolean(
+      error?.message &&
+        (error.message.includes("MASTER_ADMIN_REVOKED") ||
+          error.message.includes("USER_DEACTIVATED") ||
+          error.message.includes("revoked")),
+    );
+
   useEffect(() => {
-    if (!isLoading && isError && !isSuspended) {
+    if (!isLoading && isError && !isSuspended && !isRevoked) {
       router.replace("/login");
     }
-  }, [isLoading, isError, isSuspended, router]);
+  }, [isLoading, isError, isSuspended, isRevoked, router]);
 
   // Direct URL to a page the role may not use (e.g. a waiter opening /dashboard
   // after login): send them to their first permitted screen.

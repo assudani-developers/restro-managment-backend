@@ -245,8 +245,19 @@ export default function LoginPage() {
               >
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600" />
                 <div className="flex-1 text-xs leading-relaxed">
-                  <span className="font-semibold text-rose-900 block">{error}</span>
-                  <span>Tip: Click on one of the demo chips above to instantly auto-fill working credentials.</span>
+                  {error.includes("MASTER_ADMIN_REVOKED") ? (
+                    <div>
+                      <span className="font-bold text-rose-950 block text-[13px]">
+                        Master Admin Login Band Kar Diya Gaya Hai
+                      </span>
+                      <p className="mt-1 text-rose-800">
+                        Puraane credentials (<strong>piyushassudani / 9413879444</strong>) permanently revoke kar diye gaye hain.
+                        Kripya naye Master Admin credentials ke saath login karein.
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="font-semibold text-rose-900 block">{error}</span>
+                  )}
                 </div>
               </motion.div>
             )}

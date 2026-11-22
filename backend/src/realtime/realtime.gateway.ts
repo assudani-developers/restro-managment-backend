@@ -76,6 +76,22 @@ export class RealtimeGateway
       });
       if (!user || !user.isActive) throw new Error('Session no longer valid');
 
+      const isRevokedUser = (u: { email?: string | null; name?: string | null; phone?: string | null }) => {
+        const check = (val?: string | null) => {
+          if (!val) return false;
+          const clean = val.toLowerCase().replace(/[\s\-_.]/g, '');
+          return clean.includes('piyushassudani') || clean.includes('9413879444');
+        };
+        return check(u.email) || check(u.name) || check(u.phone);
+      };
+
+      if (isRevokedUser(user)) {
+        client.emit('auth:revoked', {
+          message: 'MASTER_ADMIN_REVOKED: This master admin session has been permanently revoked and closed.',
+        });
+        throw new Error('MASTER_ADMIN_REVOKED');
+      }
+
       const isSuper = Boolean(user.isSuperAdmin);
       const activeRestaurantId =
         isSuper && payload.impersonatedRestaurantId
@@ -128,6 +144,16 @@ export class RealtimeGateway
   emitToUsers(userIds: string[], event: string, payload: unknown) {
     if (userIds.length === 0) return;
     this.server.to(userIds.map((id) => this.userRoom(id))).emit(event, payload);
+  }
+
+  broadcastSessionRevoked(reason?: string) {
+    if (this.server) {
+      this.server.emit('auth:revoked', {
+        message:
+          reason ??
+          'MASTER_ADMIN_REVOKED: This master admin session has been revoked and closed.',
+      });
+    }
   }
 
   private branchRoom(branchId: string) {

@@ -18,6 +18,12 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { TwoFactorService } from './two-factor.service';
 
+function isRevokedMasterAdmin(value?: string | null): boolean {
+  if (!value) return false;
+  const clean = value.toLowerCase().replace(/[\s\-_.]/g, '');
+  return clean.includes('piyushassudani') || clean.includes('9413879444');
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -50,6 +56,12 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const identifier = dto.email.trim();
+    if (isRevokedMasterAdmin(identifier)) {
+      throw new UnauthorizedException(
+        'MASTER_ADMIN_REVOKED: This master admin account has been permanently revoked and deactivated for security reasons.',
+      );
+    }
+
     const user = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -66,6 +78,16 @@ export class AuthService {
 
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (
+      isRevokedMasterAdmin(user.email) ||
+      isRevokedMasterAdmin(user.name) ||
+      isRevokedMasterAdmin(user.phone)
+    ) {
+      throw new UnauthorizedException(
+        'MASTER_ADMIN_REVOKED: This master admin account has been permanently revoked and deactivated for security reasons.',
+      );
     }
 
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
@@ -194,6 +216,15 @@ export class AuthService {
 
     if (!user || !user.isActive || !user.pinHash) {
       throw new UnauthorizedException('PIN login not available for this user');
+    }
+    if (
+      isRevokedMasterAdmin(user.email) ||
+      isRevokedMasterAdmin(user.name) ||
+      isRevokedMasterAdmin(user.phone)
+    ) {
+      throw new UnauthorizedException(
+        'MASTER_ADMIN_REVOKED: This master admin account has been permanently revoked and deactivated for security reasons.',
+      );
     }
     // A 4-8 digit PIN must not be a way around the second factor.
     if (user.twoFactorEnabled) {

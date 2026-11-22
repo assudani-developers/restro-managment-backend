@@ -9,6 +9,8 @@ export function useCurrentUser() {
     queryKey: ["auth", "me"],
     queryFn: () => api.get<{ user: SessionUser }>("/auth/me"),
     retry: false,
+    refetchInterval: 8000,
+    refetchOnWindowFocus: true,
   });
 }
 
