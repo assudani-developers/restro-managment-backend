@@ -13,6 +13,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ApiTags } from '@nestjs/swagger';
 import {
   menuCategorySchema,
@@ -29,6 +30,7 @@ import {
   assertValidImageSignature,
   imageUploadOptions,
 } from '../../common/upload/image-upload.config';
+import { MenuOcrService, type OcrMenuCategory } from './menu-ocr.service';
 import { MenuService } from './menu.service';
 
 @ApiTags('menu')
@@ -36,6 +38,7 @@ import { MenuService } from './menu.service';
 export class MenuController {
   constructor(
     private readonly menuService: MenuService,
+    private readonly menuOcrService: MenuOcrService,
     private readonly branchAccess: BranchAccessService,
   ) {}
 
@@ -261,5 +264,83 @@ export class MenuController {
       components: { componentItemId: string; quantity: number }[];
     };
     return this.menuService.setComboComponents(branchId, id, components);
+  }
+
+  // --- Menu Photo OCR & Bulk Tools -------------------------------------------
+
+  @Auth('menu.manage')
+  @Post('ocr/scan')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 15 * 1024 * 1024 },
+    }),
+  )
+  async scanMenuPhoto(
+    @CurrentUser() user: SessionUser,
+    @Query('branchId') branchId: string,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
+    if (!file?.buffer) {
+      throw new BadRequestException('Please upload a menu image file');
+    }
+    return this.menuOcrService.scanMenuImage(file.buffer);
+  }
+
+  @Auth('menu.manage')
+  @Post('ocr/import')
+  async importScannedMenu(
+    @CurrentUser() user: SessionUser,
+    @Query('branchId') branchId: string,
+    @Body() body: { categories: OcrMenuCategory[] },
+  ) {
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
+    if (!Array.isArray(body?.categories)) {
+      throw new BadRequestException('categories array is required');
+    }
+    return this.menuOcrService.importScannedMenu(branchId, body.categories);
+  }
+
+  @Auth('menu.manage')
+  @Post('bulk-price')
+  async bulkAdjustPrices(
+    @CurrentUser() user: SessionUser,
+    @Query('branchId') branchId: string,
+    @Body()
+    body: {
+      mode: 'PERCENT' | 'FLAT';
+      amount: number;
+      categoryId?: string;
+      roundTo?: number;
+    },
+  ) {
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
+    return this.menuService.bulkAdjustPrices(branchId, body);
+  }
+
+  @Auth('menu.view')
+  @Get('health')
+  async getMenuHealth(
+    @CurrentUser() user: SessionUser,
+    @Query('branchId') branchId: string,
+  ) {
+    await this.branchAccess.assertAccess(user.restaurantId, branchId, user.id);
+    return this.menuService.getMenuHealth(branchId);
+  }
+
+  @Auth('menu.view')
+  @Get('design')
+  getMenuDesign(@CurrentUser() user: SessionUser) {
+    return this.menuService.getMenuDesign(user.restaurantId);
+  }
+
+  @Auth('menu.manage')
+  @Patch('design')
+  updateMenuDesign(
+    @CurrentUser() user: SessionUser,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.menuService.updateMenuDesign(user.restaurantId, body);
   }
 }

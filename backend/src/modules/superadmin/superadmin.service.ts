@@ -439,6 +439,12 @@ export class SuperAdminService {
     });
     if (!restaurant) throw new NotFoundException('Restaurant not found');
 
+    let defaultBranchId = restaurant.branches[0]?.id ?? null;
+    if (!defaultBranchId) {
+      const created = await this.addBranch(restaurant.id, { name: 'Main Branch' });
+      defaultBranchId = created.id;
+    }
+
     const token = this.jwt.sign({
       sub: user.id,
       impersonatedRestaurantId: restaurant.id,
@@ -450,7 +456,7 @@ export class SuperAdminService {
         id: restaurant.id,
         name: restaurant.name,
       },
-      branchId: restaurant.branches[0]?.id ?? null,
+      branchId: defaultBranchId,
     };
   }
 

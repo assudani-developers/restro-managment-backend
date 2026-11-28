@@ -72,13 +72,17 @@ export function SuperAdminRestaurantSwitcher() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/70 border border-amber-300 px-3 py-1.5 text-xs font-bold text-amber-950 shadow-2xs hover:bg-amber-100 transition-all focus:outline-hidden">
-        <Building2 className="h-3.5 w-3.5 text-amber-700 shrink-0" />
-        <span className="max-w-[130px] truncate">{activeName}</span>
-        <span className="rounded bg-amber-600 px-1 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
-          SaaS
+      <DropdownMenuTrigger className="flex w-full items-center justify-between gap-2 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/90 border border-amber-300 px-3 py-2 text-xs font-bold text-amber-950 shadow-2xs hover:bg-amber-100 transition-all focus:outline-hidden">
+        <span className="flex items-center gap-2 min-w-0">
+          <Building2 className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+          <span className="truncate text-amber-950">{activeName}</span>
         </span>
-        <ChevronsUpDown className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+        <span className="flex items-center gap-1.5 shrink-0">
+          <span className="rounded bg-amber-600 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-white">
+            SaaS
+          </span>
+          <ChevronsUpDown className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+        </span>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" className="w-72 p-1.5 rounded-2xl bg-white shadow-xl border border-slate-200">

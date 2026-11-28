@@ -25,6 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useBranch } from "@/hooks/use-branch";
 import { useFloors } from "@/hooks/use-tables";
 import { useCurrentUser } from "@/hooks/use-auth";
+import { MenuDesignStudio } from "@/components/menu/menu-design-studio";
+import { MenuOcrDialog } from "@/components/menu/menu-ocr-dialog";
 
 export default function QrMenuDashboardPage() {
   const { branchId, branches, state: branchState, error: branchError, retry: retryBranches, retrying: retryingBranches } = useBranch();
@@ -106,6 +108,7 @@ export default function QrMenuDashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <MenuOcrDialog branchId={branchId} triggerLabel="Scan menu (OCR)" />
           <Button onClick={handleGenerateQr} disabled={branchState === "loading" || branchState === "error"}>
             <Download data-icon="inline-start" />
             Create QR code
@@ -273,6 +276,8 @@ export default function QrMenuDashboardPage() {
               </div>
             )}
           </section>
+
+          <MenuDesignStudio previewUrl={universalUrl} />
         </>
       ) : branchState === "loading" ? (
         <Skeleton className="h-64 rounded-2xl" />

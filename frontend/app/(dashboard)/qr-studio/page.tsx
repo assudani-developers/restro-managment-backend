@@ -12,7 +12,19 @@ import { cn } from "@/lib/utils";
 
 type Source = "rooms" | "tables" | "general";
 type Layout = "tent" | "sticker" | "poster";
-type ThemeKey = "heritage" | "sandstone" | "royal" | "minimal" | "midnight" | "garden";
+type ThemeKey =
+  | "heritage"
+  | "sandstone"
+  | "royal"
+  | "minimal"
+  | "midnight"
+  | "garden"
+  | "saffron"
+  | "sunset"
+  | "ocean"
+  | "noirGold"
+  | "goldFoil"
+  | "royalPlum";
 
 interface Target {
   id: string;
@@ -29,6 +41,12 @@ const THEMES: Record<ThemeKey, { name: string; bg: string; fg: string; sub: stri
   minimal: { name: "Minimal", bg: "#FFFFFF", fg: "#111111", sub: "#666666", frame: "#111111", qrFg: "#111111", qrBg: "#FFFFFF" },
   midnight: { name: "Midnight", bg: "linear-gradient(160deg,#0E1A2B,#1D2F4A)", fg: "#EAF1FF", sub: "#9DB4D9", frame: "#7FA7E8", qrFg: "#0E1A2B", qrBg: "#FFFFFF" },
   garden: { name: "Garden", bg: "linear-gradient(160deg,#10372A,#1F5A44)", fg: "#ECF8EF", sub: "#A9D7B9", frame: "#E8C36A", qrFg: "#10372A", qrBg: "#FFFFFF", pattern: true },
+  saffron: { name: "Saffron", bg: "linear-gradient(150deg,#F59E0B,#C2410C)", fg: "#FFFFFF", sub: "#FEF3C7", frame: "#FFFFFF", qrFg: "#2B160A", qrBg: "#FFFFFF", pattern: true },
+  sunset: { name: "Sunset", bg: "linear-gradient(150deg,#FB923C,#DB2777)", fg: "#FFFFFF", sub: "#FCE7F3", frame: "#FFFFFF", qrFg: "#3B0A1E", qrBg: "#FFFFFF" },
+  ocean: { name: "Ocean", bg: "linear-gradient(150deg,#0EA5E9,#1E3A8A)", fg: "#FFFFFF", sub: "#E0F2FE", frame: "#FFFFFF", qrFg: "#0C2A44", qrBg: "#FFFFFF" },
+  noirGold: { name: "Noir Gold", bg: "linear-gradient(150deg,#1A1712,#050505)", fg: "#E8C872", sub: "#C9A23A", frame: "#D4AF37", qrFg: "#111111", qrBg: "#FFFFFF", pattern: true },
+  goldFoil: { name: "Gold Foil", bg: "linear-gradient(150deg,#FFF8E6,#F3E3B5)", fg: "#6B4E0E", sub: "#8A6616", frame: "#C9A23A", qrFg: "#3A2A08", qrBg: "#FFFFFF" },
+  royalPlum: { name: "Royal Plum", bg: "linear-gradient(150deg,#5B2179,#260A33)", fg: "#F7D98B", sub: "#E9D5FF", frame: "#F7D98B", qrFg: "#2A0F33", qrBg: "#FFFFFF", pattern: true },
 };
 
 const LAYOUT: Record<Layout, { label: string; cols: string; w: string; h: string; qr: number; title: string }> = {

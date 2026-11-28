@@ -65,9 +65,17 @@ export function PosTablePicker({
   }
   if (floors.length === 0) {
     return (
-      <p className="py-10 text-center text-sm text-muted-foreground">
-        No tables are set up for this branch yet. A manager can add them under Tables.
-      </p>
+      <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+        <p className="text-sm text-muted-foreground">
+          No tables are set up for this branch yet.
+        </p>
+        <a
+          href="/tables"
+          className="inline-flex h-9 items-center rounded-xl border border-border bg-card px-4 text-xs font-semibold text-foreground hover:bg-muted"
+        >
+          Set up tables
+        </a>
+      </div>
     );
   }
 

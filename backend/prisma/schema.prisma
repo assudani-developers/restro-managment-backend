@@ -57,6 +57,7 @@ model Restaurant {
   accentColor   String? @default("#C9973F")
   tagline       String?
   coverImageUrl String?
+  menuDesign    Json?
   currency      String  @default("INR")
   timezone      String  @default("Asia/Kolkata")
 

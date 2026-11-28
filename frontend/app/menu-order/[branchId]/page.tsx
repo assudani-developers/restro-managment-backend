@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiError } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
+import { getMenuTheme, type MenuDesignConfig } from "@/lib/menu-themes";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -31,8 +32,11 @@ interface BranchMenuData {
   branchId: string;
   branchName: string;
   restaurantName: string;
+  tagline?: string | null;
   logoUrl: string | null;
+  coverImageUrl?: string | null;
   currency: string;
+  menuDesign?: MenuDesignConfig;
   tables: { id: string; number: string; name: string; status: string }[];
   categories: {
     id: string;
@@ -253,26 +257,73 @@ export default function CustomerQrMenuPage({
   const categoriesToRender = branch.categories.filter((c) =>
     activeCategory === "ALL" ? true : c.id === activeCategory,
   );
+  const design = branch.menuDesign;
+  const theme = getMenuTheme(design?.themeId);
+  const announcement = design?.announcement?.trim();
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 max-w-lg mx-auto pb-28">
+    <main
+      className="min-h-screen max-w-lg mx-auto pb-28 transition-colors"
+      style={{ backgroundColor: theme.background, color: theme.text }}
+    >
       {/* Restaurant Header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3 shadow-2xs">
+      <header
+        className="sticky top-0 z-30 backdrop-blur border-b px-4 py-3 shadow-2xs"
+        style={{
+          backgroundColor: theme.surface,
+          borderColor: theme.dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
+        }}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-black text-lg shadow-xs">
-              {branch.restaurantName.charAt(0).toUpperCase()}
-            </div>
+            {design?.showLogo !== false && branch.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={branch.logoUrl}
+                alt={branch.restaurantName}
+                className="h-10 w-10 rounded-xl object-cover shadow-xs"
+              />
+            ) : (
+              <div
+                className="h-10 w-10 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-xs"
+                style={{ backgroundColor: theme.primary }}
+              >
+                {branch.restaurantName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div>
-              <h1 className="text-base font-bold text-slate-900 leading-tight">{branch.restaurantName}</h1>
-              <p className="text-xs text-slate-500">{branch.branchName}</p>
+              <h1 className="text-base font-bold leading-tight">{branch.restaurantName}</h1>
+              <p className="text-xs" style={{ color: theme.muted }}>
+                {branch.tagline || branch.branchName}
+              </p>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-600/20">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+            style={{
+              backgroundColor: `${theme.primary}18`,
+              color: theme.primary,
+            }}
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full animate-pulse"
+              style={{ backgroundColor: theme.primary }}
+            />
             Ordering Open
           </span>
         </div>
+
+        {announcement && (
+          <div
+            className="mt-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold"
+            style={{
+              backgroundColor: `${theme.primary}18`,
+              color: theme.primary,
+            }}
+          >
+            {announcement}
+          </div>
+        )}
 
         {/* Order Type Selector: Dine-in vs Delivery */}
         <div className="mt-3 grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">

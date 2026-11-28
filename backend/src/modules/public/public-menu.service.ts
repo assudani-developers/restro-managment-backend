@@ -87,8 +87,14 @@ export class PublicMenuService {
       branchId: branch.id,
       branchName: branch.name,
       restaurantName: branch.restaurant.name,
+      tagline: branch.restaurant.tagline,
       logoUrl: branch.restaurant.logoUrl,
+      coverImageUrl: branch.restaurant.coverImageUrl,
       currency: branch.restaurant.currency,
+      menuDesign: (branch.restaurant.menuDesign as Record<string, unknown> | null) ?? {
+        themeId: 'haveli',
+        qrThemeId: 'classic',
+      },
       tables,
       categories,
     };

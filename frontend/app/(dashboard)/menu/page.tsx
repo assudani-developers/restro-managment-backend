@@ -5,9 +5,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AddCategoryDialog } from "@/components/menu/add-category-dialog";
 import { AddItemDialog } from "@/components/menu/add-item-dialog";
+import { BulkPriceDialog } from "@/components/menu/bulk-price-dialog";
 import { ComboComponentsDialog } from "@/components/menu/combo-components-dialog";
 import { EditCategoryDialog } from "@/components/menu/edit-category-dialog";
 import { EditItemDialog } from "@/components/menu/edit-item-dialog";
+import { MenuHealthCard } from "@/components/menu/menu-health-card";
+import { MenuOcrDialog } from "@/components/menu/menu-ocr-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ResponsiveTabs } from "@/components/ui/nav-picker";
@@ -28,6 +31,7 @@ import {
   useDeleteCategory,
   useDeleteMenuItem,
   useMenuItems,
+  useUpdateMenuItem,
   type MenuCategory,
   type MenuItem,
 } from "@/hooks/use-menu";
@@ -45,6 +49,7 @@ export default function MenuPage() {
   const { data: items, isLoading: itemsLoading } = useMenuItems(branchId, selectedCategoryId);
   const { data: allItems } = useMenuItems(branchId);
   const deleteItem = useDeleteMenuItem(branchId);
+  const updateItem = useUpdateMenuItem(branchId);
   const deleteCategory = useDeleteCategory(branchId);
   const [comboItem, setComboItem] = useState<MenuItem | null>(null);
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
@@ -68,12 +73,20 @@ export default function MenuPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-[32px] font-semibold tracking-tight text-foreground">Menu</h1>
           <p className="text-sm text-muted-foreground">{canManage ? "Categories, items, and pricing" : "Categories, items, and pricing (view only)"}</p>
         </div>
+        {canManage && (
+          <div className="flex flex-wrap items-center gap-2">
+            <MenuOcrDialog branchId={branchId} />
+            <BulkPriceDialog branchId={branchId} categories={categories ?? []} />
+          </div>
+        )}
       </div>
+
+      <MenuHealthCard branchId={branchId} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
         <Card className="flex flex-col gap-3 p-4">
@@ -306,6 +319,27 @@ export default function MenuPage() {
                     <TableCell>
                       {canManage && (
 <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant={item.isSoldOut ? "destructive" : "outline"}
+                          size="sm"
+                          className="h-7 px-2 text-[11px]"
+                          title="1-tap Sold Out toggle"
+                          onClick={() =>
+                            updateItem.mutate(
+                              { id: item.id, dto: { isSoldOut: !item.isSoldOut } as never },
+                              {
+                                onSuccess: () =>
+                                  toast.success(
+                                    item.isSoldOut
+                                      ? `${item.name} marked In Stock`
+                                      : `${item.name} marked Sold Out`,
+                                  ),
+                              },
+                            )
+                          }
+                        >
+                          {item.isSoldOut ? "Sold out" : "In stock"}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

@@ -7,7 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 // Roles that run the whole restaurant see every branch of it; everyone else
 // sees only the branches they were assigned to (UserBranch).
-const ALL_BRANCH_ROLES = ['OWNER', 'ADMINISTRATOR'];
+const ALL_BRANCH_ROLES = ['OWNER', 'ADMINISTRATOR', 'SUPERADMIN'];
 
 @ApiTags('branches')
 @Controller('v1/branches')
@@ -17,9 +17,10 @@ export class BranchesController {
   @Auth()
   @Get()
   listBranches(@CurrentUser() user: SessionUser) {
-    const sees = ALL_BRANCH_ROLES.includes(user.roleName)
-      ? {}
-      : { users: { some: { userId: user.id } } };
+    const sees =
+      user.isSuperAdmin || ALL_BRANCH_ROLES.includes(user.roleName)
+        ? {}
+        : { users: { some: { userId: user.id } } };
     return this.prisma.branch.findMany({
       where: { restaurantId: user.restaurantId, isActive: true, ...sees },
       orderBy: { name: 'asc' },

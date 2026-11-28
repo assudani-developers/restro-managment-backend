@@ -108,41 +108,16 @@ export function AppShell({ user, children }: { user?: SessionUser; children: Rea
   const sidebarBody = (onNavigate?: () => void, isCollapsed = false) => (
     <>
       {!isCollapsed && (
-        <div className="shrink-0 space-y-2 px-3 pb-3 [&_button]:border-white/10 [&_button]:bg-white/[0.04] [&_button]:text-[#E9DCC8]">
+        <div className="shrink-0 space-y-2 px-3 pb-3">
           {user?.isSuperAdmin && <SuperAdminRestaurantSwitcher />}
-          <BranchSwitcher />
+          <div className="[&_button]:border-white/10 [&_button]:bg-white/[0.04] [&_button]:text-[#E9DCC8]">
+            <BranchSwitcher />
+          </div>
         </div>
       )}
       <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto py-3">
         <SidebarNav user={user} collapsed={isCollapsed} onNavigate={onNavigate} />
       </div>
-      {!isCollapsed && (
-        <div className="shrink-0 border-t border-white/10 p-3 text-[11px] leading-relaxed text-[#E9DCC8]/70">
-          <p className="font-medium text-[#FFF8F0]/90">Designed &amp; Developed by</p>
-          <a
-            href="https://piyushassudani.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-[#FFF8F0] hover:underline block"
-          >
-            Piyush Assudani
-          </a>
-          <p className="text-[10px] text-[#E9DCC8]/50">Founder of Assudani Developers</p>
-          <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#E9DCC8]/70">
-            <a
-              href="https://piyushassudani.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-300 hover:underline"
-            >
-              piyushassudani.in
-            </a>
-            <a href="tel:9413879444" className="hover:text-white">
-              9413879444
-            </a>
-          </div>
-        </div>
-      )}
     </>
   );
 

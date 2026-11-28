@@ -289,4 +289,174 @@ export class MenuService {
       },
     });
   }
+
+  async bulkAdjustPrices(
+    branchId: string,
+    dto: {
+      mode: 'PERCENT' | 'FLAT';
+      amount: number;
+      categoryId?: string;
+      roundTo?: number;
+    },
+  ) {
+    const amount = Number(dto.amount);
+    if (!Number.isFinite(amount) || amount === 0) {
+      throw new BadRequestException('Adjustment amount must be non-zero');
+    }
+    const items = await this.prisma.menuItem.findMany({
+      where: {
+        branchId,
+        ...(dto.categoryId ? { categoryId: dto.categoryId } : {}),
+      },
+      select: { id: true, price: true },
+    });
+
+    const roundTo = dto.roundTo && dto.roundTo > 0 ? dto.roundTo : 1;
+    let updated = 0;
+
+    await this.prisma.$transaction(async (tx) => {
+      for (const item of items) {
+        const current = Number(item.price);
+        let next =
+          dto.mode === 'PERCENT'
+            ? current * (1 + amount / 100)
+            : current + amount;
+        next = Math.max(0, Math.round(next / roundTo) * roundTo);
+        if (next !== current) {
+          await tx.menuItem.update({
+            where: { id: item.id },
+            data: { price: next },
+          });
+          updated++;
+        }
+      }
+    });
+
+    return { updated, total: items.length };
+  }
+
+  async getMenuHealth(branchId: string) {
+    const [categories, items] = await Promise.all([
+      this.prisma.menuCategory.findMany({
+        where: { branchId },
+        include: { _count: { select: { items: true } } },
+      }),
+      this.prisma.menuItem.findMany({
+        where: { branchId },
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          description: true,
+          imageUrl: true,
+          isActive: true,
+          isSoldOut: true,
+        },
+      }),
+    ]);
+
+    const totalItems = items.length;
+    const missingPhoto = items.filter((i) => !i.imageUrl).length;
+    const missingDescription = items.filter((i) => !i.description?.trim()).length;
+    const zeroPrice = items.filter((i) => Number(i.price) <= 0).length;
+    const soldOutCount = items.filter((i) => i.isSoldOut || !i.isActive).length;
+    const emptyCategories = categories.filter((c) => c._count.items === 0).length;
+
+    const score =
+      totalItems === 0
+        ? 0
+        : Math.max(
+            0,
+            Math.round(
+              100 -
+                (missingPhoto / totalItems) * 30 -
+                (missingDescription / totalItems) * 25 -
+                (zeroPrice / totalItems) * 25 -
+                (categories.length ? (emptyCategories / categories.length) * 20 : 0),
+            ),
+          );
+
+    return {
+      score,
+      totalCategories: categories.length,
+      totalItems,
+      missingPhoto,
+      missingDescription,
+      zeroPrice,
+      soldOutCount,
+      emptyCategories,
+    };
+  }
+
+  async getMenuDesign(restaurantId: string) {
+    const restaurant = await this.prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+      select: {
+        name: true,
+        tagline: true,
+        logoUrl: true,
+        coverImageUrl: true,
+        brandColor: true,
+        accentColor: true,
+        menuDesign: true,
+      },
+    });
+    const raw = (restaurant?.menuDesign as Record<string, unknown> | null) ?? {};
+    return {
+      themeId: (raw.themeId as string) || 'haveli',
+      qrThemeId: (raw.qrThemeId as string) || 'classic',
+      layout: (raw.layout as string) || undefined,
+      header: (raw.header as string) || undefined,
+      announcement: (raw.announcement as string) || '',
+      showLogo: raw.showLogo !== false,
+      showCover: raw.showCover !== false,
+      showPrices: raw.showPrices !== false,
+      instagramUrl: (raw.instagramUrl as string) || '',
+      whatsappNumber: (raw.whatsappNumber as string) || '',
+      googleMapsUrl: (raw.googleMapsUrl as string) || '',
+      googleReviewUrl: (raw.googleReviewUrl as string) || '',
+      restaurantName: restaurant?.name ?? '',
+      tagline: restaurant?.tagline ?? '',
+      logoUrl: restaurant?.logoUrl ?? '',
+      coverImageUrl: restaurant?.coverImageUrl ?? '',
+    };
+  }
+
+  async updateMenuDesign(restaurantId: string, dto: Record<string, unknown>) {
+    const current = await this.getMenuDesign(restaurantId);
+    const nextDesign = {
+      themeId: typeof dto.themeId === 'string' ? dto.themeId : current.themeId,
+      qrThemeId: typeof dto.qrThemeId === 'string' ? dto.qrThemeId : current.qrThemeId,
+      layout: typeof dto.layout === 'string' ? dto.layout : current.layout,
+      header: typeof dto.header === 'string' ? dto.header : current.header,
+      announcement:
+        typeof dto.announcement === 'string' ? dto.announcement : current.announcement,
+      showLogo: typeof dto.showLogo === 'boolean' ? dto.showLogo : current.showLogo,
+      showCover: typeof dto.showCover === 'boolean' ? dto.showCover : current.showCover,
+      showPrices:
+        typeof dto.showPrices === 'boolean' ? dto.showPrices : current.showPrices,
+      instagramUrl:
+        typeof dto.instagramUrl === 'string' ? dto.instagramUrl : current.instagramUrl,
+      whatsappNumber:
+        typeof dto.whatsappNumber === 'string'
+          ? dto.whatsappNumber
+          : current.whatsappNumber,
+      googleMapsUrl:
+        typeof dto.googleMapsUrl === 'string' ? dto.googleMapsUrl : current.googleMapsUrl,
+      googleReviewUrl:
+        typeof dto.googleReviewUrl === 'string'
+          ? dto.googleReviewUrl
+          : current.googleReviewUrl,
+    };
+
+    await this.prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: {
+        menuDesign: nextDesign,
+        ...(typeof dto.tagline === 'string' ? { tagline: dto.tagline } : {}),
+      },
+    });
+
+    return { ...current, ...nextDesign };
+  }
 }
