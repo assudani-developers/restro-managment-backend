@@ -282,13 +282,6 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-8 flex flex-col items-center gap-4 text-center">
-            <p className="text-xs text-slate-600">
-              Need to register a new restaurant branch?{" "}
-              <Link href="/signup" className="font-semibold text-teal-800 hover:text-teal-950 hover:underline">
-                Create an account
-              </Link>
-            </p>
-
             <div className="flex items-center gap-4 text-[11px] text-slate-600">
               <span className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 text-emerald-600" /> 100% Light Theme

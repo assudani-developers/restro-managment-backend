@@ -1,12 +1,20 @@
 "use client";
 
 import { Lock, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { AddStaffDialog } from "@/components/settings/add-staff-dialog";
 import { SettingsTabs } from "@/components/settings/settings-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -18,11 +26,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCurrentUser } from "@/hooks/use-auth";
-import { useDeleteStaff, useStaff, useUpdateStaff, type StaffMember } from "@/hooks/use-staff";
+import { useDeleteStaff, useStaff, useStaffRoles, useUpdateStaff, type StaffMember } from "@/hooks/use-staff";
 import { api, ApiError } from "@/lib/api";
 
 export default function StaffPage() {
   const { data: staff, isLoading } = useStaff();
+  const { data: roles } = useStaffRoles();
   const { data: currentUser } = useCurrentUser();
   const updateStaff = useUpdateStaff();
   const deleteStaff = useDeleteStaff();
@@ -54,9 +63,19 @@ export default function StaffPage() {
       <SettingsTabs />
 
       <Card className="flex flex-col gap-4 p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[18px] font-medium text-foreground">Staff accounts</h2>
-          <AddStaffDialog />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-[18px] font-medium text-foreground">Staff accounts</h2>
+            <p className="text-xs text-muted-foreground">
+              Assign a role to each staff member — they will only see the screens allowed by their role.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/settings/roles">
+              <Button variant="outline" size="sm">Manage Roles &amp; Screens</Button>
+            </Link>
+            <AddStaffDialog />
+          </div>
         </div>
 
         {isLoading ? (
@@ -85,16 +104,42 @@ export default function StaffPage() {
                     {member.email || member.phone || "—"}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <Badge variant="secondary" className="font-normal">
-                        {member.role.label}
-                      </Badge>
-                      {member.role.name === "OWNER" && (
+                    {member.role.name === "OWNER" ? (
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="secondary" className="font-normal">
+                          {member.role.label}
+                        </Badge>
                         <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200">
                           <Lock className="h-3 w-3 text-amber-600" /> SaaS Provisioned
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <Select
+                        value={member.role.id}
+                        onValueChange={(nextRoleId) => {
+                          if (!nextRoleId || nextRoleId === member.role.id) return;
+                          updateStaff.mutate(
+                            { id: member.id, dto: { roleId: nextRoleId } },
+                            {
+                              onSuccess: () => toast.success(`Updated role for ${member.name}`),
+                              onError: (err) =>
+                                toast.error(err instanceof ApiError ? err.message : "Could not update role"),
+                            },
+                          );
+                        }}
+                      >
+                        <SelectTrigger className="h-8 w-44 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles?.map((r) => (
+                            <SelectItem key={r.id} value={r.id}>
+                              {r.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {member.branches.map((b) => b.branch.name).join(", ") || "—"}

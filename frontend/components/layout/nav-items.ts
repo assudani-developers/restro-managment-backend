@@ -69,7 +69,7 @@ export const NAV_ITEMS: NavItem[] = [
   { labelKey: "nav.reports", label: "Reports", href: "/reports", icon: BarChart3, permission: "reports.access", group: "Admin" },
   { labelKey: "nav.inventory", label: "Inventory", href: "/inventory", icon: Package, permission: "inventory.manage", module: "inventory", group: "Admin" },
   { labelKey: "nav.team", label: "Staff", href: "/team", icon: Users, permission: "staff.manage", group: "Admin" },
-  { labelKey: "nav.attendance", label: "Attendance", href: "/attendance", icon: Clock, group: "Admin" },
+  { labelKey: "nav.attendance", label: "Attendance", href: "/attendance", icon: Clock, permission: "attendance.manage", group: "Admin" },
   { labelKey: "nav.marketing", label: "Marketing", href: "/marketing", icon: Megaphone, permission: "marketing.manage", group: "Admin" },
   { labelKey: "nav.operations", label: "Maintenance", href: "/operations", icon: Wrench, permission: "operations.manage", group: "Admin" },
   { labelKey: "nav.hotelSetup", label: "Hotel setup", href: "/hotel-setup", icon: Gem, permission: "hotel.setup", group: "Admin" },

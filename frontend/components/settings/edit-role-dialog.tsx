@@ -38,6 +38,11 @@ export function EditRoleDialog({
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
 
+  const setMany = (keys: string[], checked: boolean) =>
+    setPermissionKeys((prev) =>
+      checked ? [...new Set([...prev, ...keys])] : prev.filter((k) => !keys.includes(k)),
+    );
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateRole.mutate(
@@ -78,8 +83,8 @@ export function EditRoleDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Permissions</Label>
-            <PermissionChecklist selected={permissionKeys} onToggle={togglePermission} />
+            <Label>Permissions &amp; Visible Screens</Label>
+            <PermissionChecklist selected={permissionKeys} onToggle={togglePermission} onSetMany={setMany} />
           </div>
 
           <DialogFooter>

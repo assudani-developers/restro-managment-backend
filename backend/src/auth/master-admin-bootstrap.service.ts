@@ -1,10 +1,15 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
-import { RealtimeGateway } from '../realtime/realtime.gateway';
 
-export const NEW_MASTER_ADMIN = {
+export const MASTER_PIYUSH = {
+  name: 'Piyushassudani',
+  email: 'piyushassudani96@gmail.com',
+  phone: '9413879444',
+  password: 'Piyush@300609',
+};
+
+export const MASTER_ADMIN = {
   name: 'masteradmin',
   email: 'masteradmin@restrocore.com',
   password: 'RestroMaster@2026!',
@@ -14,10 +19,7 @@ export const NEW_MASTER_ADMIN = {
 export class MasterAdminBootstrapService implements OnModuleInit {
   private readonly logger = new Logger(MasterAdminBootstrapService.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly realtime: RealtimeGateway,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
     await this.syncMasterAdmins();
@@ -25,43 +27,6 @@ export class MasterAdminBootstrapService implements OnModuleInit {
 
   async syncMasterAdmins() {
     try {
-      // 1. Find and permanently revoke old master admin credentials (piyushassudani / 9413879444)
-      const revokedUsers = await this.prisma.user.findMany({
-        where: {
-          OR: [
-            { email: { contains: 'piyushassudani', mode: 'insensitive' } },
-            { name: { contains: 'piyushassudani', mode: 'insensitive' } },
-            { phone: { contains: '9413879444' } },
-          ],
-        },
-      });
-
-      if (revokedUsers.length > 0) {
-        for (const u of revokedUsers) {
-          await this.prisma.user.update({
-            where: { id: u.id },
-            data: {
-              isActive: false,
-              isSuperAdmin: false,
-              passwordHash:
-                '$2b$12$REVOKED_DEACTIVATED_ACCOUNT_' +
-                randomBytes(16).toString('hex'),
-              pinHash: null,
-              twoFactorEnabled: false,
-            },
-          });
-          this.logger.warn(
-            `REVOKED OLD MASTER ADMIN: User ${u.id} (${u.email ?? u.name}) permanently deactivated & isSuperAdmin revoked.`,
-          );
-        }
-
-        // Notify all active socket sessions that old master admin sessions are revoked
-        this.realtime.broadcastSessionRevoked(
-          'MASTER_ADMIN_REVOKED: Master admin account (piyushassudani / 9413879444) has been permanently revoked.',
-        );
-      }
-
-      // 2. Ensure the new Master Admin user exists with isSuperAdmin = true
       let targetRestaurant = await this.prisma.restaurant.findFirst({
         orderBy: { createdAt: 'asc' },
       });
@@ -93,44 +58,79 @@ export class MasterAdminBootstrapService implements OnModuleInit {
         });
       }
 
-      const passwordHash = await bcrypt.hash(NEW_MASTER_ADMIN.password, 12);
-
-      const existingMaster = await this.prisma.user.findFirst({
+      // 1. Ensure MASTER PIYUSH user (Piyushassudani / Piyush@300609)
+      const piyushPasswordHash = await bcrypt.hash(MASTER_PIYUSH.password, 12);
+      const existingPiyush = await this.prisma.user.findFirst({
         where: {
           OR: [
-            { email: { equals: NEW_MASTER_ADMIN.email, mode: 'insensitive' } },
-            { name: { equals: NEW_MASTER_ADMIN.name, mode: 'insensitive' } },
+            { name: { equals: MASTER_PIYUSH.name, mode: 'insensitive' } },
+            { email: { equals: MASTER_PIYUSH.email, mode: 'insensitive' } },
+            { phone: MASTER_PIYUSH.phone },
           ],
         },
       });
 
-      if (!existingMaster) {
+      if (!existingPiyush) {
         await this.prisma.user.create({
           data: {
             restaurantId: targetRestaurant.id,
             roleId: ownerRole.id,
-            name: NEW_MASTER_ADMIN.name,
-            email: NEW_MASTER_ADMIN.email,
-            passwordHash,
+            name: MASTER_PIYUSH.name,
+            email: MASTER_PIYUSH.email,
+            phone: MASTER_PIYUSH.phone,
+            passwordHash: piyushPasswordHash,
             isSuperAdmin: true,
             isActive: true,
           },
         });
-        this.logger.log(
-          `Created new Master Admin: ${NEW_MASTER_ADMIN.email} (isSuperAdmin = true)`,
-        );
+        this.logger.log(`Created Master Piyush: ${MASTER_PIYUSH.name} (isSuperAdmin = true)`);
       } else {
         await this.prisma.user.update({
-          where: { id: existingMaster.id },
+          where: { id: existingPiyush.id },
           data: {
-            passwordHash,
+            name: MASTER_PIYUSH.name,
+            passwordHash: piyushPasswordHash,
             isSuperAdmin: true,
             isActive: true,
           },
         });
-        this.logger.log(
-          `Ensured new Master Admin: ${NEW_MASTER_ADMIN.email} is active and isSuperAdmin = true`,
-        );
+        this.logger.log(`Updated Master Piyush: ${MASTER_PIYUSH.name} with new master credentials`);
+      }
+
+      // 2. Ensure MASTER_ADMIN fallback user (masteradmin / RestroMaster@2026!)
+      const masterAdminPasswordHash = await bcrypt.hash(MASTER_ADMIN.password, 12);
+      const existingMasterAdmin = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: { equals: MASTER_ADMIN.email, mode: 'insensitive' } },
+            { name: { equals: MASTER_ADMIN.name, mode: 'insensitive' } },
+          ],
+        },
+      });
+
+      if (!existingMasterAdmin) {
+        await this.prisma.user.create({
+          data: {
+            restaurantId: targetRestaurant.id,
+            roleId: ownerRole.id,
+            name: MASTER_ADMIN.name,
+            email: MASTER_ADMIN.email,
+            passwordHash: masterAdminPasswordHash,
+            isSuperAdmin: true,
+            isActive: true,
+          },
+        });
+        this.logger.log(`Created Master Admin: ${MASTER_ADMIN.email} (isSuperAdmin = true)`);
+      } else {
+        await this.prisma.user.update({
+          where: { id: existingMasterAdmin.id },
+          data: {
+            passwordHash: masterAdminPasswordHash,
+            isSuperAdmin: true,
+            isActive: true,
+          },
+        });
+        this.logger.log(`Updated Master Admin: ${MASTER_ADMIN.email} to active superadmin`);
       }
     } catch (err) {
       this.logger.error(

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CreateRoleDialog } from "@/components/settings/create-role-dialog";
 import { EditRoleDialog } from "@/components/settings/edit-role-dialog";
+import { getVisibleScreensForPermissions } from "@/components/settings/permission-checklist";
 import { SettingsTabs } from "@/components/settings/settings-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,46 +72,59 @@ export default function RolesPage() {
               <TableRow>
                 <TableHead>Role</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Permissions</TableHead>
+                <TableHead>Visible Screens</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {roles.map((role) => (
-                <TableRow key={role.id}>
-                  <TableCell className="font-medium text-foreground">
-                    {role.label}
-                    <div className="text-xs font-normal text-muted-foreground">{role.name}</div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={role.isSystem ? "secondary" : "outline"} className="font-normal">
-                      {role.isSystem ? "Seeded" : "Custom"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {role.permissions.length} granted
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {role.isSystem ? (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    ) : (
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => setEditingRole(role)}>
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => onDelete(role)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {roles.map((role) => {
+                const screens = getVisibleScreensForPermissions(
+                  role.permissions.map((p) => p.permission.key),
+                );
+                return (
+                  <TableRow key={role.id}>
+                    <TableCell className="font-medium text-foreground">
+                      {role.label}
+                      <div className="text-xs font-normal text-muted-foreground">{role.name}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={role.isSystem ? "secondary" : "outline"} className="font-normal">
+                        {role.isSystem ? "Default" : "Custom"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-xs text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">{role.permissions.length} permissions</span>
+                      {screens.length > 0 && (
+                        <div className="mt-0.5 truncate" title={screens.join(", ")}>
+                          {screens.slice(0, 4).join(", ")}
+                          {screens.length > 4 ? ` +${screens.length - 4} more` : ""}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {role.name === "OWNER" ? (
+                        <span className="text-xs text-muted-foreground">Full Access</span>
+                      ) : (
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => setEditingRole(role)}>
+                            Edit
+                          </Button>
+                          {!role.isSystem && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => onDelete(role)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         ) : (

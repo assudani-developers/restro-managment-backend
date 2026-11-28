@@ -56,11 +56,8 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(registerSchema))
   async register(
     @Body() body: unknown,
-    @Res({ passthrough: true }) res: Response,
   ) {
-    const { token, user } = await this.authService.register(body as never);
-    this.setSessionCookie(res, token);
-    return { user };
+    return this.authService.register(body as never);
   }
 
   // Tighter than the app-wide default (see register above) — login is a

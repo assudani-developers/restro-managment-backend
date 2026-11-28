@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { getVisibleScreensForPermissions } from "@/components/settings/permission-checklist";
+import { useRoles } from "@/hooks/use-roles";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -37,7 +40,12 @@ export function AddStaffDialog() {
   const [branchIds, setBranchIds] = useState<string[]>([]);
 
   const { data: roles } = useStaffRoles();
+  const { data: rolesWithPerms } = useRoles();
   const createStaff = useCreateStaff();
+  const selectedRoleDetails = rolesWithPerms?.find((r) => r.id === roleId);
+  const visibleScreens = selectedRoleDetails
+    ? getVisibleScreensForPermissions(selectedRoleDetails.permissions.map((p) => p.permission.key))
+    : [];
 
   const reset = () => {
     setName("");
@@ -121,7 +129,12 @@ export function AddStaffDialog() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Role</Label>
+            <div className="flex items-center justify-between">
+              <Label>Role (determines visible screens)</Label>
+              <Link href="/settings/roles" className="text-xs font-medium text-primary hover:underline">
+                Customize roles
+              </Link>
+            </div>
             <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
@@ -134,6 +147,12 @@ export function AddStaffDialog() {
                 ))}
               </SelectContent>
             </Select>
+            {selectedRoleDetails && (
+              <div className="rounded-lg border border-border/70 bg-muted/30 p-2.5 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">Visible screens: </span>
+                {visibleScreens.length > 0 ? visibleScreens.join(", ") : "Limited / no dashboard screens"}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
